@@ -20,26 +20,75 @@ USER_KEY <- Sys.getenv("CLUE_USER_KEY")
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
 API_BASE <- "https://api.clue.io/api/"
+VERBOSE <- NULL
+## for verbosed httr requests use the following:
+## VERBOSE <- verbose()
 
-
-# TODO: rep_drug_indication
-# TODO: rep_drug_target
-# TODO: rep_fda_product
-# TODO: rep_fda_orange-book_term
-# TODO: rep_drug_moa
-# TODO: rep_fda_exclusivity
+# TODO: do we need information from these endpoints as well?
+# - rep_fda_product
+# - rep_fda_orange-book_term
+# - rep_fda_exclusivity
 
 #' Get drug-targets information from clue.io
 #'
-#' @param ... list of perturbation names (pert_iname)
+#' @param ... list of official HUGO gene symbols
 #'
-#' @return data.frame of the details.
+#' @return data.frame with "name", "pert_iname",
+#' "private_source" and "source" columns.
 rep_drug_targets <- function(...) {
   apiFunction <- "rep_drug_targets"
 
   filterParams <- list(
     where = list(
       name = list(inq = c(...))
+    )
+  )
+  filterParams <- jsonlite::toJSON(filterParams)
+
+  ## concatenate URL with parameters
+  requestUrl <- glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  result <- getWithUserKey(requestUrl)
+
+  return(getJSONContentAsDataFrame(result))
+}
+
+#' MoAs from clue.io
+#'
+#' Client side of rep_drug_moas API endpoint.
+#'
+#' @param ... list of internal (clue.io) perturbation identifiers.
+#'
+#' @return data.frame of perturbagens with associated indications and diseases.
+rep_drug_moas <- function(...) {
+  apiFunction <- "rep_drug_moas"
+
+  filterParams <- list(
+    where = list(
+      pert_iname = list(inq = c(...))
+    )
+  )
+  filterParams <- jsonlite::toJSON(filterParams)
+
+  ## concatenate URL with parameters
+  requestUrl <- glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  result <- getWithUserKey(requestUrl)
+
+  return(getJSONContentAsDataFrame(result))
+}
+
+#' Drug-disease/indication from clue.io
+#'
+#' Client side of rep_drug_indications API endpoint.
+#'
+#' @param ... list of internal (clue.io) perturbation identifiers.
+#'
+#' @return data.frame of perturbagens with associated indications and diseases.
+rep_drug_indications <- function(...) {
+  apiFunction <- "rep_drug_indications"
+
+  filterParams <- list(
+    where = list(
+      pert_iname = list(inq = c(...))
     )
   )
   filterParams <- jsonlite::toJSON(filterParams)
@@ -119,7 +168,8 @@ perts <- function(...) {
 #' @return list object that represents HTTP response data
 getWithUserKey <- function(requestUrl) {
   result <- httr::GET(url = requestUrl,
-    config = add_headers(user_key = USER_KEY), verbose())
+    config = add_headers(user_key = USER_KEY), VERBOSE)
+  return(result)
 }
 
 #' Convert HTTP response body to data.frame
@@ -141,28 +191,33 @@ getJSONContentAsDataFrame <- function(httrResponse) {
 #' Download and join data from different
 #' clue.io REST API endpoints.
 #'
+#' @param ... list of HUGO names of genes.
+#'
 #' @return Final data.frame composed from multiple datasets.
-download <- function() {
+download <- function(...) {
 
   # TODO: download data of these columns
-  # Target
-  # Compound name
-  # MoA
-  # Clinical Phase
-  # Disease Area
-  # Indication
   # UniProt
   # STRING link
   # GeneCards
   # Other External links
-  # Clinical Trials
 
-  durgTargets <- rep_drug_targets("CXCR2")
-  drugs <- rep_drugs(durgTargets$pert_iname)
-  browser()
-  # durgTargets %>% select(-c("id")) %>% left_join(drugs) %>% View()
+  repDrugTargets <- rep_drug_targets(...) %>%
+    rename(HUGO = name) %>%
+    select(-c(id))
+  repDrugMoAs <- rep_drug_moas(repDrugTargets$pert_iname) %>%
+    select(-c(id))
+  repDrugIndications <- rep_drug_indications(repDrugTargets$pert_iname) %>%
+    rename(indication_source = source)
+  repDrugs <- rep_drugs(repDrugTargets$pert_iname) %>%
+    select(-c(id))
+
+  result <- repDrugTargets %>%
+    left_join(repDrugs) %>%
+    left_join(repDrugMoAs) %>%
+    left_join(repDrugIndications)
 
   return(result)
 }
 
-download()
+result <- download("ANXA1", "CXCR2")
