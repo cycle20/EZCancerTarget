@@ -214,11 +214,16 @@ download <- function(...) {
     select(-c(id))
   repDrugs <- rep_drugs(repDrugTargets$pert_iname) %>%
     select(-c(id))
+  perts <- perts(...) %>%
+    select(target, pert_iname, pubchem_cid)
+
+  browser()
 
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
     left_join(repDrugMoAs) %>%
     left_join(repDrugIndications) %>%
+    left_join(perts) %>%
     arrange(HUGO) %>%
     mutate(orange_book = null.to.na(orange_book)) %>%
     ## re-position and exclusion of columns
@@ -227,6 +232,7 @@ download <- function(...) {
       pert_iname,
       moa,
       final_status,
+      pubchem_cid,
       chembl_id,
       source,
       ttd_id,
