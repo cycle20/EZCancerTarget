@@ -7,11 +7,12 @@
 ## This script reads it from CLUE_USER_KEY environment variable.
 ##
 
+library(assertthat)
+library(data.table)
+library(dplyr)
+library(glue)
 library(httr)
 library(jsonlite)
-library(glue)
-library(assertthat)
-library(dplyr)
 
 ##
 ## Settings of global variables
@@ -196,28 +197,78 @@ getJSONContentAsDataFrame <- function(httrResponse) {
 #' @return Final data.frame composed from multiple datasets.
 download <- function(...) {
 
-  # TODO: download data of these columns
-  # UniProt
-  # STRING link
-  # GeneCards
-  # Other External links
+  ## helper function
+  null.to.na <- function(x) {
+    if(is.null(x)) x <- NA
+    return(x)
+  }
+  null.to.na <- Vectorize(null.to.na)
 
   repDrugTargets <- rep_drug_targets(...) %>%
     rename(HUGO = name) %>%
     select(-c(id))
   repDrugMoAs <- rep_drug_moas(repDrugTargets$pert_iname) %>%
-    select(-c(id))
+    select(pert_iname, moa = name, -c(id))
   repDrugIndications <- rep_drug_indications(repDrugTargets$pert_iname) %>%
-    rename(indication_source = source)
+    rename(indication_source = source) %>%
+    select(-c(id))
   repDrugs <- rep_drugs(repDrugTargets$pert_iname) %>%
     select(-c(id))
 
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
     left_join(repDrugMoAs) %>%
-    left_join(repDrugIndications)
+    left_join(repDrugIndications) %>%
+    arrange(HUGO) %>%
+    mutate(orange_book = null.to.na(orange_book)) %>%
+    ## re-position and exclusion of columns
+    select(
+      HUGO,
+      pert_iname,
+      moa,
+      final_status,
+      chembl_id,
+      source,
+      ttd_id,
+      drugbank_id,
+      status_source, ## source of final_status
+      clinical_notes,
+      orange_book,
+      disease_area,
+    	indication,
+      indication_source,
+      ## exclude some optional columns
+      -c(synonyms, in_cmap, iuphar_id, animal_only)
+    )
 
   return(result)
 }
 
-result <- download("ANXA1", "CXCR2")
+##
+# CD70 = P32970
+# CXCR2 = P25025
+# MMP7 = P09237
+# TP63 = Q9H3D4
+# ANXA1 = P04083
+# KRT5 = P13647
+# IFI27 = P40305
+# FCGR1A = P12314
+# BIRC3 = Q13489
+# ITBG6 = P18564
+
+result <- download(
+  "CD70",
+  "CXCR2",
+  "MMP7",
+  "TP63",
+  "ANXA1",
+  "KRT5",
+  "IFI27",
+  "FCGR1A",
+  "BIRC3",
+  "ITBG6"
+)
+
+## export result as TSV
+data.table::fwrite(result, "clue.tsv", sep = "\t")
+message("clue.tsv created")
