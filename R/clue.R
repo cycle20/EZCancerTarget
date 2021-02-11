@@ -215,6 +215,18 @@ download <- function(...) {
   repDrugs <- rep_drugs(repDrugTargets$pert_iname) %>%
     select(-c(id))
 
+  perts <- perts(...) %>%
+    select(target, pert_iname, pubchem_cid)
+
+  x <- perts %>%
+    rowwise() %>%
+    mutate(target = paste(target, collapse = ", ")) %>%
+    select(target, pert_iname, pubchem_cid) %>%
+    arrange(target, pert_iname)
+
+  write.table(x, file = "perts.tsv", sep = "\t")
+  browser()
+
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
     left_join(repDrugMoAs) %>%
@@ -259,57 +271,57 @@ download <- function(...) {
 result <- download(
   "CD70",
   "CXCR2",
-  "MMP7",
-  "TP63",
-  "ANXA1",
-  "KRT5",
-  "IFI27",
-  "FCGR1A",
-  "BIRC3",
-  "ITBG6",
+  # "MMP7",
+  # "TP63",
+  "ANXA1"
+  # "KRT5",
+  # "IFI27",
+  # "FCGR1A",
+  # "BIRC3",
+  # "ITBG6",
 
-  "ITGAM",
-  "YBX3",
-  "CTSS",
-  "CD5",
-  "C1QA",
-  "KLRD1",
-  "CCL21",
-  "MX1",
-  "GZMA",
-  "ISG15",
-  "PRF1",
-  "CASP14",
-  "CXCL2",
-  "CYP35A",
-  "MAGEA4",
-  "LRMP",
-  "ITGB4",
-  "KRT17",
-  "BCAT1",
-  "VSNL1",
-  "CAV2",
-  "ANXA3",
-  "ALDH2",
-  "PGC",
-  "VAMP8",
-  "LAMB3",
-  "REL",
-  "TNFSF10",
-  "PRAME",
-  "CES1",
-  "COL6A",
-  "FOXI1",
-  "MYC",
-  "PTGS2",
-  "CD44",
-  "BCL3",
-  "ROS1",
-  "RAB27B",
-  "CXCL10",
-  "CCL20",
-  "CCL21",
-  "CXCL9"
+  # "ITGAM",
+  # "YBX3",
+  # "CTSS",
+  # "CD5",
+  # "C1QA",
+  # "KLRD1",
+  # "CCL21",
+  # "MX1",
+  # "GZMA",
+  # "ISG15",
+  # "PRF1",
+  # "CASP14",
+  # "CXCL2",
+  # "CYP35A",
+  # "MAGEA4",
+  # "LRMP",
+  # "ITGB4",
+  # "KRT17",
+  # "BCAT1",
+  # "VSNL1",
+  # "CAV2",
+  # "ANXA3",
+  # "ALDH2",
+  # "PGC",
+  # "VAMP8",
+  # "LAMB3",
+  # "REL",
+  # "TNFSF10",
+  # "PRAME",
+  # "CES1",
+  # "COL6A",
+  # "FOXI1",
+  # "MYC",
+  # "PTGS2",
+  # "CD44",
+  # "BCL3",
+  # "ROS1",
+  # "RAB27B",
+  # "CXCL10",
+  # "CCL20",
+  # "CCL21",
+  # "CXCL9"
 )
 
 ## export result as TSV
