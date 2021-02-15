@@ -13,11 +13,15 @@ library(dplyr)
 library(glue)
 library(httr)
 library(jsonlite)
+library(readr)
+library(whisker)
 
 ##
 ## Settings of global variables
 ##
 USER_KEY <- Sys.getenv("CLUE_USER_KEY")
+WEB_TEMPLATE <- "web/index.proto.html"
+WEB_OUT <- "web/index.html"
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
 API_BASE <- "https://api.clue.io/api/"
@@ -225,12 +229,12 @@ download <- function(...) {
     arrange(target, pert_iname)
 
   write.table(x, file = "perts.tsv", sep = "\t")
-  browser()
 
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
     left_join(repDrugMoAs) %>%
     left_join(repDrugIndications) %>%
+    left_join(perts) %>%
     arrange(HUGO) %>%
     mutate(orange_book = null.to.na(orange_book)) %>%
     ## re-position and exclusion of columns
@@ -267,63 +271,97 @@ download <- function(...) {
 # FCGR1A = P12314
 # BIRC3 = Q13489
 # ITBG6 = P18564
-
+if(FALSE)
 result <- download(
   "CD70",
   "CXCR2",
-  # "MMP7",
-  # "TP63",
-  "ANXA1"
-  # "KRT5",
-  # "IFI27",
-  # "FCGR1A",
-  # "BIRC3",
-  # "ITBG6",
+  "MMP7",
+  "TP63",
+  "ANXA1",
+  "KRT5",
+  "IFI27",
+  "FCGR1A",
+  "BIRC3",
+  "ITBG6",
 
-  # "ITGAM",
-  # "YBX3",
-  # "CTSS",
-  # "CD5",
-  # "C1QA",
-  # "KLRD1",
-  # "CCL21",
-  # "MX1",
-  # "GZMA",
-  # "ISG15",
-  # "PRF1",
-  # "CASP14",
-  # "CXCL2",
-  # "CYP35A",
-  # "MAGEA4",
-  # "LRMP",
-  # "ITGB4",
-  # "KRT17",
-  # "BCAT1",
-  # "VSNL1",
-  # "CAV2",
-  # "ANXA3",
-  # "ALDH2",
-  # "PGC",
-  # "VAMP8",
-  # "LAMB3",
-  # "REL",
-  # "TNFSF10",
-  # "PRAME",
-  # "CES1",
-  # "COL6A",
-  # "FOXI1",
-  # "MYC",
-  # "PTGS2",
-  # "CD44",
-  # "BCL3",
-  # "ROS1",
-  # "RAB27B",
-  # "CXCL10",
-  # "CCL20",
-  # "CCL21",
-  # "CXCL9"
+  "ITGAM",
+  "YBX3",
+  "CTSS",
+  "CD5",
+  "C1QA",
+  "KLRD1",
+  "CCL21",
+  "MX1",
+  "GZMA",
+  "ISG15",
+  "PRF1",
+  "CASP14",
+  "CXCL2",
+  "CYP35A",
+  "MAGEA4",
+  "LRMP",
+  "ITGB4",
+  "KRT17",
+  "BCAT1",
+  "VSNL1",
+  "CAV2",
+  "ANXA3",
+  "ALDH2",
+  "PGC",
+  "VAMP8",
+  "LAMB3",
+  "REL",
+  "TNFSF10",
+  "PRAME",
+  "CES1",
+  "COL6A",
+  "FOXI1",
+  "MYC",
+  "PTGS2",
+  "CD44",
+  "BCL3",
+  "ROS1",
+  "RAB27B",
+  "CXCL10",
+  "CCL20",
+  "CCL21",
+  "CXCL9"
 )
 
+result <- readr::read_tsv("clue.tsv")
+colnames(result) <- c("HUGO", colnames(result)[-1])
+
+result <- result %>% group_by(HUGO)
+## - this should be an iteration on each HUGO group
+## - collect pert groups for each gene group
+## Maybe I shouldn't join result tables in download function.
+
+collection <- list()
+for (geneGroup in group_split(result)) {
+# browser()
+  groupName <- geneGroup$HUGO[1]
+  grouppedByPerts <- geneGroup %>%
+    group_by(pert_iname) %>%
+    group_split()
+
+  ## collect pert groups per genes and creates
+  #collection[[groupName]] <- list(
+  collection <- c(collection, list(list(
+    target = groupName,
+    data = grouppedByPerts
+  )))
+}
+
 ## export result as TSV
-data.table::fwrite(result, "clue.tsv", sep = "\t")
-message("clue.tsv created")
+# data.table::fwrite(result, "clue.tsv", sep = "\t")
+# message("clue.tsv created")
+
+## export as web page
+message(glue("reading web template: {WEB_TEMPLATE}"))
+template <- readr::read_file(WEB_TEMPLATE)
+
+targets <- collection # unique(result$HUGO)
+message(glue("rendering web page, template is '{WEB_TEMPLATE}'"))
+renderResult <- whisker::whisker.render(template, debug = TRUE)
+readr::write_file(renderResult, file = WEB_OUT)
+message(glue("rendered web page is saved into '{WEB_OUT}'"))
