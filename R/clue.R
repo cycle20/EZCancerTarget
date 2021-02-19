@@ -13,11 +13,15 @@ library(dplyr)
 library(glue)
 library(httr)
 library(jsonlite)
+library(readr)
+library(whisker)
 
 ##
 ## Settings of global variables
 ##
 USER_KEY <- Sys.getenv("CLUE_USER_KEY")
+WEB_TEMPLATE <- "web/index.proto.html"
+WEB_OUT <- "web/index.html"
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
 API_BASE <- "https://api.clue.io/api/"
@@ -25,10 +29,139 @@ VERBOSE <- NULL
 ## for verbosed httr requests use the following:
 ## VERBOSE <- verbose()
 
+##### Data Section
+NEW.LOW10 <- c(
+  "CD70",
+  "CXCR2",
+  "MMP7",
+  "TP63",
+  "ANXA1",
+  "KRT5",
+  "IFI27",
+  "FCGR1A",
+  "BIRC3",
+  "ITBG6"
+)
+NE.LOW <- c(
+  NEW.LOW10,
+  "ITGAM",
+  "YBX3",
+  "CTSS",
+  "CD5",
+  "C1QA",
+  "KLRD1",
+  "CCL21",
+  "MX1",
+  "GZMA",
+  "ISG15",
+  "PRF1",
+  "CASP14",
+  "CXCL2",
+  "CYP35A",
+  "MAGEA4",
+  "LRMP",
+  "ITGB4",
+  "KRT17",
+  "BCAT1",
+  "VSNL1",
+  "CAV2",
+  "ANXA3",
+  "ALDH2",
+  "PGC",
+  "VAMP8",
+  "LAMB3",
+  "REL",
+  "TNFSF10",
+  "PRAME",
+  "CES1",
+  "COL6A",
+  "FOXI1",
+  "MYC",
+  "PTGS2",
+  "CD44",
+  "BCL3",
+  "ROS1",
+  "RAB27B",
+  "CXCL10",
+  "CCL20",
+  "CCL21",
+  "CXCL9"
+)
+NE.HIGH <- c(
+  "RTN1",
+  "NCAM1",
+  "DNAJC6",
+  "GRP",
+  "CDH2",
+  "SYP",
+  "ID4",
+  "ISL1",
+  "CHGA",
+  "FGF5",
+  "FGF10",
+  "IL9",
+  "HSPB8",
+  "HIC1",
+  "metrn",
+  "TPO",
+  "LAMB4",
+  "EGLN2",
+  "INS",
+  "SIX1",
+  "L1CAM",
+  "MYBL1",
+  "PTN",
+  "CCNA1",
+  "DYSPL4",
+  "CDKN2C",
+  "ADAM23",
+  "TP73",
+  "NKX2-1",
+  "AMH",
+  "RBP1",
+  "PAK7",
+  "CXXC4",
+  "CKB",
+  "SOX2",
+  "PAK3",
+  "SMAD9",
+  "DLL3",
+  "FZD9",
+  "COL9A3",
+  "ZIC2",
+  "CACNAE1"
+)
+
 # TODO: do we need information from these endpoints as well?
 # - rep_fda_product
 # - rep_fda_orange-book_term
 # - rep_fda_exclusivity
+
+
+#' Main function
+#'
+#' Downloads data from clue.io and represent it in
+#' TSV and HTML format.
+#'
+#' @return
+main <- function() {
+  message("downloading data from clue.io...")
+  result <- download(c(NE.LOW, NE.HIGH))
+  message("download finished")
+  # potential debug snippet
+  #result <- readr::read_tsv("clue.tsv")
+  #colnames(result) <- c("HUGO", colnames(result)[-1])
+  # export result as TSV
+  data.table::fwrite(result, "clue.tsv", sep = "\t")
+  message("clue.tsv created")
+
+  resultCollapsed <- collapseResult(result)
+  ## export collapsed table as TSV
+  data.table::fwrite(resultCollapsed, "clueCollapsed.tsv", sep = "\t")
+  message("clueCollapsed.tsv created")
+
+  renderWebPage(resultCollapsed)
+}
 
 #' Get drug-targets information from clue.io
 #'
@@ -186,7 +319,6 @@ getJSONContentAsDataFrame <- function(httrResponse) {
   return(as.data.frame(list))
 }
 
-
 #' Download data from endpoints.
 #'
 #' Download and join data from different
@@ -219,6 +351,17 @@ download <- function(...) {
 
   browser()
 
+  perts <- perts(...) %>%
+    select(target, pert_iname, pubchem_cid)
+
+  x <- perts %>%
+    rowwise() %>%
+    mutate(target = paste(target, collapse = ", ")) %>%
+    select(target, pert_iname, pubchem_cid) %>%
+    arrange(target, pert_iname)
+
+  write.table(x, file = "perts.tsv", sep = "\t")
+
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
     left_join(repDrugMoAs) %>%
@@ -250,31 +393,63 @@ download <- function(...) {
   return(result)
 }
 
-##
-# CD70 = P32970
-# CXCR2 = P25025
-# MMP7 = P09237
-# TP63 = Q9H3D4
-# ANXA1 = P04083
-# KRT5 = P13647
-# IFI27 = P40305
-# FCGR1A = P12314
-# BIRC3 = Q13489
-# ITBG6 = P18564
+#' Collapse table from clue
+#'
+#' Remove redundancies resulted by left joins on clue.io sub-tables.
+#'
+#' @param result tibble composition of clue.io sub-tables
+#'
+#' @return collapsed table
+collapseResult <- function(result) {
+  resultCollapsed <- result %>%
+    select(
+      HUGO,
+      pert_iname,
+      moa,
+      final_status,
+      status_source,
+      drugbank_id,
+      chembl_id
+    ) %>%
+    group_by(HUGO, pert_iname) %>%
+    mutate(
+      drugbank_ids = paste(unique(drugbank_id), collapse = "|"),
+      chembl_ids = paste(unique(chembl_id, collapse = "|"))) %>%
+    select(-c(drugbank_id, chembl_id)) %>%
+    distinct()
+}
 
-result <- download(
-  "CD70",
-  "CXCR2",
-  "MMP7",
-  "TP63",
-  "ANXA1",
-  "KRT5",
-  "IFI27",
-  "FCGR1A",
-  "BIRC3",
-  "ITBG6"
-)
+renderWebPage <- function(result) {
+  ## - this should be an iteration on each HUGO group
+  ## - collect pert groups for each gene group
+  ## Maybe I shouldn't join result tables in download function.
+  result <- result %>% group_by(HUGO)
+  collection <- list()
+  for (geneGroup in group_split(result)) {
+  # browser()
+    groupName <- geneGroup$HUGO[1]
+    grouppedByPerts <- geneGroup %>%
+      group_by(pert_iname) %>%
+      group_split()
 
-## export result as TSV
-data.table::fwrite(result, "clue.tsv", sep = "\t")
-message("clue.tsv created")
+    ## collect pert groups per genes and creates
+    #collection[[groupName]] <- list(
+    collection <- c(collection, list(list(
+      target = groupName,
+      data = grouppedByPerts
+    )))
+  }
+
+  ## export as web page
+  message(glue("reading web template: {WEB_TEMPLATE}"))
+  template <- readr::read_file(WEB_TEMPLATE)
+
+  targets <- collection
+  message(glue("rendering web page, template is '{WEB_TEMPLATE}'"))
+  renderResult <- whisker::whisker.render(template, debug = TRUE)
+  readr::write_file(renderResult, file = WEB_OUT)
+  message(glue("rendered web page is saved into '{WEB_OUT}'"))
+}
+
+## just call the main
+main()
