@@ -159,6 +159,8 @@ main <- function() {
   ## export collapsed table as TSV
   data.table::fwrite(resultCollapsed, "clueCollapsed.tsv", sep = "\t")
   message("clueCollapsed.tsv created")
+
+  renderWebPage(resultCollapsed)
 }
 
 #' Get drug-targets information from clue.io
