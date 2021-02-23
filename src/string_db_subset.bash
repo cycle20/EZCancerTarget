@@ -20,6 +20,18 @@
 DB_FILE="STRING_DB_SQLITE3.db"
 DATA_DIR="INPUT"
 
+## data files
+PROTEIN_DATA="$DATA_DIR/STRING/items_proteins_9606.tsv.gz"
+NETWORK_DATA="$DATA_DIR/STRING/homo_sapiens__network_actions_v11.0.sql.gz"
+UNIPROT2STRING_DATA="$DATA_DIR/STRING/human.uniprot_2_string.2018.tsv.gz"
+DRUGCENTRAL_DATA="$DATA_DIR/DrugCentral/drug.target.selected_columns.tsv.gz"
+
+## table names
+PROTEIN_TABLE="items_proteins"
+NETWORK_TABLE="network_actions"
+UNIPROT2STRING_TABLE="uniprot2string"
+DRUGCENTRAL_TABLE="drugcentral"
+
 ## create tables
 {
   cat << EOSCHEMA | sqlite3
@@ -117,18 +129,6 @@ function import_from_tsv_gz() {
         -cmd ".import /dev/stdin $TABLE_NAME" \
 	"$DB_FILE"
 }
-
-## data files
-PROTEIN_DATA="items_proteins_9606.tsv.gz"
-NETWORK_DATA="homo_sapiens__network_actions_v11.0.sql.gz"
-UNIPROT2STRING_DATA="human.uniprot_2_string.2018.tsv.gz"
-DRUGCENTRAL_DATA="../DrugCentral/drug.target.selected_columns.tsv.gz"
-
-## table names
-PROTEIN_TABLE="items_proteins"
-NETWORK_TABLE="network_actions"
-UNIPROT2STRING_TABLE="uniprot2string"
-DRUGCENTRAL_TABLE="drugcentral"
 
 ##
 ## STRING imports
