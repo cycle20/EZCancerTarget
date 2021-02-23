@@ -7,6 +7,7 @@
 ##
 #
 
+OUTFILE="uniprot2string.tsv.gz"
 UNIPROT_URL="https://uniprot.org/uploadlists/"
 UNIPROT_LIST="\
 P36897 \
@@ -69,7 +70,8 @@ Q92569 \
 O00206 \
 Q9NWZ3 \
 P19838 \
-O75582"
+O75582 \
+P29597"
 
 POST_DATA="\
 from=ACC+ID&\
@@ -81,4 +83,9 @@ query=$UNIPROT_LIST"
 ## furthermore we have to prevent POST request to GET request translation
 RESPONSE=$(curl -L --post301 -d "$POST_DATA" "$UNIPROT_URL")
 
-echo "$RESPONSE"
+echo "$RESPONSE" | \
+  sed -e "s/From/uniprot_id/; s/To/string_external_id/;" | \
+  gzip -c > \
+  "$OUTFILE"
+
+echo "${OUTFILE} saved"

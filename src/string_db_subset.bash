@@ -23,7 +23,9 @@ DATA_DIR="INPUT"
 ## data files
 PROTEIN_DATA="$DATA_DIR/STRING/items_proteins_9606.tsv.gz"
 NETWORK_DATA="$DATA_DIR/STRING/homo_sapiens__network_actions_v11.0.sql.gz"
-UNIPROT2STRING_DATA="$DATA_DIR/STRING/human.uniprot_2_string.2018.tsv.gz"
+# NOTE: This is an older TSV from somewhere (replaced by live API call)
+# UNIPROT2STRING_DATA="$DATA_DIR/STRING/human.uniprot_2_string.2018.tsv.gz"
+UNIPROT2STRING_DATA="$DATA_DIR/UNIPROT.KB/uniprot2string.tsv.gz"
 DRUGCENTRAL_DATA="$DATA_DIR/DrugCentral/drug.target.selected_columns.tsv.gz"
 
 ## table names
@@ -56,22 +58,33 @@ CREATE TABLE network_actions (
   score smallint
 );
 
---
--- NOTE: this is just an inferred table specification
---       based on human.uniprot_2_string.2018.tsv.gz
---
-CREATE TABLE uniprot2string (
-  species_id integer,
-  uniprot_id character varying(50),
-  protein_external_id character varying(50),
+-- --
+-- -- NOTE: this is just an inferred table specification
+-- --       based on human.uniprot_2_string.2018.tsv.gz
+-- --
+-- -- NOTE2: replaced by another table structure due to
+-- --        TSV from another source
+-- --
+-- CREATE TABLE uniprot2string (
+--   species_id integer,
+--   uniprot_id character varying(50),
+--   protein_external_id character varying(50),
+-- 
+-- --
+-- -- Unknown attributes.
+-- -- Maybe they are important, maybe they are
+-- -- contained by an other table in a STRING schema.
+-- --
+--   unknown1 numeric,
+--   unknown2 numeric
+-- );
 
 --
--- Unknown attributes.
--- Maybe they are important, maybe they are
--- contained by an other table in a STRING schema.
+-- UniProt data downloaded from UniProt API.
 --
-  unknown1 numeric,
-  unknown2 numeric
+CREATE TABLE uniprot2string (
+  uniprot_id character varying(50),
+  string_external_id character varying(50)
 );
 
 --
