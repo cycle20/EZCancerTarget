@@ -41,110 +41,84 @@ WITH
 -- - get connections with -1 to mark non-binding connections
 --
 
-internal_string_ids(protein_id) AS (
-  select protein_id
-  from ITEMS_PROTEINS
-  inner join UNIPROT2STRING
-    on protein_external_id = string_external_id
+INTERNAL_STRING_IDS(uniprot_id, protein_external_id, protein_id) AS (
+  select
+    us.uniprot_id,
+    ip.protein_external_id,
+    ip.protein_id
+  from items_proteins ip
+  inner join uniprot2string us
+    on ip.protein_external_id = us.string_external_id
+
 ),
 
-has_binding(protein_a, protein_b) AS (
+HAS_BINDING(protein_a, protein_b) AS (
   select distinct item_id_a as protein_a, item_id_b as protein_b
   from NETWORK_ACTIONS where mode = "binding"
 ),
 
-is_inhibition(protein_a, protein_b) AS (
+HAS_NO_BINDING(protein_a, protein_b) AS (
+  select distinct item_id_a as protein_a, item_id_b as protein_b
+  from NETWORK_ACTIONS NA
+
+  EXCEPT
+
+  select protein_a, protein_b from HAS_BINDING
+),
+
+IS_INHIBITION(protein_a, protein_b) AS (
   select item_id_a as protein_a, item_id_b as protein_b
   from NETWORK_ACTIONS where action = "inhibition"
-),
-
-direction_to(
-  name1,
-  protein_a,
-  name2,
-  protein_b,
-  direction,
-  mode,
-  action,
-  score) AS (
-
-  select
-    ip.preferred_name as name1,
-    ip.protein_id as protein_a,
-    ip2.preferred_name as name2,
-    ip2.protein_id as protein_b,
-    " -> " as direction,
-    mode,
-    action,
-    score
-
-  from
-    network_actions n
-    inner join
-      items_proteins ip ON item_id_a = ip.protein_id
-    inner join
-      items_proteins ip2 ON item_id_b = ip2.protein_id
-
-  where
-    item_id_b = 4444485
-    and a_is_acting  = "t"
-),
-
---
--- direction_from sub-query
---
-direction_from(
-  name1,
-  protein_a,
-  name2,
-  protein_b,
-  direction,
-  mode,
-  action,
-  score) AS (
-
-  select
-    ip2.preferred_name as name1,
-    ip2.protein_id as protein_b,
-    ip.preferred_name as name2,
-    ip.protein_id as protein_a,
-    " <- " as direction,
-    mode,
-    action,
-    score
-
-  from
-    network_actions n
-    inner join
-      items_proteins ip ON item_id_a = ip.protein_id
-    inner join
-      items_proteins ip2 ON item_id_b = ip2.protein_id
-
-  where
-    item_id_a = 4444485
-    and a_is_acting  = "t"
 )
-
 
 --
 -- main query
 --
 select *, "+1" as INHIBITION
 from (
-  select NA.ITEM_ID_A, NA.ITEM_ID_B, NA.MODE
-    from INTERNAL_STRING_IDS I
-      inner join HAS_BINDING HB on I.PROTEIN_ID = HB.PROTEIN_A
-      inner join NETWORK_ACTIONS NA
-        on NA.ITEM_ID_A = HB.PROTEIN_A and NA.ITEM_ID_B = HB.PROTEIN_B
+  select
+    I.UNIPROT_ID as UNIPROT_A, I2.UNIPROT_ID as UNIPROT_B, NA.MODE,
+    I.PROTEIN_EXTERNAL_ID as STRING_A, I2.PROTEIN_EXTERNAL_ID as STRING_B,
+    NA.ITEM_ID_A, NA.ITEM_ID_B
+  from INTERNAL_STRING_IDS I
+  -- TODO only HB.PROTEIN_A and PROTEIN_B differ
+  inner join HAS_BINDING HB on I.PROTEIN_ID = HB.PROTEIN_A          -- < IMPORTANT: can be refactored later
+  inner join INTERNAL_STRING_IDS I2 on I2.PROTEIN_ID = HB.PROTEIN_B -- < IMPORTANT
+  inner join NETWORK_ACTIONS NA
+    on NA.ITEM_ID_A = HB.PROTEIN_A and NA.ITEM_ID_B = HB.PROTEIN_B
 
   UNION
 
-  select NA.ITEM_ID_A, NA.ITEM_ID_B, NA.MODE
-    from INTERNAL_STRING_IDS I
-      inner join HAS_BINDING HB on I.PROTEIN_ID = HB.PROTEIN_B
-      inner join NETWORK_ACTIONS NA
-        on NA.ITEM_ID_A = HB.PROTEIN_A and NA.ITEM_ID_B = HB.PROTEIN_B
+  -- With this SELECT the UNION results almost half as much rows:
+  -- (It means there are many bi-directional "binding" entries)
+  -- select NA.ITEM_ID_B as ITEM_ID_A, NA.ITEM_ID_A as ITEM_ID_B, NA.MODE
+
+  select
+    I.UNIPROT_ID as UNIPROT_A, I2.UNIPROT_ID as UNIPROT_B, NA.MODE,
+    I.PROTEIN_EXTERNAL_ID as STRING_A, I2.PROTEIN_EXTERNAL_ID as STRING_B,
+    NA.ITEM_ID_A, NA.ITEM_ID_B
+  from INTERNAL_STRING_IDS I
+  -- TODO only HB.PROTEIN_A and PROTEIN_B differ
+  inner join HAS_BINDING HB on I.PROTEIN_ID = HB.PROTEIN_B          -- < IMPORTANT: reverse direction
+  inner join INTERNAL_STRING_IDS I2 on I2.PROTEIN_ID = HB.PROTEIN_A -- < IMPORTANT
+  inner join NETWORK_ACTIONS NA
+    on NA.ITEM_ID_A = HB.PROTEIN_A and NA.ITEM_ID_B = HB.PROTEIN_B
 )
--- TODO
--- IF INHIBITION -1
-;
+
+UNION
+
+-- IF it is not BINDING, BUT it is INHIBITION ==> -1
+select *, "-1" as INHIBITION
+from (
+  select
+    I.UNIPROT_ID as UNIPROT_A, I2.UNIPROT_ID as UNIPROT_B, "inhibition" as MODE,
+    I.PROTEIN_EXTERNAL_ID as STRING_A, I2.PROTEIN_EXTERNAL_ID as STRING_B,
+    NA.ITEM_ID_A, NA.ITEM_ID_B
+  from INTERNAL_STRING_IDS I
+  inner join HAS_NO_BINDING HNB on I.PROTEIN_ID = HNB.PROTEIN_A      -- < IMPORTANT differences
+  inner join INTERNAL_STRING_IDS I2 on I2.PROTEIN_ID = HNB.PROTEIN_B -- < IMPORTANT
+  inner join NETWORK_ACTIONS NA
+    on NA.ITEM_ID_A = HNB.PROTEIN_A and NA.ITEM_ID_B = HNB.PROTEIN_B
+)
+
+; -- end of WITH statement
