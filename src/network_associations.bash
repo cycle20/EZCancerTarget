@@ -1,9 +1,10 @@
 #
 ##
-## TGFBR1.bash:
-## ------------
+## network_associations.bash:
+## -------------------------
 ##
-## execute query to collect connections of TGFBR1
+## execute query to collect connections for
+## proteins from uniprot2string DB table.
 ##
 #
 
@@ -26,4 +27,4 @@
 ## ENDIF
 ##
 
-cat src/TGFBR1.sql | sqlite3 -column -cmd ".header on" INPUT/STRING/STRING_DB_SQLITE3.db
+cat src/network_associations.sql | sqlite3 -column -cmd ".header on" INPUT/STRING/STRING_DB_SQLITE3.db
