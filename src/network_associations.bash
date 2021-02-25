@@ -27,4 +27,4 @@
 ## ENDIF
 ##
 
-cat src/network_associations.sql | sqlite3 -column -cmd ".header on" INPUT/STRING/STRING_DB_SQLITE3.db
+cat src/network_associations.sql | sqlite3 -csv -cmd ".header on" INPUT/STRING/STRING_DB_SQLITE3.db

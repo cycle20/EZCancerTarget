@@ -9,5 +9,5 @@ Prototype files of network extractions
 
 These files will be renamed and be more general to work with a list of identifiers.
 
-* *TGFBR1.bash:* execute query to collect connections of TGFBR1.
-* *TGFBR1.sql:* SQL SELECT statement to get some demo data.
+* *network_associations.bash:* execute query to collect connections of items in table *uniprot2string*.
+* *network_associations.sql:* SQL SELECT statement to get some demo data.
