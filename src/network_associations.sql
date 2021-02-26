@@ -18,7 +18,8 @@ create temporary view UNI_MAPPING as
   select
     us.uniprot_id,
     ip.protein_external_id,
-    ip.protein_id
+    ip.protein_id,
+    ip.preferred_name
   from items_proteins ip
   inner join uniprot2string us
     on ip.protein_external_id = us.string_external_id
@@ -66,7 +67,9 @@ create temporary view POS_BINDINGS as
   -- negative: binding + inhibition
   select distinct
     U.uniprot_id,
+    U.preferred_name,
     U2.uniprot_id,
+    U2.preferred_name,
     N.*
   from UNI_MAPPING U
   inner join NEG_BINDINGS N on N.item_id_a = U.protein_id
@@ -77,7 +80,9 @@ union
   -- positive: binding with no inhibition
   select distinct
     U.uniprot_id,
+    U.preferred_name,
     U2.uniprot_id,
+    U2.preferred_name,
     P.*
   from UNI_MAPPING U
   inner join POS_BINDINGS P on P.item_id_a = U.protein_id
