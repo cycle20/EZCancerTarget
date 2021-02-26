@@ -27,14 +27,39 @@ create temporary view UNI_MAPPING as
 
 
 --
+-- ACT_400 view:
+--
+-- network actions with 400+ score
+--
+create temporary view ACT_400 as
+  select
+    IP.PROTEIN_EXTERNAL_ID as EXT_A,
+    IP2.PROTEIN_EXTERNAL_ID as EXT_B,
+    NA.*
+  from NETWORK_ACTIONS NA
+  inner join ITEMS_PROTEINS IP
+    on IP.PROTEIN_ID = NA.ITEM_ID_A
+  inner join ITEMS_PROTEINS IP2
+    on IP2.PROTEIN_ID = NA.ITEM_ID_B
+  where SCORE > 400
+    and (MODE = 'binding' or MODE = 'inhibition')
+-- TODO : remove the limitation
+--  limit 10000
+;
+
+
+--
 -- NEG_BINDINGS view:
 --
 -- collect 'binding' associations which also have 'inhibition'
 --
 create temporary view NEG_BINDINGS as
-  select NA.item_id_a, NA.item_id_b, '-1' as mode
-  from NETWORK_ACTIONS NA
-    inner join NETWORK_ACTIONS NA2
+  select
+    NA.ext_a, NA.ext_b,
+    NA.item_id_a, NA.item_id_b,
+    '-1' as mode
+  from ACT_400 NA
+    inner join ACT_400 NA2
       on NA.item_id_a = NA2.item_id_a
         and NA.item_id_b = NA2.item_id_b
   where NA.mode = 'binding'
@@ -48,14 +73,53 @@ create temporary view NEG_BINDINGS as
 -- collect 'binding' associations with no 'inhibition'
 --
 create temporary view POS_BINDINGS as
-  select NA.item_id_a, NA.item_id_b, '+1' as mode
-  from NETWORK_ACTIONS NA
+  select
+    NA.ext_a, NA.ext_b,
+    NA.item_id_a, NA.item_id_b,
+    '+1' as mode
+  from ACT_400 NA
   where NA.mode = 'binding'
+
   except
-  select NA.item_id_a, NA.item_id_b, '+1' as mode
-  from NETWORK_ACTIONS NA
+
+  select
+    NA.ext_a, NA.ext_b,
+    NA.item_id_a, NA.item_id_b,
+    '+1' as mode
+  from ACT_400 NA
   where NA.mode = 'inhibition'
 ;
+
+
+--
+-- negative: binding + inhibition
+create temporary view NEG_UNION as
+  select distinct
+    U.uniprot_id,
+    U.preferred_name,
+    U2.uniprot_id,
+    U2.preferred_name,
+    N.*
+  from NEG_BINDINGS N
+  left outer join UNI_MAPPING U on N.item_id_a = U.protein_id
+  left outer join UNI_MAPPING U2 on N.item_id_b = U2.protein_id
+;
+
+
+--
+-- positive: binding with no inhibition
+create temporary view POS_UNION as
+  select distinct
+    U.uniprot_id,
+    U.preferred_name,
+    U2.uniprot_id,
+    U2.preferred_name,
+    P.*
+  from POS_BINDINGS P
+  left outer join UNI_MAPPING U on P.item_id_a = U.protein_id
+  left outer join UNI_MAPPING U2 on P.item_id_b = U2.protein_id
+;
+
 
 -------------------------------------------------------------
 --
@@ -63,28 +127,7 @@ create temporary view POS_BINDINGS as
 --
 -------------------------------------------------------------
 
-
-  -- negative: binding + inhibition
-  select distinct
-    U.uniprot_id,
-    U.preferred_name,
-    U2.uniprot_id,
-    U2.preferred_name,
-    N.*
-  from UNI_MAPPING U
-  inner join NEG_BINDINGS N on N.item_id_a = U.protein_id
-  inner join UNI_MAPPING U2 on N.item_id_b = U2.protein_id
-
+select * from NEG_UNION
 union
-
-  -- positive: binding with no inhibition
-  select distinct
-    U.uniprot_id,
-    U.preferred_name,
-    U2.uniprot_id,
-    U2.preferred_name,
-    P.*
-  from UNI_MAPPING U
-  inner join POS_BINDINGS P on P.item_id_a = U.protein_id
-  inner join UNI_MAPPING U2 on P.item_id_b = U2.protein_id
+select * from POS_UNION
 ;

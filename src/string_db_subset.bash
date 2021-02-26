@@ -26,12 +26,14 @@ NETWORK_DATA="$DATA_DIR/STRING/homo_sapiens__network_actions_v11.0.sql.gz"
 # NOTE: This is an older TSV from somewhere (replaced by live API call)
 # UNIPROT2STRING_DATA="$DATA_DIR/STRING/human.uniprot_2_string.2018.tsv.gz"
 UNIPROT2STRING_DATA="$DATA_DIR/UNIPROT.KB/uniprot2string.tsv.gz"
+EXPR_UNIPROT2STRING_DATA="$DATA_DIR/UNIPROT.KB/expression_uniprot2string.tsv.gz"
 DRUGCENTRAL_DATA="$DATA_DIR/DrugCentral/drug.target.selected_columns.tsv.gz"
 
 ## table names
 PROTEIN_TABLE="items_proteins"
 NETWORK_TABLE="network_actions"
 UNIPROT2STRING_TABLE="uniprot2string"
+EXPR_UNIPROT2STRING_TABLE="expr_uniprot2string"
 DRUGCENTRAL_TABLE="drugcentral"
 
 ## create tables
@@ -83,6 +85,11 @@ CREATE TABLE network_actions (
 -- UniProt data downloaded from UniProt API.
 --
 CREATE TABLE uniprot2string (
+  uniprot_id character varying(50),
+  string_external_id character varying(50)
+);
+-- Input for expression queries
+CREATE TABLE expr_uniprot2string (
   uniprot_id character varying(50),
   string_external_id character varying(50)
 );
@@ -153,6 +160,7 @@ import_from_tsv_gz "$DB_FILE" "$PROTEIN_TABLE" "$PROTEIN_DATA"
 import_from_tsv_gz "$DB_FILE" "$NETWORK_TABLE" "$NETWORK_DATA"
 ## import UniProt-STRING mapping
 import_from_tsv_gz "$DB_FILE" "$UNIPROT2STRING_TABLE" "$UNIPROT2STRING_DATA"
+import_from_tsv_gz "$DB_FILE" "$EXPR_UNIPROT2STRING_TABLE" "$EXPR_UNIPROT2STRING_DATA"
 
 ##
 ## Other imports
