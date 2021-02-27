@@ -22,8 +22,8 @@ create temporary view UNI_MAPPING as
     ip.protein_external_id,
     ip.protein_id,
     ip.preferred_name
-  from items_proteins ip
-  inner join expr_uniprot2string us
+  from expr_uniprot2string us
+  inner join items_proteins ip
     on ip.protein_external_id = us.string_external_id
 ;
 
@@ -74,11 +74,12 @@ select
   U2.PREFERRED_NAME PREFERRED_NAME_B,
   AE.*
 from ACT_EXPR AE
-left outer join UNI_LOOSE U
-  on AE.EXT_A = U.PROTEIN_EXTERNAL_ID
 inner join UNI_MAPPING U2
   on AE.EXT_B = U2.PROTEIN_EXTERNAL_ID
-    and IS_DIRECTIONAL = 't'
+left outer join UNI_LOOSE U
+  on AE.EXT_A = U.PROTEIN_EXTERNAL_ID
+where
+    IS_DIRECTIONAL = 't'
     and A_IS_ACTING = 't'
 
 UNION
@@ -95,6 +96,7 @@ inner join UNI_MAPPING U
   on AE.EXT_A = U.PROTEIN_EXTERNAL_ID
 left outer join UNI_LOOSE U2
   on AE.EXT_B = U2.PROTEIN_EXTERNAL_ID
-    and IS_DIRECTIONAL = 't'
+where
+    IS_DIRECTIONAL = 't'
     and A_IS_ACTING = 'f'
 ;
