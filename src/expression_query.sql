@@ -74,9 +74,9 @@ select
   U2.PREFERRED_NAME PREFERRED_NAME_B,
   AE.*
 from ACT_EXPR AE
-inner join UNI_MAPPING U
+left outer join UNI_LOOSE U
   on AE.EXT_A = U.PROTEIN_EXTERNAL_ID
-left outer join UNI_LOOSE U2
+inner join UNI_MAPPING U2
   on AE.EXT_B = U2.PROTEIN_EXTERNAL_ID
     and IS_DIRECTIONAL = 't'
     and A_IS_ACTING = 't'
@@ -91,9 +91,9 @@ select
   U2.PREFERRED_NAME PREFERRED_NAME_B,
   AE.*
 from ACT_EXPR AE
-left outer join UNI_LOOSE U
+inner join UNI_MAPPING U
   on AE.EXT_A = U.PROTEIN_EXTERNAL_ID
-inner join UNI_MAPPING U2
+left outer join UNI_LOOSE U2
   on AE.EXT_B = U2.PROTEIN_EXTERNAL_ID
     and IS_DIRECTIONAL = 't'
     and A_IS_ACTING = 'f'
