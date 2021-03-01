@@ -5,10 +5,14 @@
 ##
 #
 set -u
+SCRIPT="$(basename $0)"
 
-INPUT="INPUT.PPI.MODEL/string_external_to_uniprot.tsv"
+INPUT="${1:-INPUT.PPI.MODEL/string_external_to_uniprot.tsv}"
 DATA_DIR="INPUT"
 DB_FILE="$DATA_DIR/STRING_DB_SQLITE3.db"
+
+echo "$SCRIPT: INPUT=$INPUT"
+echo "$SCRIPT: DB_FILE=$DB_FILE"
 
 AWK_PROGRAM=$(cat<<EOF
 {

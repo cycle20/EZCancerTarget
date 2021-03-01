@@ -26,7 +26,11 @@ create temporary view UNI_MAPPING as
   inner join items_proteins ip
     on ip.protein_external_id = us.string_external_id
 ;
-
+--
+-- UNI_LOOSE view:
+--
+-- UNI_MAPPING "mutation" for outer joins
+--
 create temporary view UNI_LOOSE as
   select
     ip.uniprot_kb_id as uniprot_id,
