@@ -29,13 +29,11 @@ create temporary view UNI_MAPPING as
 
 create temporary view UNI_LOOSE as
   select
-    us.uniprot_id,
+    ip.uniprot_kb_id as uniprot_id,
     ip.protein_external_id,
     ip.protein_id,
     ip.preferred_name
   from items_proteins ip
-  left outer join expr_uniprot2string us
-    on ip.protein_external_id = us.string_external_id
 ;
 
 

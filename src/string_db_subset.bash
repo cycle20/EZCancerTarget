@@ -39,15 +39,18 @@ DRUGCENTRAL_TABLE="drugcentral"
 ## create tables
 {
   cat << EOSCHEMA | sqlite3
-CREATE TABLE items_proteins (
-  protein_id integer,
-  protein_external_id character varying(50),
-  species_id integer,
-  protein_checksum character varying(16),
-  protein_size integer,
-  annotation character varying(600),
-  preferred_name character varying(50),
-  annotation_word_vectors text
+create table ITEMS_PROTEINS (
+  PROTEIN_ID integer,
+  PROTEIN_EXTERNAL_ID character varying(50),
+  SPECIES_ID integer,
+  PROTEIN_CHECKSUM character varying(16),
+  PROTEIN_SIZE integer,
+  ANNOTATION character varying(600),
+  PREFERRED_NAME character varying(50),
+  ANNOTATION_WORD_VECTORS text,
+  --
+  -- extra column to store downloaded UniProtIds
+  UNIPROT_KB_ID character varying(25)
 );
 
 CREATE TABLE network_actions (
