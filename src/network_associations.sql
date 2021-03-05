@@ -187,8 +187,8 @@ select
   ITEM_ID_B,
   MODE,
   case A_IS_ACTING
-    when 't' then 'A -> B'
-    when 'f' then 'A <- B'
+    when 't' then '1'
+    when 'f' then '0'
     else 'NA'
   end as DIRECTION
 from (
