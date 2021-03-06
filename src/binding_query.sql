@@ -1,19 +1,15 @@
 
+.timer off
 .header on
---.timer on
-.mode table
 .mode csv
 
 drop view if exists FILTER;
-
 create temp view FILTER as
   select *
   from NETWORK_ACTIONS
   where
     SCORE > 400
     and (MODE = 'binding' or MODE = 'inhibition')
---    and ((item_id_a = 4432849 and item_id_b = 4447277)
---    or (item_id_a = 4432849 and item_id_b = 4447277))
 ;
 
 
@@ -45,15 +41,13 @@ create temp view NETWORK_ACTIONS_DIRECTIONAL as
     where
       IS_DIRECTIONAL = 't'
       and A_IS_ACTING = 'f'
---order by IS_DIRECTIONAL
 ;
 
-drop view if exists NETWORK_ACTIONS_NON_DIRECTIONAL;
 
 --
 -- NETWORK_ACTIONS_NON_DIRECTIONAL view
--- TODO: do we need a flip here?
 --
+drop view if exists NETWORK_ACTIONS_NON_DIRECTIONAL;
 create temp view NETWORK_ACTIONS_NON_DIRECTIONAL as
   select
     ITEM_ID_A A,
@@ -67,26 +61,15 @@ create temp view NETWORK_ACTIONS_NON_DIRECTIONAL as
     and A_IS_ACTING = 'f'
 ;
 
--- .print
--- .print
--- select * from NETWORK_ACTIONS_DIRECTIONAL;
--- .print
--- .print
--- select * from NETWORK_ACTIONS_NON_DIRECTIONAL;
-
-
+drop view if exists NETWORK_ACTIONS_UNION;
 create temp view NETWORK_ACTIONS_UNION as 
   select * from NETWORK_ACTIONS_DIRECTIONAL
   union
-  select * from NETWORK_ACTIONS_NON_DIRECTIONAL;
+  select * from NETWORK_ACTIONS_NON_DIRECTIONAL
+;
 
 
--- select count(*)
--- from
---   NETWORK_ACTIONS_UNION
--- ;
-
-
+drop view if exists LAYER1;
 create temp view LAYER1 as
 select *
 from
@@ -94,6 +77,7 @@ from
 ;
 
 
+drop view if exists LAYER2;
 create temp view LAYER2 as
 select
   I.PREFERRED_NAME NAME_A,
@@ -111,6 +95,7 @@ from
       on L.B = I2.PROTEIN_ID
 ;
 
+drop view if exists LAYER3;
 create temp view LAYER3 as
 select L.*
   from LAYER2 L
@@ -123,5 +108,61 @@ select L.*
     L.EXTERN_B = US.STRING_EXTERNAL_ID
 ;
 
-select * from LAYER3;
+--
+-- POS_BINDINGS view:
+--
+-- collect 'binding' associations with no 'inhibition'
+--
+drop view if exists POS_BINDINGS;
+create temporary view POS_BINDINGS as
+  select
+    NAME_A, UNI_A, EXTERN_A,
+    NAME_B, UNI_B, EXTERN_B,
+    A, B,
+    '+1' as MODE,
+    IS_DIRECTIONAL, SCORE
+  from LAYER3
+  where MODE = 'binding'
 
+  except
+
+  select
+    NAME_A, UNI_A, EXTERN_A,
+    NAME_B, UNI_B, EXTERN_B,
+    A, B,
+    '+1' as MODE,
+    IS_DIRECTIONAL, SCORE
+  from LAYER3
+  where MODE = 'inhibition'
+;
+
+--
+-- NEG_BINDINGS view:
+--
+-- collect 'binding' associations which also have 'inhibition'
+--
+drop view if exists NEG_BINDINGS;
+create temporary view NEG_BINDINGS as
+  select
+    NAME_A, UNI_A, EXTERN_A,
+    NAME_B, UNI_B, EXTERN_B,
+    A, B,
+    '-1' as MODE,
+    IS_DIRECTIONAL, SCORE
+  from LAYER3
+  where MODE = 'binding'
+
+  INTERSECT
+
+  select
+    NAME_A, UNI_A, EXTERN_A,
+    NAME_B, UNI_B, EXTERN_B,
+    A, B,
+    '-1' as MODE,
+    IS_DIRECTIONAL, SCORE
+  from LAYER3
+  where MODE = 'inhibition'
+;
+
+
+--select count(*) from POS_BINDINGS;

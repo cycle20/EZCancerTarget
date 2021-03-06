@@ -1,7 +1,7 @@
 #
 ##
-## network_associations.bash:
-## -------------------------
+## binding_query.bash:
+## -------------------
 ##
 ## execute query to collect connections for
 ## proteins from uniprot2string DB table.
