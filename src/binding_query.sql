@@ -19,6 +19,7 @@ create temp view NETWORK_ACTIONS_DIRECTIONAL as
       ITEM_ID_A A,
       ITEM_ID_B B,
       MODE,
+      IS_DIRECTIONAL,
       SCORE
     from FILTER
     where
@@ -32,6 +33,7 @@ create temp view NETWORK_ACTIONS_DIRECTIONAL as
       ITEM_ID_B as A,
       ITEM_ID_A as B,
       MODE,
+      IS_DIRECTIONAL,
       SCORE
     from FILTER
     where
@@ -49,6 +51,7 @@ create temp view NETWORK_ACTIONS_NON_DIRECTIONAL as
     ITEM_ID_A A,
     ITEM_ID_B B,
     MODE,
+      IS_DIRECTIONAL,
     SCORE
   from FILTER
   where IS_DIRECTIONAL = 'f'
