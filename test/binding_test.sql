@@ -82,34 +82,13 @@ select
 from(
   select
     NAME_A, UNI_A, EXTERN_A, NAME_B, UNI_B, EXTERN_B, A, B
-    , IS_DIRECTIONAL
   from LAYER3
   except
   select
     NAME_A, UNI_A, EXTERN_A, NAME_B, UNI_B, EXTERN_B, A, B
-    , IS_DIRECTIONAL
   from NEG_BINDINGS
   )
 ;
-
---
--- NAME_A,UNI_A,EXTERN_A,NAME_B,UNI_B,EXTERN_B,A,B,IS_DIRECTIONAL
--- A1BG,P04217,9606.ENSP00000263100,PIK3CA,P42336,9606.ENSP00000263967,4435199,4435346,0
--- A1BG,P04217,9606.ENSP00000263100,PIK3CA,P42336,9606.ENSP00000263967,4435199,4435346,1
--- 
-
--- .print "LAYER3 query EXCEPT NEG_BINDINGS (first 4 rows)"
--- select * from (
---   select
---     NAME_A, UNI_A, EXTERN_A, NAME_B, UNI_B, EXTERN_B, A, B, IS_DIRECTIONAL
---   from LAYER3
---   except
---   select
---     NAME_A, UNI_A, EXTERN_A, NAME_B, UNI_B, EXTERN_B, A, B, IS_DIRECTIONAL
---   from NEG_BINDINGS
--- )
--- limit 4
--- ;
 
 --
 -- CALC2__L3_minus_NEG_BINDINGS_with_SCOREs_TEST
@@ -124,28 +103,15 @@ select
 from(
   select
     NAME_A, UNI_A, EXTERN_A, NAME_B, UNI_B, EXTERN_B, A, B
-    , IS_DIRECTIONAL, SCORE
+    , SCORE
   from LAYER3
   except
   select
     NAME_A, UNI_A, EXTERN_A, NAME_B, UNI_B, EXTERN_B, A, B
-    , IS_DIRECTIONAL, SCORE
+    , SCORE
   from NEG_BINDINGS
 )
 ;
-
--- .print "LAYER3 query EXCEPT NEG_BINDINGS with scores (first 4 rows)"
--- select * from (
---   select
---     NAME_A, UNI_A, EXTERN_A, NAME_B, UNI_B, EXTERN_B, A, B, IS_DIRECTIONAL, SCORE
---   from LAYER3
---   except
---   select
---     NAME_A, UNI_A, EXTERN_A, NAME_B, UNI_B, EXTERN_B, A, B, IS_DIRECTIONAL, SCORE
---   from NEG_BINDINGS
--- )
--- limit 4
--- ;
 
 .print Count of NEG_BINDINGS union with POS_BINDING
 select
