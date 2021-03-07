@@ -159,4 +159,22 @@ create temporary view NEG_BINDINGS as
 ;
 
 
---select count(*) from POS_BINDINGS;
+--
+-- Union of NEG_BINDINGS and POS_BINDINGS
+--
+drop view if exists NP_UNION;
+create temporary view NP_UNION as
+  select A,B from NEG_BINDINGS
+  union
+  select A,B from POS_BINDINGS
+;
+
+--
+-- Union of NEG_BINDINGS and POS_BINDINGS
+--
+drop view if exists NP_INTERSECT;
+create temporary view NP_INTERSECT as
+  select A,B from NEG_BINDINGS
+  intersect
+  select A,B from POS_BINDINGS
+;

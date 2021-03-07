@@ -172,16 +172,6 @@ from (
 )
 ;
 
-
-
-
-drop view if exists NP_UNION;
-create temporary view NP_UNION as
-  select A,B from NEG_BINDINGS
-  union
-  select A,B from POS_BINDINGS
-;
-
 --
 --
 .print Count of NP_UNION
@@ -193,6 +183,19 @@ select
   , '9376 rows expected' as EXPECTED
   , count(*) as ROWS
 from NP_UNION;
+
+--
+--
+.print Count of NP_INTERSECT
+select
+  case count(*)
+    when 0 then '>>>>> PASSED'
+    else '>>>>> FAILED/CHANGED'
+  end as NP_INTERSECT
+  , '0 rows expected' as EXPECTED
+  , count(*) as ROWS
+from NP_INTERSECT;
+
 
 --
 --
