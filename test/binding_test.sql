@@ -277,3 +277,22 @@ from (
   select UNI_B from RESULT
 );
 
+--
+-- Verify missing Ids
+.print Is there any missing UniProtKB Id in the RESULT table?
+select
+  case count(*)
+    when 0 then '>>>>> PASSED'
+    else '>>>>> FAILED/CHANGED'
+  end as MISSING_UNIPROT_IDS
+  , '0 rows expected' as EXPECTED
+  , count(*) as ROWS
+from (
+  select
+    NAME_A as NAME, EXTERN_A as EXT
+  from RESULT where UNI_A is null
+  union
+  select NAME_B as NAME, EXTERN_B as EXT
+  from RESULT where UNI_B is null
+)
+;

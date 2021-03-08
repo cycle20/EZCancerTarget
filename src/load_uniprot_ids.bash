@@ -3,6 +3,8 @@
 ## load_uniprot_ids.bash:
 ## ----------------------
 ##
+## Set UniProtKB Id fields from TSV file.
+##
 #
 set -u
 SCRIPT="$(basename $0)"
