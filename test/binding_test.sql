@@ -241,3 +241,39 @@ from (
     inner join NP_UNION N2 on N2.B = N.A and N2.A = N.B
 )
 ;
+
+--
+--
+.print Each input UniProtKB Id must be included
+select
+  case count(*)
+    when 62 then '>>>>> PASSED'
+    else '>>>>> FAILED/CHANGED'
+  end as COUNT_OF_UNIPROT_IDS_A_SIDE
+  , '62 rows expected' as EXPECTED
+  , count(*) as ROWS
+from (
+  select uniprot_id
+  from uniprot2string
+
+  intersect
+
+  select UNI_A from RESULT
+);
+
+select
+  case count(*)
+    when 62 then '>>>>> PASSED'
+    else '>>>>> FAILED/CHANGED'
+  end as COUNT_OF_UNIPROT_IDS_B_SIDE
+  , '62 rows expected' as EXPECTED
+  , count(*) as ROWS
+from (
+  select uniprot_id
+  from uniprot2string
+
+  intersect
+
+  select UNI_B from RESULT
+);
+

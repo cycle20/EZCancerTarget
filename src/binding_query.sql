@@ -19,6 +19,7 @@ create table BQD.NETWORK_ACTIONS_DIRECTIONAL as
     select
       ITEM_ID_A A,
       ITEM_ID_B B,
+      IS_DIRECTIONAL,
       MODE
     from BQD.FILTER
     where
@@ -31,6 +32,7 @@ create table BQD.NETWORK_ACTIONS_DIRECTIONAL as
     select
       ITEM_ID_B as A,
       ITEM_ID_A as B,
+      IS_DIRECTIONAL,
       MODE
     from BQD.FILTER
     where
@@ -47,6 +49,7 @@ create table BQD.NETWORK_ACTIONS_NON_DIRECTIONAL as
   select
     ITEM_ID_A A,
     ITEM_ID_B B,
+    IS_DIRECTIONAL,
     MODE
   from BQD.FILTER
   where IS_DIRECTIONAL = 'f'
@@ -171,4 +174,44 @@ create table BQD.NP_INTERSECT as
   select A,B from BQD.NEG_BINDINGS
   intersect
   select A,B from BQD.POS_BINDINGS
+;
+
+-- ==============================================
+
+--
+-- The main query
+--
+drop table if exists BQD.NP_UNION2;
+create table BQD.NP_UNION2 as
+  select * from BQD.NEG_BINDINGS
+  union
+  select * from BQD.POS_BINDINGS
+;
+
+.timer on
+drop table if exists BQD.RESULT;
+
+.print Query into BQD.RESULT table
+create table BQD.RESULT as
+select distinct
+  I.PREFERRED_NAME NAME_A,
+  I.UNIPROT_KB_ID UNI_A,
+  I.PROTEIN_EXTERNAL_ID EXTERN_A,
+  I2.PREFERRED_NAME NAME_B,
+  I2.UNIPROT_KB_ID UNI_B,
+  I2.PROTEIN_EXTERNAL_ID EXTERN_B,
+  NU.MODE,
+  case NWAU.IS_DIRECTIONAL
+    when 't' then 1 else 0
+  end as IS_DIRECTIONAL,
+  F.SCORE
+from NP_UNION2 NU
+    inner join FILTER F
+      on NU.A = F.ITEM_ID_A and NU.B = F.ITEM_ID_B
+    inner join ITEMS_PROTEINS I
+      on NU.A = I.PROTEIN_ID
+    inner join ITEMS_PROTEINS I2
+      on NU.B = I2.PROTEIN_ID
+    inner join NETWORK_ACTIONS_UNION NWAU
+      on NU.A = NWAU.A and NU.B = NWAU.B
 ;
