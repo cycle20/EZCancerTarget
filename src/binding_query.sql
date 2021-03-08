@@ -18,8 +18,7 @@ create temp view NETWORK_ACTIONS_DIRECTIONAL as
     select
       ITEM_ID_A A,
       ITEM_ID_B B,
-      MODE,
-      SCORE
+      MODE
     from FILTER
     where
       IS_DIRECTIONAL = 't'
@@ -31,8 +30,7 @@ create temp view NETWORK_ACTIONS_DIRECTIONAL as
     select
       ITEM_ID_B as A,
       ITEM_ID_A as B,
-      MODE,
-      SCORE
+      MODE
     from FILTER
     where
       IS_DIRECTIONAL = 't'
@@ -48,8 +46,7 @@ create temp view NETWORK_ACTIONS_NON_DIRECTIONAL as
   select
     ITEM_ID_A A,
     ITEM_ID_B B,
-    MODE,
-    SCORE
+    MODE
   from FILTER
   where IS_DIRECTIONAL = 'f'
     and A_IS_ACTING = 'f'
@@ -113,8 +110,7 @@ create temporary view POS_BINDINGS as
     NAME_A, UNI_A, EXTERN_A,
     NAME_B, UNI_B, EXTERN_B,
     A, B,
-    '+1' as MODE,
-    SCORE
+    '+1' as MODE
   from LAYER3
   where MODE = 'binding'
 
@@ -124,8 +120,7 @@ create temporary view POS_BINDINGS as
     NAME_A, UNI_A, EXTERN_A,
     NAME_B, UNI_B, EXTERN_B,
     A, B,
-    '+1' as MODE,
-    SCORE
+    '+1' as MODE
   from LAYER3
   where MODE = 'inhibition'
 ;
@@ -141,8 +136,7 @@ create temporary view NEG_BINDINGS as
     NAME_A, UNI_A, EXTERN_A,
     NAME_B, UNI_B, EXTERN_B,
     A, B,
-    '-1' as MODE,
-    SCORE
+    '-1' as MODE
   from LAYER3
   where MODE = 'binding'
 
@@ -152,8 +146,7 @@ create temporary view NEG_BINDINGS as
     NAME_A, UNI_A, EXTERN_A,
     NAME_B, UNI_B, EXTERN_B,
     A, B,
-    '-1' as MODE,
-    SCORE
+    '-1' as MODE
   from LAYER3
   where MODE = 'inhibition'
 ;
@@ -170,7 +163,7 @@ create temporary view NP_UNION as
 ;
 
 --
--- Union of NEG_BINDINGS and POS_BINDINGS
+-- Intersection of NEG_BINDINGS and POS_BINDINGS only A,B cols
 --
 drop view if exists NP_INTERSECT;
 create temporary view NP_INTERSECT as

@@ -22,26 +22,53 @@ select
 from FILTER;
 
 --
--- NETWORK_ACTIONS_DIRECTIONAL 
+-- NETWORK_ACTIONS_DIRECTIONAL
 --
 select
   case count(*)
-    when 23599 then '>>>>> PASSED'
+    when 23598 then '>>>>> PASSED'
     else '>>>>> FAILED/CHANGED'
   end as NETWORK_ACTIONS_DIRECTIONAL_TEST
-  , '23599 rows expected' as EXPECTED
+  , '23598 rows expected' as EXPECTED
   , count(*) as ROWS
 from NETWORK_ACTIONS_DIRECTIONAL;
+
+--
+-- NETWORK_ACTIONS_NON_DIRECTIONAL
+--
+select
+  case count(*)
+    when 379312 then '>>>>> PASSED'
+    else '>>>>> FAILED/CHANGED'
+  end as NETWORK_ACTIONS_NON_DIRECTIONAL_TEST
+  , '379312 rows expected' as EXPECTED
+  , count(*) as ROWS
+from NETWORK_ACTIONS_NON_DIRECTIONAL;
+
+
+
+--
+-- NETWORK_ACTIONS_UNION
+--
+select
+  case count(*)
+    when 12860 then '>>>>> PASSED'
+    else '>>>>> FAILED/CHANGED'
+  end as NETWORK_ACTIONS_UNION
+  , '12860 rows expected' as EXPECTED
+  , count(*) as ROWS
+from NETWORK_ACTIONS_UNION;
+
 
 --
 -- LAYER3_TEST
 --
 select
   case count(*)
-    when 12860 then '>>>>> PASSED'
+    when 11302 then '>>>>> PASSED'
     else '>>>>> FAILED/CHANGED'
   end as LAYER3_TEST
-  , '12860 rows expected' as EXPECTED
+  , '11302 rows expected' as EXPECTED
   , count(*) as ROWS
 from LAYER3;
 
@@ -50,10 +77,10 @@ from LAYER3;
 --
 select
   case count(*)
-    when 10787 then '>>>>> PASSED'
+    when 8694 then '>>>>> PASSED'
     else '>>>>> FAILED/CHANGED'
   end as POS_BINDINDS_TEST
-  , '10787 rows expected' as EXPECTED
+  , '8694 rows expected' as EXPECTED
   , count(*) as ROWS
 from POS_BINDINGS;
 
@@ -62,10 +89,10 @@ from POS_BINDINGS;
 --
 select
   case count(*)
-    when 90 then '>>>>> PASSED'
+    when 682 then '>>>>> PASSED'
     else '>>>>> FAILED/CHANGED'
   end as NEG_BINDINDS_TEST
-  , '90 rows expected' as EXPECTED
+  , '682 rows expected' as EXPECTED
   , count(*) as ROWS
 from NEG_BINDINGS;
 
@@ -90,6 +117,7 @@ from(
   )
 ;
 
+/*
 --
 -- CALC2__L3_minus_NEG_BINDINGS_with_SCOREs_TEST
 --
@@ -112,14 +140,15 @@ from(
   from NEG_BINDINGS
 )
 ;
+*/
 
 .print Count of NEG_BINDINGS union with POS_BINDING
 select
   case count(*)
-    when 10877 then '>>>>> PASSED'
+    when 9376 then '>>>>> PASSED'
     else '>>>>> FAILED/CHANGED'
   end as NEG_BINDINGS_union_with_POS_BINDING
-  , '10877 rows expected' as EXPECTED
+  , '9376 rows expected' as EXPECTED
   , count(*) as ROWS
 from (
 select * from NEG_BINDINGS
