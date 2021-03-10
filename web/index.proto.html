@@ -61,6 +61,10 @@
                           <tr>
                             <th scope="col">Compound</th>
                             <th scope="col">MoA</th>
+                            <th scope="col">Clinical Status</th>
+                            <th scope="col">Status Source</th>
+                            <th scope="col">DrugBank</th>
+                            <th scope="col">Chembl</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -73,7 +77,29 @@
                               </span>
                             </th>
                             <td>
+                              <span class="d-inline-block text-truncate" style="max-width: 150px;">
                               {{moa}}
+                              </span>
+                            </td>
+                            <td>
+                              <span class="d-inline-block text-truncate" style="max-width: 110px;">
+                              {{final_status}}
+                              </span>
+                            </td>
+                            <td>
+                              <span class="d-inline-block text-truncate" style="max-width: 100px;">
+                              {{{status_source}}}
+                              </span>
+                            </td>
+                            <td>
+                              <span class="d-inline-block text-truncate" style="max-width: 100px;">
+                              {{drugbank_ids}}
+                              </span>
+                            </td>
+                            <td>
+                              <span class="d-inline-block text-truncate" style="max-width: 100px;">
+                              {{chembl_ids}}
+                              </span>
                             </td>
                           </tr>
                     {{/.}}{{/.}}

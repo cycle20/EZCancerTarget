@@ -30,7 +30,7 @@ VERBOSE <- NULL
 ## VERBOSE <- verbose()
 
 ##### Data Section
-NEW.LOW10 <- c(
+NE.LOW10 <- c(
   "CD70",
   "CXCR2",
   "MMP7",
@@ -43,7 +43,7 @@ NEW.LOW10 <- c(
   "ITBG6"
 )
 NE.LOW <- c(
-  NEW.LOW10,
+  NE.LOW10,
   "ITGAM",
   "YBX3",
   "CTSS",
@@ -148,9 +148,6 @@ main <- function() {
   message("downloading data from clue.io...")
   result <- download(c(NE.LOW, NE.HIGH))
   message("download finished")
-  # potential debug snippet
-  #result <- readr::read_tsv("clue.tsv")
-  #colnames(result) <- c("HUGO", colnames(result)[-1])
   # export result as TSV
   data.table::fwrite(result, "clue.tsv", sep = "\t")
   message("clue.tsv created")
@@ -159,8 +156,6 @@ main <- function() {
   ## export collapsed table as TSV
   data.table::fwrite(resultCollapsed, "clueCollapsed.tsv", sep = "\t")
   message("clueCollapsed.tsv created")
-
-  renderWebPage(resultCollapsed)
 }
 
 #' Get drug-targets information from clue.io
@@ -349,8 +344,6 @@ download <- function(...) {
   perts <- perts(...) %>%
     select(target, pert_iname, pubchem_cid)
 
-  browser()
-
   perts <- perts(...) %>%
     select(target, pert_iname, pubchem_cid)
 
@@ -417,38 +410,6 @@ collapseResult <- function(result) {
       chembl_ids = paste(unique(chembl_id, collapse = "|"))) %>%
     select(-c(drugbank_id, chembl_id)) %>%
     distinct()
-}
-
-renderWebPage <- function(result) {
-  ## - this should be an iteration on each HUGO group
-  ## - collect pert groups for each gene group
-  ## Maybe I shouldn't join result tables in download function.
-  result <- result %>% group_by(HUGO)
-  collection <- list()
-  for (geneGroup in group_split(result)) {
-  # browser()
-    groupName <- geneGroup$HUGO[1]
-    grouppedByPerts <- geneGroup %>%
-      group_by(pert_iname) %>%
-      group_split()
-
-    ## collect pert groups per genes and creates
-    #collection[[groupName]] <- list(
-    collection <- c(collection, list(list(
-      target = groupName,
-      data = grouppedByPerts
-    )))
-  }
-
-  ## export as web page
-  message(glue("reading web template: {WEB_TEMPLATE}"))
-  template <- readr::read_file(WEB_TEMPLATE)
-
-  targets <- collection
-  message(glue("rendering web page, template is '{WEB_TEMPLATE}'"))
-  renderResult <- whisker::whisker.render(template, debug = TRUE)
-  readr::write_file(renderResult, file = WEB_OUT)
-  message(glue("rendered web page is saved into '{WEB_OUT}'"))
 }
 
 ## just call the main
