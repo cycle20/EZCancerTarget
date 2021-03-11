@@ -13,109 +13,113 @@ library(whisker)
 ##
 WEB_TEMPLATE <- "web/index.proto.html"
 WEB_OUT <- "web/index.html"
+CLUE.INPUT <- "clueCollapsed.tsv"
+STRING.INPUT <- "string_tab.tsv"
 
 ##### Data Section
-NE.LOW10 <- c(
-  "CD70",
-  "CXCR2",
-  "MMP7",
-  "TP63",
-  "ANXA1",
-  "KRT5",
-  "IFI27",
-  "FCGR1A",
-  "BIRC3",
-  "ITBG6"
-)
-NE.LOW <- c(
-  NE.LOW10,
-  "ITGAM",
-  "YBX3",
-  "CTSS",
-  "CD5",
-  "C1QA",
-  "KLRD1",
-  "CCL21",
-  "MX1",
-  "GZMA",
-  "ISG15",
-  "PRF1",
-  "CASP14",
-  "CXCL2",
-  "CYP35A",
-  "MAGEA4",
-  "LRMP",
-  "ITGB4",
-  "KRT17",
-  "BCAT1",
-  "VSNL1",
-  "CAV2",
-  "ANXA3",
-  "ALDH2",
-  "PGC",
-  "VAMP8",
-  "LAMB3",
-  "REL",
-  "TNFSF10",
-  "PRAME",
-  "CES1",
-  "COL6A",
-  "FOXI1",
-  "MYC",
-  "PTGS2",
-  "CD44",
-  "BCL3",
-  "ROS1",
-  "RAB27B",
-  "CXCL10",
-  "CCL20",
-  "CCL21",
-  "CXCL9"
-)
-NE.HIGH <- c(
-  "RTN1",
-  "NCAM1",
-  "DNAJC6",
-  "GRP",
-  "CDH2",
-  "SYP",
-  "ID4",
-  "ISL1",
-  "CHGA",
-  "FGF5",
-  "FGF10",
-  "IL9",
-  "HSPB8",
-  "HIC1",
-  "metrn",
-  "TPO",
-  "LAMB4",
-  "EGLN2",
-  "INS",
-  "SIX1",
-  "L1CAM",
-  "MYBL1",
-  "PTN",
-  "CCNA1",
-  "DYSPL4",
-  "CDKN2C",
-  "ADAM23",
-  "TP73",
-  "NKX2-1",
-  "AMH",
-  "RBP1",
-  "PAK7",
-  "CXXC4",
-  "CKB",
-  "SOX2",
-  "PAK3",
-  "SMAD9",
-  "DLL3",
-  "FZD9",
-  "COL9A3",
-  "ZIC2",
-  "CACNAE1"
-)
+{
+  NE.LOW10 <- c(
+    "CD70",
+    "CXCR2",
+    "MMP7",
+    "TP63",
+    "ANXA1",
+    "KRT5",
+    "IFI27",
+    "FCGR1A",
+    "BIRC3",
+    "ITBG6"
+  )
+  NE.LOW <- c(
+    NE.LOW10,
+    "ITGAM",
+    "YBX3",
+    "CTSS",
+    "CD5",
+    "C1QA",
+    "KLRD1",
+    "CCL21",
+    "MX1",
+    "GZMA",
+    "ISG15",
+    "PRF1",
+    "CASP14",
+    "CXCL2",
+    "CYP35A",
+    "MAGEA4",
+    "LRMP",
+    "ITGB4",
+    "KRT17",
+    "BCAT1",
+    "VSNL1",
+    "CAV2",
+    "ANXA3",
+    "ALDH2",
+    "PGC",
+    "VAMP8",
+    "LAMB3",
+    "REL",
+    "TNFSF10",
+    "PRAME",
+    "CES1",
+    "COL6A",
+    "FOXI1",
+    "MYC",
+    "PTGS2",
+    "CD44",
+    "BCL3",
+    "ROS1",
+    "RAB27B",
+    "CXCL10",
+    "CCL20",
+    "CCL21",
+    "CXCL9"
+  )
+  NE.HIGH <- c(
+    "RTN1",
+    "NCAM1",
+    "DNAJC6",
+    "GRP",
+    "CDH2",
+    "SYP",
+    "ID4",
+    "ISL1",
+    "CHGA",
+    "FGF5",
+    "FGF10",
+    "IL9",
+    "HSPB8",
+    "HIC1",
+    "metrn",
+    "TPO",
+    "LAMB4",
+    "EGLN2",
+    "INS",
+    "SIX1",
+    "L1CAM",
+    "MYBL1",
+    "PTN",
+    "CCNA1",
+    "DYSPL4",
+    "CDKN2C",
+    "ADAM23",
+    "TP73",
+    "NKX2-1",
+    "AMH",
+    "RBP1",
+    "PAK7",
+    "CXXC4",
+    "CKB",
+    "SOX2",
+    "PAK3",
+    "SMAD9",
+    "DLL3",
+    "FZD9",
+    "COL9A3",
+    "ZIC2",
+    "CACNAE1"
+  )
+}
 
 #' Main function
 #'
@@ -123,10 +127,16 @@ NE.HIGH <- c(
 #'
 #' @return
 main <- function() {
-  resultCollapsed <- readr::read_tsv("clueCollapsed.tsv")
+  resultCollapsed <- readr::read_tsv(CLUE.INPUT)
+  proteinIDs <- readr::read_tsv(STRING.INPUT)
+  resultCollapsed <- resultCollapsed %>%
+    left_join(proteinIDs, by = c("HUGO" = "preferred_name"))
+
+  browser()
 
   renderWebPage(resultCollapsed)
 }
+
 
 renderWebPage <- function(result) {
   ## - this should be an iteration on each HUGO group
@@ -137,6 +147,7 @@ renderWebPage <- function(result) {
   for (geneGroup in group_split(result)) {
   # browser()
     groupName <- geneGroup$HUGO[1]
+    stringID <- geneGroup$protein_external_id[1]
     grouppedByPerts <- geneGroup %>%
       group_by(pert_iname) %>%
       group_split()
@@ -146,6 +157,7 @@ renderWebPage <- function(result) {
 
     collection <- c(collection, list(list(
       target = groupName,
+      stringID = stringID,
       data = grouppedByPerts
     )))
   }
@@ -176,6 +188,14 @@ multivaluedCellsToHTML <- function(dataList) {
   return(dataList)
 }
 
+
+#' Represent sources as hyperlinks
+#'
+#' @param statusSource character if it is an URL, it points
+#' probably to ClinicalTrials; but other URLs and pure texts
+#' can be expected here as well.
+#'
+#' @return HTML string
 statusSourceHTML <- function(statusSource) {
   if(is.na(statusSource) || is.null(statusSource)) {
     return(statusSource)
