@@ -15,6 +15,7 @@ WEB_TEMPLATE <- "web/index.proto.html"
 WEB_OUT <- "web/index.html"
 CLUE.INPUT <- "clueCollapsed.tsv"
 STRING.INPUT <- "string_tab.tsv"
+CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 
 ##### Data Section
 {
@@ -182,6 +183,8 @@ multivaluedCellsToHTML <- function(dataList) {
   cellsToHTML <- function(dataframe) {
     dataframe$status_source <- v.statusSourceHTML(dataframe$status_source)
     names(dataframe$status_source) <- NULL # why does it get a name?
+    dataframe$chembl_ids <- v.chemblHTML(dataframe$chembl_ids)
+    names(dataframe$chembl_ids) <- NULL # why does it get a name?
     return(dataframe)
   }
   dataList <- lapply(dataList, cellsToHTML)
@@ -193,7 +196,8 @@ multivaluedCellsToHTML <- function(dataList) {
 #'
 #' @param statusSource character if it is an URL, it points
 #' probably to ClinicalTrials; but other URLs and pure texts
-#' can be expected here as well.
+#' can be expected here as well. This function verifies the source
+#' value and transform it the most appropriate HTML string.
 #'
 #' @return HTML string
 statusSourceHTML <- function(statusSource) {
@@ -212,12 +216,38 @@ statusSourceHTML <- function(statusSource) {
     return(statusSource)
   }
   # TODO:
-  HTMLcode <- glue::glue("<a href=\"{statusSource}\">{label}</a>")
-  return(HTMLcode)
+  HTMLtext <- aHref(link = statusSource, titleText = label)
+  return(HTMLtext)
 }
 
-v.statusSourceHTML <- Vectorize(statusSourceHTML)
+#' ChEMBL Id to HTML link
+#'
+#' @param chemblId
+#'
+#' @return Character object containing a HTML code fragment with
+#' an "anchor" element.
+chemblHTML <- function(chemblId) {
+  if(is.na(chemblId) || is.null(chemblId)) {
+    return(chemblId)
+  }
 
+  HTMLtext <- if(stringr::str_ends(chemblId, pattern = "^CHEMBL[0-9]+$")) {
+    link <- glue::glue("{CHEMBL.URL.TEMPLATE}/{chemblId}")
+    aHref(link = link, titleText = chemblId)
+  } else {
+    ## text as is
+    chemblId
+  }
+  return(HTMLtext)
+}
+
+aHref <- function(link, titleText) {
+  return(glue::glue("<a href=\"{link}\">{titleText}</a>"))
+}
+
+## vectorize scalar functions:
+v.statusSourceHTML <- Vectorize(statusSourceHTML)
+v.chemblHTML <- Vectorize(chemblHTML)
 
 ## just call the main
 main()
