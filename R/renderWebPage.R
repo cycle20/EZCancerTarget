@@ -133,8 +133,6 @@ main <- function() {
   resultCollapsed <- resultCollapsed %>%
     left_join(proteinIDs, by = c("HUGO" = "preferred_name"))
 
-  browser()
-
   renderWebPage(resultCollapsed)
 }
 
@@ -181,10 +179,13 @@ multivaluedCellsToHTML <- function(dataList) {
   assertthat::assert_that(is.data.frame(dataList[[1]]))
 
   cellsToHTML <- function(dataframe) {
+    # TODO: Does it eliminate duplications?
     dataframe$status_source <- v.statusSourceHTML(dataframe$status_source)
     names(dataframe$status_source) <- NULL # why does it get a name?
     dataframe$chembl_ids <- v.chemblHTML(dataframe$chembl_ids)
     names(dataframe$chembl_ids) <- NULL # why does it get a name?
+    dataframe$drugbank_ids <- v.drugBankHTML(dataframe$drugbank_ids)
+    names(dataframe$drugbank_ids) <- NULL # why does it get a name?
     return(dataframe)
   }
   dataList <- lapply(dataList, cellsToHTML)
@@ -204,7 +205,8 @@ statusSourceHTML <- function(statusSource) {
   if(is.na(statusSource) || is.null(statusSource)) {
     return(statusSource)
   }
-  # browser()
+  statusSource <- listShrink(statusSource)
+
   label <- if(stringr::str_ends(statusSource, pattern = "NCT[0-9]+$")) {
     # if it is an NCT link, get the ID as an URL text
     stringr::str_extract(statusSource, "NCT[0-9]+$")
@@ -230,6 +232,7 @@ chemblHTML <- function(chemblId) {
   if(is.na(chemblId) || is.null(chemblId)) {
     return(chemblId)
   }
+  chemblId <- listShrink(chemblId)
 
   HTMLtext <- if(stringr::str_ends(chemblId, pattern = "^CHEMBL[0-9]+$")) {
     link <- glue::glue("{CHEMBL.URL.TEMPLATE}/{chemblId}")
@@ -241,13 +244,42 @@ chemblHTML <- function(chemblId) {
   return(HTMLtext)
 }
 
+drugBankHTML <- function(drugBankId) {
+  if(is.na(drugBankId) || is.null(drugBankId)) {
+    return(drugBankId)
+  }
+  drugBankId <- listShrink(drugBankId)
+
+  HTMLtext <- if(stringr::str_ends(drugBankId, pattern = "^DB[0-9]+$")) {
+    link <- glue::glue("http://www.drugbank.ca/drugs/{drugBankId}")
+    aHref(link = link, titleText = drugBankId)
+  } else {
+    ## text as is
+    drugBankId
+  }
+  return(HTMLtext)
+}
+
 aHref <- function(link, titleText) {
   return(glue::glue("<a href=\"{link}\">{titleText}</a>"))
+}
+
+listShrink <- function(text) {
+  resultList <- stringr::str_split(text, ",")
+  assertthat::assert_that(length(resultList) <= 1)
+  returnVal <- if(length(resultList) == 1) {
+    ## drop duplications and collapse
+    paste0(unique(resultList[[1]]), collapse = ",")
+  } else {
+    ""
+  }
+  return(returnVal)
 }
 
 ## vectorize scalar functions:
 v.statusSourceHTML <- Vectorize(statusSourceHTML)
 v.chemblHTML <- Vectorize(chemblHTML)
+v.drugBankHTML <- Vectorize(drugBankHTML)
 
 ## just call the main
 main()

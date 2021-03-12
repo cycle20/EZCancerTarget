@@ -60,7 +60,9 @@
                         <thead>
                           <tr>
                             <th scope="col">Compound</th>
-                            <th scope="col">MoA</th>
+                            <th scope="col">
+                              MoA <sup data-bs-toggle="tooltip" title="Mechanism of Action" class="text-primary">i</sup>
+                            </th>
                             <th scope="col">Clinical Status</th>
                             <th scope="col">Status Source</th>
                             <th scope="col">DrugBank</th>
@@ -77,7 +79,7 @@
                               </span>
                             </th>
                             <td>
-                              <span class="d-inline-block text-truncate" style="max-width: 150px;">
+                              <span data-bs-toggle="tooltip" data-bs-placement="right" title="{{moa}}" class="d-inline-block text-truncate" style="max-width: 150px;">
                               {{moa}}
                               </span>
                             </td>
@@ -93,7 +95,7 @@
                             </td>
                             <td>
                               <span class="d-inline-block text-truncate" style="max-width: 100px;">
-                              {{drugbank_ids}}
+                              {{{drugbank_ids}}}
                               </span>
                             </td>
                             <td>
@@ -179,6 +181,14 @@
       </div>
 
     </div>
+    <script>
+      // activates each tooltip
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+      })
+    </script>
+
 
   </body>
 </html>
