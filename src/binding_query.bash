@@ -33,7 +33,7 @@ function message() {
 function binding_inhibition_query() {
   message "$FNAME: binding/inhibition query starting..."
 
-  cat src/network_associations.sql | \
+  cat src/binding_query.sql | \
     sqlite3 -csv -cmd "${1:-}" \
     INPUT/STRING/STRING_DB_SQLITE3.db
 
@@ -70,22 +70,22 @@ function call_uniprot_api() {
 ## Collect STRING external ids from the query result and
 ## call uniprot API endpoint to get matching UniProtKB Ids.
 ##
-function download_missing_uniprot_ids() {
-  local FNAME=${FUNCNAME[0]}
-
-  message "$FNAME: starting query..."
-
-  time binding_inhibition_query | \
-  egrep '(^,)|(,,)' | \
-    sed -e '1d' | \
-    awk -F, '{ print $5, $6; }' | \
-    tr ' ' '\n' | \
-    sort -u | \
-    tr '\n' ' ' | \
-    call_uniprot_api
-
-  message "$FNAME: query done."
-}
+# function download_missing_uniprot_ids() {
+#   local FNAME=${FUNCNAME[0]}
+# 
+#   message "$FNAME: starting query..."
+# 
+#   time binding_inhibition_query | \
+#   egrep '(^,)|(,,)' | \
+#     sed -e '1d' | \
+#     awk -F, '{ print $5, $6; }' | \
+#     tr ' ' '\n' | \
+#     sort -u | \
+#     tr '\n' ' ' | \
+#     call_uniprot_api
+# 
+#   message "$FNAME: query done."
+# }
 
 #".header on"
 
