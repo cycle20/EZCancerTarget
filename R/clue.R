@@ -406,9 +406,8 @@ collapseResult <- function(result) {
     ) %>%
     group_by(HUGO, pert_iname) %>%
     mutate(
-      drugbank_ids = paste(unique(drugbank_id), collapse = "|"),
-      chembl_ids = paste(unique(chembl_id, collapse = "|"))) %>%
-    select(-c(drugbank_id, chembl_id)) %>%
+      drugbank_id = paste(unique(drugbank_id), collapse = "|"),
+      chembl_id = paste(unique(chembl_id, collapse = "|"))) %>%
     distinct()
 }
 

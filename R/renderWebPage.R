@@ -13,8 +13,9 @@ library(whisker)
 ##
 WEB_TEMPLATE <- "web/index.proto.html"
 WEB_OUT <- "web/index.html"
-CLUE.INPUT <- "clueCollapsed.tsv"
-STRING.INPUT <- "string_tab.tsv"
+OUTPUT <- "OUTPUT"
+CLUE.INPUT <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
+STRING.INPUT <- glue::glue("{OUTPUT}/string_tab.tsv")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 
 ##### Data Section
@@ -180,13 +181,14 @@ multivaluedCellsToHTML <- function(dataList) {
 
   cellsToHTML <- function(dataframe) {
     # TODO: Does it eliminate duplications?
-    dataframe$status_source <- v.statusSourceHTML(dataframe$status_source)
-    names(dataframe$status_source) <- NULL # why does it get a name?
-    dataframe$chembl_ids <- v.chemblHTML(dataframe$chembl_ids)
-    names(dataframe$chembl_ids) <- NULL # why does it get a name?
-    dataframe$drugbank_ids <- v.drugBankHTML(dataframe$drugbank_ids)
-    names(dataframe$drugbank_ids) <- NULL # why does it get a name?
-    return(dataframe)
+    return(
+      dataframe %>%
+        rowwise() %>%
+        mutate(
+          status_source = statusSourceHTML(status_source, moa),
+          drugbank_id = drugBankHTML(drugbank_id),
+          chembl_id = chemblHTML(chembl_id))
+    )
   }
   dataList <- lapply(dataList, cellsToHTML)
   return(dataList)
@@ -201,20 +203,37 @@ multivaluedCellsToHTML <- function(dataList) {
 #' value and transform it the most appropriate HTML string.
 #'
 #' @return HTML string
-statusSourceHTML <- function(statusSource) {
+statusSourceHTML <- function(statusSource, moa) {
   if(is.na(statusSource) || is.null(statusSource)) {
+    # TODO:
+    print(glue::glue("{statusSource}; moa: {moa}"))
     return(statusSource)
   }
   statusSource <- listShrink(statusSource)
 
-  label <- if(stringr::str_ends(statusSource, pattern = "NCT[0-9]+$")) {
-    # if it is an NCT link, get the ID as an URL text
-    stringr::str_extract(statusSource, "NCT[0-9]+$")
+  label <- if(stringr::str_starts(statusSource,
+    pattern = "https?://.*clinicaltrials.gov/.+NCT[0-9]+")) {
+    "ClinicalTrials"
+  } else if (stringr::str_starts(statusSource, "https?://.*ncbi.*gov/pubmed")) {
+    "PubMed"
+  } else if (stringr::str_starts(statusSource, "https?://.+fda.gov/")) {
+    "FDA"
+  } else if (stringr::str_starts(statusSource, "https?://.*dailymed.*.gov/")) {
+    "DailyMed"
+  } else if (stringr::str_starts(statusSource, "https?://.*wikipedia.org/")) {
+    "Wikipedia"
+  } else if (stringr::str_starts(statusSource, "https?://www.drugs.com/")) {
+    "drugs.com"
+  } else if (stringr::str_starts(statusSource, "https?://.*springer.com/")) {
+    "Springer"
+  } else if (stringr::str_starts(statusSource, "https?://docslide.*/")) {
+    "docslide"
+  } else if (stringr::str_starts(statusSource, "https://guidebook.com/")) {
+    "guidebook"
   } else if (stringr::str_starts(statusSource, "http")) {
     # default URL text
-    "Link"
+    "Unexpected Source"
   } else {
-    # TODO: plain text?
     return(statusSource)
   }
   # TODO:
