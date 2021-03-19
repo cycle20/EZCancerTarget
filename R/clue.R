@@ -20,117 +20,17 @@ library(whisker)
 ## Settings of global variables
 ##
 USER_KEY <- Sys.getenv("CLUE_USER_KEY")
-WEB_TEMPLATE <- "web/index.proto.html"
-WEB_OUT <- "web/index.html"
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
+TARGET.INPUT <- "INPUT/target_list.tsv"
 API_BASE <- "https://api.clue.io/api/"
 VERBOSE <- NULL
 ## for verbosed httr requests use the following:
 ## VERBOSE <- verbose()
-
-##### Data Section
-NE.LOW10 <- c(
-  "CD70",
-  "CXCR2",
-  "MMP7",
-  "TP63",
-  "ANXA1",
-  "KRT5",
-  "IFI27",
-  "FCGR1A",
-  "BIRC3",
-  "ITBG6"
-)
-NE.LOW <- c(
-  NE.LOW10,
-  "ITGAM",
-  "YBX3",
-  "CTSS",
-  "CD5",
-  "C1QA",
-  "KLRD1",
-  "CCL21",
-  "MX1",
-  "GZMA",
-  "ISG15",
-  "PRF1",
-  "CASP14",
-  "CXCL2",
-  "CYP35A",
-  "MAGEA4",
-  "LRMP",
-  "ITGB4",
-  "KRT17",
-  "BCAT1",
-  "VSNL1",
-  "CAV2",
-  "ANXA3",
-  "ALDH2",
-  "PGC",
-  "VAMP8",
-  "LAMB3",
-  "REL",
-  "TNFSF10",
-  "PRAME",
-  "CES1",
-  "COL6A",
-  "FOXI1",
-  "MYC",
-  "PTGS2",
-  "CD44",
-  "BCL3",
-  "ROS1",
-  "RAB27B",
-  "CXCL10",
-  "CCL20",
-  "CCL21",
-  "CXCL9"
-)
-NE.HIGH <- c(
-  "RTN1",
-  "NCAM1",
-  "DNAJC6",
-  "GRP",
-  "CDH2",
-  "SYP",
-  "ID4",
-  "ISL1",
-  "CHGA",
-  "FGF5",
-  "FGF10",
-  "IL9",
-  "HSPB8",
-  "HIC1",
-  "metrn",
-  "TPO",
-  "LAMB4",
-  "EGLN2",
-  "INS",
-  "SIX1",
-  "L1CAM",
-  "MYBL1",
-  "PTN",
-  "CCNA1",
-  "DYSPL4",
-  "CDKN2C",
-  "ADAM23",
-  "TP73",
-  "NKX2-1",
-  "AMH",
-  "RBP1",
-  "PAK7",
-  "CXXC4",
-  "CKB",
-  "SOX2",
-  "PAK3",
-  "SMAD9",
-  "DLL3",
-  "FZD9",
-  "COL9A3",
-  "ZIC2",
-  "CACNAE1"
-)
+OUTPUT <- "OUTPUT"
+CLUE.TSV <- glue::glue("{OUTPUT}/clue.tsv")
+CLUE.COLLAPSED.TSV <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
+PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
 
 # TODO: do we need information from these endpoints as well?
 # - rep_fda_product
@@ -145,17 +45,22 @@ NE.HIGH <- c(
 #'
 #' @return
 main <- function() {
+  message(glue::glue("reading data from {TARGET.INPUT}..."))
+  targetList <- readr::read_tsv(TARGET.INPUT) %>%
+    pull(target)
+  message(glue::glue("reading from {TARGET.INPUT} done"))
+
   message("downloading data from clue.io...")
-  result <- download(c(NE.LOW, NE.HIGH))
+  result <- download(targetList)
   message("download finished")
   # export result as TSV
-  data.table::fwrite(result, "clue.tsv", sep = "\t")
-  message("clue.tsv created")
+  data.table::fwrite(result, CLUE.TSV, sep = "\t")
+  message(glue::glue("{CLUE.TSV} created"))
 
   resultCollapsed <- collapseResult(result)
   ## export collapsed table as TSV
-  data.table::fwrite(resultCollapsed, "clueCollapsed.tsv", sep = "\t")
-  message("clueCollapsed.tsv created")
+  data.table::fwrite(resultCollapsed, CLUE.COLLAPSED.TSV, sep = "\t")
+  message(glue::glue("{CLUE.COLLAPSED.TSV} created"))
 }
 
 #' Get drug-targets information from clue.io
@@ -353,7 +258,8 @@ download <- function(...) {
     select(target, pert_iname, pubchem_cid) %>%
     arrange(target, pert_iname)
 
-  write.table(x, file = "perts.tsv", sep = "\t")
+  write.table(x, file = PERTS.TSV, sep = "\t")
+  message(glue::glue("{PERTS.TSV} created"))
 
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
@@ -402,11 +308,13 @@ collapseResult <- function(result) {
       final_status,
       status_source,
       drugbank_id,
-      chembl_id
+      chembl_id,
+      pubchem_cid
     ) %>%
     group_by(HUGO, pert_iname) %>%
     mutate(
       drugbank_id = paste(unique(drugbank_id), collapse = "|"),
+      pubchem_cid = paste(unique(pubchem_cid), collapse = "|"),
       chembl_id = paste(unique(chembl_id, collapse = "|"))) %>%
     distinct()
 }

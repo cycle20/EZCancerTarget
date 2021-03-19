@@ -6,6 +6,7 @@ library(assertthat)
 library(dplyr)
 library(glue)
 library(readr)
+library(stringr)
 library(whisker)
 
 ##
@@ -14,114 +15,10 @@ library(whisker)
 WEB_TEMPLATE <- "web/index.proto.html"
 WEB_OUT <- "web/index.html"
 OUTPUT <- "OUTPUT"
+TARGET.INPUT <- "INPUT/target_list.tsv"
 CLUE.INPUT <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
-STRING.INPUT <- glue::glue("{OUTPUT}/string_tab.tsv")
+STRING.INPUT <- glue::glue("INPUT/string_tab.tsv")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
-
-##### Data Section
-{
-  NE.LOW10 <- c(
-    "CD70",
-    "CXCR2",
-    "MMP7",
-    "TP63",
-    "ANXA1",
-    "KRT5",
-    "IFI27",
-    "FCGR1A",
-    "BIRC3",
-    "ITBG6"
-  )
-  NE.LOW <- c(
-    NE.LOW10,
-    "ITGAM",
-    "YBX3",
-    "CTSS",
-    "CD5",
-    "C1QA",
-    "KLRD1",
-    "CCL21",
-    "MX1",
-    "GZMA",
-    "ISG15",
-    "PRF1",
-    "CASP14",
-    "CXCL2",
-    "CYP35A",
-    "MAGEA4",
-    "LRMP",
-    "ITGB4",
-    "KRT17",
-    "BCAT1",
-    "VSNL1",
-    "CAV2",
-    "ANXA3",
-    "ALDH2",
-    "PGC",
-    "VAMP8",
-    "LAMB3",
-    "REL",
-    "TNFSF10",
-    "PRAME",
-    "CES1",
-    "COL6A",
-    "FOXI1",
-    "MYC",
-    "PTGS2",
-    "CD44",
-    "BCL3",
-    "ROS1",
-    "RAB27B",
-    "CXCL10",
-    "CCL20",
-    "CCL21",
-    "CXCL9"
-  )
-  NE.HIGH <- c(
-    "RTN1",
-    "NCAM1",
-    "DNAJC6",
-    "GRP",
-    "CDH2",
-    "SYP",
-    "ID4",
-    "ISL1",
-    "CHGA",
-    "FGF5",
-    "FGF10",
-    "IL9",
-    "HSPB8",
-    "HIC1",
-    "metrn",
-    "TPO",
-    "LAMB4",
-    "EGLN2",
-    "INS",
-    "SIX1",
-    "L1CAM",
-    "MYBL1",
-    "PTN",
-    "CCNA1",
-    "DYSPL4",
-    "CDKN2C",
-    "ADAM23",
-    "TP73",
-    "NKX2-1",
-    "AMH",
-    "RBP1",
-    "PAK7",
-    "CXXC4",
-    "CKB",
-    "SOX2",
-    "PAK3",
-    "SMAD9",
-    "DLL3",
-    "FZD9",
-    "COL9A3",
-    "ZIC2",
-    "CACNAE1"
-  )
-}
 
 #' Main function
 #'
@@ -129,15 +26,27 @@ CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 #'
 #' @return
 main <- function() {
+  ## read curated input names
+  targetList <- readr::read_tsv(TARGET.INPUT) %>%
+    mutate(HUGO = target)
+
   resultCollapsed <- readr::read_tsv(CLUE.INPUT)
   proteinIDs <- readr::read_tsv(STRING.INPUT)
-  resultCollapsed <- resultCollapsed %>%
-    left_join(proteinIDs, by = c("HUGO" = "preferred_name"))
+  resultCollapsed <- targetList %>%
+    left_join(resultCollapsed) %>%
+    left_join(proteinIDs, by = c("HUGO" = "preferred_name")) %>%
+    rowwise() %>%
+    mutate(has_data = !is.na(pert_iname))
 
   renderWebPage(resultCollapsed)
 }
 
 
+#' Render web page
+#'
+#' @param result List of data structures to be visualized as a web page.
+#'
+#' @return Invisible NULL.
 renderWebPage <- function(result) {
   ## - this should be an iteration on each HUGO group
   ## - collect pert groups for each gene group
@@ -145,10 +54,23 @@ renderWebPage <- function(result) {
   result <- result %>% group_by(HUGO)
   collection <- list()
   for (geneGroup in group_split(result)) {
-  # browser()
     groupName <- geneGroup$HUGO[1]
     stringID <- geneGroup$protein_external_id[1]
+    hasData <- geneGroup$has_data[1]
+    NE <- geneGroup$NE[1]
+    UNIPROT_KB_ID <- geneGroup$UNIPROT_KB_ID[1]
+    # TODO: uniprotSubCellularSVG <-
+
+
+    browser(expr = (groupName == "ALDH2"))
+
+    ## group by pert_iname
+    # drugBankId <- geneGroup$drugbank_id[1]
+    # chemblId <- geneGroup$chembl_id[1]
+    # finalStatus <- geneGroup$final_status[1]
+
     grouppedByPerts <- geneGroup %>%
+      select(-c(HUGO, target, protein_external_id, has_data)) %>%
       group_by(pert_iname) %>%
       group_split()
 
@@ -158,7 +80,10 @@ renderWebPage <- function(result) {
     collection <- c(collection, list(list(
       target = groupName,
       stringID = stringID,
-      data = grouppedByPerts
+      data = grouppedByPerts,
+      NE = NE,
+      UNIPROT_KB_ID = UNIPROT_KB_ID,
+      hasData = tolower(hasData)
     )))
   }
 
@@ -172,8 +97,17 @@ renderWebPage <- function(result) {
   renderResult <- whisker::whisker.render(template, debug = TRUE)
   readr::write_file(renderResult, file = WEB_OUT)
   message(glue("rendered web page is saved into '{WEB_OUT}'"))
+
+  invisible(NULL)
 }
 
+
+#' Prepare multiple values of table cell
+#'
+#' @param dataList List of dataframes
+#'
+#' @return Pre-processed dataframes to be ready to show multiple values in
+#' sepecific HTML table cells.
 multivaluedCellsToHTML <- function(dataList) {
   assertthat::assert_that(is.list(dataList))
   assertthat::assert_that(length(dataList) > 0)
@@ -185,15 +119,15 @@ multivaluedCellsToHTML <- function(dataList) {
       dataframe %>%
         rowwise() %>%
         mutate(
-          status_source = statusSourceHTML(status_source, moa),
+          status_source = statusSourceHTML(status_source, pert_iname),
           drugbank_id = drugBankHTML(drugbank_id),
-          chembl_id = chemblHTML(chembl_id))
+          chembl_id = chemblHTML(chembl_id),
+          pubchem_cid = pubChemHTML(pubchem_cid))
     )
   }
   dataList <- lapply(dataList, cellsToHTML)
   return(dataList)
 }
-
 
 #' Represent sources as hyperlinks
 #'
@@ -201,44 +135,59 @@ multivaluedCellsToHTML <- function(dataList) {
 #' probably to ClinicalTrials; but other URLs and pure texts
 #' can be expected here as well. This function verifies the source
 #' value and transform it the most appropriate HTML string.
+#' @param pert_iname name of the perturbagen
 #'
 #' @return HTML string
-statusSourceHTML <- function(statusSource, moa) {
-  if(is.na(statusSource) || is.null(statusSource)) {
-    # TODO:
-    print(glue::glue("{statusSource}; moa: {moa}"))
-    return(statusSource)
-  }
-  statusSource <- listShrink(statusSource)
+statusSourceHTML <- function(statusSource, pert_iname) {
+  if (is.na(pert_iname) || is.null(pert_iname)) {
+    return(pert_iname)
+  } else if(is.na(statusSource) || is.null(statusSource)) {
+    # TODO: sophisticated query: most relevant link and most recent
+    link <- "https://pubmed.ncbi.nlm.nih.gov/?term={pert_iname}&sort=relevance"
+    link <- glue::glue(link)
+    htmlText <- aHref(link = link, titleText = "PubMed Search")
+    print(htmlText)
 
-  label <- if(stringr::str_starts(statusSource,
-    pattern = "https?://.*clinicaltrials.gov/.+NCT[0-9]+")) {
-    "ClinicalTrials"
-  } else if (stringr::str_starts(statusSource, "https?://.*ncbi.*gov/pubmed")) {
-    "PubMed"
-  } else if (stringr::str_starts(statusSource, "https?://.+fda.gov/")) {
-    "FDA"
-  } else if (stringr::str_starts(statusSource, "https?://.*dailymed.*.gov/")) {
-    "DailyMed"
-  } else if (stringr::str_starts(statusSource, "https?://.*wikipedia.org/")) {
-    "Wikipedia"
-  } else if (stringr::str_starts(statusSource, "https?://www.drugs.com/")) {
-    "drugs.com"
-  } else if (stringr::str_starts(statusSource, "https?://.*springer.com/")) {
-    "Springer"
-  } else if (stringr::str_starts(statusSource, "https?://docslide.*/")) {
-    "docslide"
-  } else if (stringr::str_starts(statusSource, "https://guidebook.com/")) {
-    "guidebook"
-  } else if (stringr::str_starts(statusSource, "http")) {
-    # default URL text
-    "Unexpected Source"
-  } else {
-    return(statusSource)
+    return(htmlText)
   }
-  # TODO:
-  HTMLtext <- aHref(link = statusSource, titleText = label)
-  return(HTMLtext)
+  statusSourceList <- listShrink(statusSource)
+  htmlText <- ""
+  for (statusSource in statusSourceList) {
+    label <- if(stringr::str_starts(statusSource,
+      pattern = "https?://.*clinicaltrials.gov/.+NCT[0-9]+")) {
+      "ClinicalTrials"
+    } else if (stringr::str_starts(statusSource,
+      "https?://.*ncbi.*gov/pubmed")) {
+      "PubMed"
+    } else if (stringr::str_starts(statusSource, "https?://.+fda.gov/")) {
+      "FDA"
+    } else if (stringr::str_starts(statusSource,
+      "https?://.*dailymed.*.gov/")) {
+      "DailyMed"
+    } else if (stringr::str_starts(statusSource, "https?://.*wikipedia.org/")) {
+      "Wikipedia"
+    } else if (stringr::str_starts(statusSource, "https?://www.drugs.com/")) {
+      "drugs.com"
+    } else if (stringr::str_starts(statusSource, "https?://.*springer.com/")) {
+      "Springer"
+    } else if (stringr::str_starts(statusSource, "https?://docslide.*/")) {
+      "docslide"
+    } else if (stringr::str_starts(statusSource, "https://guidebook.com/")) {
+      "guidebook"
+    } else if (stringr::str_starts(statusSource, "http")) {
+      # default URL text
+      "Unexpected Source"
+    } else {
+      ## plain text transformed to a tool-tipped entity
+      html <- glue::glue("<span data-bs-toggle=\"tooltip\" ",
+        "title=\"{statusSource}\" data-bs-placement=\"right\">",
+        "{statusSource}</span>")
+      return(html)
+    }
+    # TODO:
+    htmlText <- paste0(htmlText, aHref(link = statusSource, titleText = label))
+  }
+  return(htmlText)
 }
 
 #' ChEMBL Id to HTML link
@@ -263,6 +212,12 @@ chemblHTML <- function(chemblId) {
   return(HTMLtext)
 }
 
+
+#' Create DrugBank links
+#'
+#' @param drugBankId DrugBank ID(s)
+#'
+#' @return HTML "a" snippet(s) that can be used in HTML document directly.
 drugBankHTML <- function(drugBankId) {
   if(is.na(drugBankId) || is.null(drugBankId)) {
     return(drugBankId)
@@ -279,26 +234,69 @@ drugBankHTML <- function(drugBankId) {
   return(HTMLtext)
 }
 
+
+#' Create PubChem links
+#'
+#' @param pubChemId PubChem ID(s)
+#'
+#' @return HTML "a" snippet(s) that can be used in HTML document directly.
+pubChemHTML <- function(pubChemId) {
+  if(is.na(pubChemId) || is.null(pubChemId)) {
+    return(pubChemId)
+  }
+  #browser(expr = startsWith(pubChemId, "3117"))
+  pubChemId <- listShrink(pubChemId)
+  HTMLtext <- if(all(stringr::str_ends(pubChemId, pattern = "^[0-9]+$"))) {
+    retVal <- ""
+    for (id in pubChemId) {
+      url <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
+      href <- aHref(link = url, titleText = id)
+      retVal <- paste0(retVal, href)
+    }
+    # result of the accumulation loop above
+    retVal
+  } else {
+    ## text as is
+    pubChemId
+  }
+  return(HTMLtext)
+}
+
+
+#' Create an "anchor" element
+#'
+#' @param link Parameter of "href" attribute.
+#' @param titleText character content of "a" element.
+#'
+#' @return HTML "a" snippet that can be used in HTML document directly.
 aHref <- function(link, titleText) {
   return(glue::glue("<a href=\"{link}\">{titleText}</a>"))
 }
 
+
+#' Shrink a simple list
+#'
+#' listShrink splits the input vector and return a distinct list of the
+#' vector of elements.
+#'
+#' @param text Character vector represents a list.
+#' Its elements are separated by "," or "|" characters.
+#'
+#' @return Unique elements represented by a vector or NULL if the input
+#' string cannot be splitted.
 listShrink <- function(text) {
-  resultList <- stringr::str_split(text, ",")
+  ## expected separators with optional space: "," and "|"
+  resultList <- stringr::str_split(text, " ?(,|\\|) ?")
   assertthat::assert_that(length(resultList) <= 1)
   returnVal <- if(length(resultList) == 1) {
     ## drop duplications and collapse
-    paste0(unique(resultList[[1]]), collapse = ",")
+    unique(resultList[[1]])
   } else {
-    ""
+    NULL
   }
   return(returnVal)
 }
 
-## vectorize scalar functions:
-v.statusSourceHTML <- Vectorize(statusSourceHTML)
-v.chemblHTML <- Vectorize(chemblHTML)
-v.drugBankHTML <- Vectorize(drugBankHTML)
 
 ## just call the main
 main()
