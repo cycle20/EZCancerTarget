@@ -12,9 +12,10 @@
     <style type="text/css" media="all">
       .HIGH { border-left-width: 5px; border-left-color: #800080; }
       .LOW { border-left-width: 5px; border-left-color: #99FFAA; }
-      .ABM { border-left-width: 5px; border-left-color: orange; }
+      .URINE { border-left-width: 5px; border-left-color: orange; }
       .has-data-true { background-color: #99FFAA; }
       .has-data-false { }
+      #compartmentsTable { font-size: 0.75rem; }
     </style>
 
     <title>Drug Targets</title>
@@ -123,7 +124,7 @@
                   {{/data}}
                         </tbody>
                       </table>
-                    </div>{{! END OF accordion-body }}
+                    </div>{{! END OF Compounds accordion-body }}
 
                   </div>
                 </div>
@@ -138,7 +139,7 @@
                       10 best STRING interaction
                       <img src="https://string-db.org/api/image/network?identifiers={{stringID}}" alt="Network of {{stringID}}" />
 
-                    </div>{{! END OF accordion-body }}
+                    </div>{{! END OF STRING accordion-body }}
 
                   </div>
                 </div>
@@ -146,13 +147,15 @@
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="localization-data-{{target}}">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-localization-{{target}}" aria-expanded="false" aria-controls="collapse-string-{{target}}">
-                      {{target}} :: Subcellular Location (TODO)
+                      {{target}} :: Subcellular Location
                     </button>
                   </h2>
                   <div id="collapse-localization-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
-                      TO BE DONE...
-                    </div>{{! END OF accordion-body }}
+                      <div class="col-sm">{{{uniProtSubCell}}}</div>
+
+                      <div class="col-sm">{{{geneCardsSubCellTable}}}</div>
+                    </div>{{! END OF Subcellular Location accordion-body }}
 
                   </div>
                 </div>
@@ -167,7 +170,7 @@
                   <div id="collapse-molecular-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
                       TO BE DONE...
-                    </div>{{! END OF accordion-body }}
+                    </div>{{! END OF Molecular Functions accordion-body }}
 
                   </div>
                 </div>
@@ -181,7 +184,7 @@
                   <div id="collapse-pathways-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
                       TO BE DONE...
-                    </div>{{! END OF accordion-body }}
+                    </div>{{! END OF Pathways accordion-body }}
 
                   </div>
                 </div>

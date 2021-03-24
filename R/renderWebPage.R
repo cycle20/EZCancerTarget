@@ -2,23 +2,27 @@
 ## renderWebPage.R: Present data as webpage(s)
 ##
 
+
 library(assertthat)
 library(dplyr)
 library(glue)
 library(readr)
+library(rvest)
 library(stringr)
 library(whisker)
+
 
 ##
 ## Settings of global variables
 ##
-WEB_TEMPLATE <- "web/index.proto.html"
-WEB_OUT <- "web/index.html"
+WEB_TEMPLATE <- "web/template.html"
 OUTPUT <- "OUTPUT"
+WEB_OUT <- glue::glue("{OUTPUT}/index.html")
 TARGET.INPUT <- "INPUT/target_list.tsv"
 CLUE.INPUT <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
 STRING.INPUT <- glue::glue("INPUT/string_tab.tsv")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
+
 
 #' Main function
 #'
@@ -51,7 +55,10 @@ renderWebPage <- function(result) {
   ## - this should be an iteration on each HUGO group
   ## - collect pert groups for each gene group
   ## Maybe I shouldn't join result tables in download function.
-  result <- result %>% group_by(HUGO)
+  result <- result %>%
+    #filter(HUGO == "ANXA1") %>%
+    #head(2) %>%
+    group_by(HUGO)
   collection <- list()
   for (geneGroup in group_split(result)) {
     groupName <- geneGroup$HUGO[1]
@@ -59,10 +66,6 @@ renderWebPage <- function(result) {
     hasData <- geneGroup$has_data[1]
     NE <- geneGroup$NE[1]
     UNIPROT_KB_ID <- geneGroup$UNIPROT_KB_ID[1]
-    # TODO: uniprotSubCellularSVG <-
-
-
-    browser(expr = (groupName == "ALDH2"))
 
     ## group by pert_iname
     # drugBankId <- geneGroup$drugbank_id[1]
@@ -83,7 +86,9 @@ renderWebPage <- function(result) {
       data = grouppedByPerts,
       NE = NE,
       UNIPROT_KB_ID = UNIPROT_KB_ID,
-      hasData = tolower(hasData)
+      hasData = tolower(hasData),
+      uniProtSubCell = scrapeUniProtSnippets(UNIPROT_KB_ID, groupName)
+      # geneCardsSubCellTable = scrapeGeneCardsSnippets(groupName)
     )))
   }
 
@@ -128,6 +133,7 @@ multivaluedCellsToHTML <- function(dataList) {
   dataList <- lapply(dataList, cellsToHTML)
   return(dataList)
 }
+
 
 #' Represent sources as hyperlinks
 #'
@@ -189,6 +195,7 @@ statusSourceHTML <- function(statusSource, pert_iname) {
   }
   return(htmlText)
 }
+
 
 #' ChEMBL Id to HTML link
 #'
@@ -298,5 +305,90 @@ listShrink <- function(text) {
 }
 
 
+#' Scrape UniProt webpage
+#'
+#' @param id an UniProt ID
+#' @param name gene name
+#'
+#' @return Visualization of the subcellular location of the protein.
+scrapeUniProtSnippets <- function(id, name) {
+  ## empty id is not accepted
+  # assertthat::assert_that(
+  #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
+  # )
+  print(glue::glue("scraping: UniProt {id} {name}"))
+  if (is.null(id) || is.na(id) || stringr::str_length(id) == 0) {
+    warning(
+      glue::glue("UniProt id of {name} is missing: '{id}'"),
+      immediate. = TRUE
+    )
+    return("")
+  }
+
+  url <- glue::glue("https://www.uniprot.org/uniprot/{id}")
+  page <- rvest::read_html(url)
+
+  subcellular_location <- page %>%
+    rvest::html_elements("#subcellular_location>:not(#topology_section)")
+
+  hasSubCellFigure <- length(subcellular_location) >= 2 &&
+    xml2::xml_length(subcellular_location) > 0
+  htmlSnippet <- if (hasSubCellFigure) {
+    subCellNode <- subcellular_location[[2]]
+    ## simple verifications
+    assertthat::assert_that(
+      rvest::html_name(subCellNode) == "div"
+    )
+    assertthat::assert_that(
+      endsWith(rvest::html_attr(subCellNode, name = "id"), id)
+    )
+
+    ## TO BE REMOVED: xml2::write_html(subCellNode, "subcellular_location.html")
+    toString(subCellNode)
+  } else {
+    glue::glue("<div>Subcellular figure not found</div>")
+  }
+
+  return(htmlSnippet)
+}
+
+
+#' Scrape GeneCards webpage
+#'
+#' @param name gene name
+#'
+#' @return Table of localization values.
+scrapeGeneCardsSnippets <- function(name) {
+  browser()
+  print(glue::glue("scraping: GeneCards {name}"))
+  ## empty names is not accepted
+  assertthat::assert_that(
+    !(is.null(name) || is.na(name) || stringr::str_length(name) == 0)
+  )
+  url <- glue::glue("https://www.genecards.org/cgi-bin/carddisp.pl?gene={name}")
+  page <- rvest::read_html(url)
+
+  compartmentsTable <- page %>%
+    rvest::html_elements("#compartmentsTable")
+
+  hasSubCellFigure <- length(compartmentsTable) == 1 &&
+    xml2::xml_length(compartmentsTable) == 2
+  htmlSnippet <- if (hasSubCellFigure) {
+    ## simple verifications
+    assertthat::assert_that(
+      rvest::html_name(compartmentsTable) == "table"
+    )
+
+    toString(compartmentsTable)
+  } else {
+    glue::glue("<div>Subcellular table not found</div>")
+  }
+
+  return(htmlSnippet)
+}
+
+
 ## just call the main
 main()
+
+warnings()
