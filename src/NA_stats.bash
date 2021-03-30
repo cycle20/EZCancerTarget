@@ -13,7 +13,7 @@ PAGE="OUTPUT/index.html"
 
 
 #
-#
+# count items with no clue.io data
 function missing_clue_data() {
   echo "============================="
   echo "DO NOT HAVE CLUE.IO DATA:"
@@ -29,9 +29,28 @@ function missing_clue_data() {
   egrep -c 'has-data-false' "$PAGE"
 }
 
+function wiki() {
+  CHECK_THESE="DNAJC6 DYSPL4 FGF10 FGF5 FOXI1 FZD9 GLTP GRP GZMA"
+  for protein in $CHECK_THESE
+  do
+    echo "$protein"
+    curl -I "https://en.wikipedia.org/wiki/$protein"
+    sleep 30
+    curl "https://en.wikipedia.org/wiki/$protein" > "$protein.html"
+    sleep 30
+  done
+}
 
 function main() {
   missing_clue_data
+
+  mkdir -p "OUTPUT/WIKI"
+  pushd OUTPUT/WIKI
+
+  wiki
+
+  echo "Wikipages downloaded"
+  popd
 }
 
 main

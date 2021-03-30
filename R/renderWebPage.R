@@ -15,9 +15,11 @@ library(whisker)
 ##
 ## Settings of global variables
 ##
+SLEEP_TIME <- 15 # wait between two HTTP request in seconds
 WEB_TEMPLATE <- "web/template.html"
 OUTPUT <- "OUTPUT"
-WEB_OUT <- glue::glue("{OUTPUT}/index.html")
+WEB_OUT <- glue::glue("{OUTPUT}/index.target.with.data.html")
+WEB_OUT_NODATA <- glue::glue("{OUTPUT}/index.target.no_data.html")
 TARGET.INPUT <- "INPUT/target_list.tsv"
 CLUE.INPUT <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
 STRING.INPUT <- glue::glue("INPUT/string_tab.tsv")
@@ -40,18 +42,30 @@ main <- function() {
     left_join(resultCollapsed) %>%
     left_join(proteinIDs, by = c("HUGO" = "preferred_name")) %>%
     rowwise() %>%
-    mutate(has_data = !is.na(pert_iname))
+    mutate(has_data = (!is.na(pert_iname) && !is.na(UNIPROT_KB_ID)))
 
-  renderWebPage(resultCollapsed)
+  resultHasData <- resultCollapsed %>%
+    filter(has_data == TRUE) %>%
+    arrange(NE, HUGO)
+
+  resultHasNoData <- resultCollapsed %>%
+    filter(has_data == FALSE) %>%
+    arrange(NE, HUGO)
+
+  renderWebPage(resultHasData, outputHTML = WEB_OUT)
+  renderWebPage(resultHasNoData, outputHTML = WEB_OUT_NODATA)
 }
 
 
 #' Render web page
 #'
 #' @param result List of data structures to be visualized as a web page.
+#' @param outputHTML Name of result HTML file.
 #'
 #' @return Invisible NULL.
-renderWebPage <- function(result) {
+renderWebPage <- function(result, outputHTML = NULL) {
+  assertthat::assert_that(!is.null(outputHTML))
+
   ## - this should be an iteration on each HUGO group
   ## - collect pert groups for each gene group
   ## Maybe I shouldn't join result tables in download function.
@@ -90,7 +104,12 @@ renderWebPage <- function(result) {
       uniProtSubCell = scrapeUniProtSnippets(UNIPROT_KB_ID, groupName)
       # geneCardsSubCellTable = scrapeGeneCardsSnippets(groupName)
     )))
-  }
+
+    print(
+      glue::glue("waiting {SLEEP_TIME} seconds before the next download...")
+    )
+    Sys.sleep(SLEEP_TIME)
+  } # end of main for loop
 
   ## export as web page
   message(glue("reading web template: {WEB_TEMPLATE}"))
@@ -100,8 +119,8 @@ renderWebPage <- function(result) {
 
   message(glue("rendering web page, template is '{WEB_TEMPLATE}'"))
   renderResult <- whisker::whisker.render(template, debug = TRUE)
-  readr::write_file(renderResult, file = WEB_OUT)
-  message(glue("rendered web page is saved into '{WEB_OUT}'"))
+  readr::write_file(renderResult, file = outputHTML)
+  message(glue("rendered web page is saved into '{outputHTML}'"))
 
   invisible(NULL)
 }

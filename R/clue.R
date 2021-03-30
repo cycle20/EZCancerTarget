@@ -184,7 +184,15 @@ perts <- function(...) {
   responseFrame <-
     responseFrame %>%
     select(
-      id,
+      #id,
+      # other fields?
+      alt_name,
+      pert_id,
+      inchi_key,
+      pert_url,
+      # pert_summary, # maybe "description" is enough
+      pcl_membership,
+
       target,
       pert_iname,
       moa,
@@ -231,6 +239,7 @@ download <- function(...) {
 
   ## helper function
   null.to.na <- function(x) {
+    if (is.list(x) || is.vector(x)) return(x)
     if(is.null(x)) x <- NA
     return(x)
   }
@@ -246,20 +255,22 @@ download <- function(...) {
     select(-c(id))
   repDrugs <- rep_drugs(repDrugTargets$pert_iname) %>%
     select(-c(id))
-  perts <- perts(...) %>%
-    select(target, pert_iname, pubchem_cid)
-
-  perts <- perts(...) %>%
-    select(target, pert_iname, pubchem_cid)
+  perts <- perts(...)
 
   x <- perts %>%
     rowwise() %>%
-    mutate(target = paste(target, collapse = ", ")) %>%
+    mutate(target = paste(target, collapse = "|")) %>%
     select(target, pert_iname, pubchem_cid) %>%
     arrange(target, pert_iname)
 
-  write.table(x, file = PERTS.TSV, sep = "\t")
+  data.table::fwrite(x, file = PERTS.TSV, sep = "\t", )
   message(glue::glue("{PERTS.TSV} created"))
+
+  # Renaming to avoid conflict with moa from repDrugMoAs
+  perts <- perts %>%
+    rename(moa_from_perts = moa)
+    # TODO: alt_name excluded since its complicated list values with NULLs
+    # select(-c(alt_name))
 
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
@@ -267,7 +278,16 @@ download <- function(...) {
     left_join(repDrugIndications) %>%
     left_join(perts) %>%
     arrange(HUGO) %>%
-    mutate(orange_book = null.to.na(orange_book)) %>%
+    mutate(
+      source = null.to.na(source),
+      orange_book = null.to.na(orange_book),
+
+      # variables from perts
+      alt_name = null.to.na(alt_name),
+      moa_from_perts = null.to.na(moa_from_perts),
+      pcl_membership = null.to.na(pcl_membership),
+      pert_url = null.to.na(pert_url)
+    ) %>%
     ## re-position and exclusion of columns
     select(
       HUGO,
@@ -283,8 +303,14 @@ download <- function(...) {
       clinical_notes,
       orange_book,
       disease_area,
-    	indication,
+      indication,
       indication_source,
+      alt_name,
+      pert_id, # BRD-...
+      inchi_key,
+      pert_url,
+      pcl_membership,
+
       ## exclude some optional columns
       -c(synonyms, in_cmap, iuphar_id, animal_only)
     )

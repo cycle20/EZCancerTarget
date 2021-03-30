@@ -7,10 +7,13 @@
 ## - exec render R script in the container
 ##
 
-## variable
+## variables
 CNAME="dtarget"
 INAME="r-base:latest"
-R_PKGS="r-cran-dplyr r-cran-httr r-cran-readr r-cran-stringr r-cran-whisker"
+# r-cran-rvest install is replaced by install.packages() call temporarly
+# (to get the most recent version)
+R_PKGS="r-cran-dplyr r-cran-httr r-cran-readr r-cran-stringr r-cran-xml2 r-cran-whisker"
+OUTPUT="OUTPUT"
 
 ## https://github.com/rocker-org/rocker/issues/134
 
@@ -19,10 +22,10 @@ R_PKGS="r-cran-dplyr r-cran-httr r-cran-readr r-cran-stringr r-cran-whisker"
 function tar_content_stdout() {
   tar -cf - \
     R/renderWebPage.R \
+    INPUT/string_tab.tsv \
     INPUT/target_list.tsv \
     OUTPUT/clueCollapsed.tsv \
-    OUTPUT/string_tab.tsv \
-    web/index.proto.html
+    web/template.html
 }
 
 
@@ -33,7 +36,10 @@ function tar_content_stdout() {
 sudo docker run -it -d --name "$CNAME" "$INAME" bash
 
 sudo docker container exec "$CNAME" bash -c "dpkg --get-selections | grep 'r-cran'"
+echo "Installing R packages: $R_PKGS"
 sudo docker container exec "$CNAME" bash -c "apt-get update; apt-get install -y $R_PKGS"
+echo "Installing rvest package..."
+sudo docker container exec "$CNAME" bash -c "R -e 'install.packages(\"rvest\")'"
 
 
 ##
@@ -54,5 +60,9 @@ sudo docker container exec -w /root "$CNAME" bash -c "Rscript R/renderWebPage.R"
 ## tear down the container
 ## -----------------------
 ##
+echo "export result from the container..."
+sudo docker container cp "$CNAME:/root" - > "$OUTPUT/render_result.tar"
+echo "stop container..."
 sudo docker container stop "$CNAME"
+echo "remove container..."
 sudo docker container rm "$CNAME"

@@ -13,8 +13,9 @@
       .HIGH { border-left-width: 5px; border-left-color: #800080; }
       .LOW { border-left-width: 5px; border-left-color: #99FFAA; }
       .URINE { border-left-width: 5px; border-left-color: orange; }
-      .has-data-true { background-color: #99FFAA; }
+      small.has-data-true { background-color: #99FFAA; }
       .has-data-false { }
+      div.has-data-false { display: none; }
       #compartmentsTable { font-size: 0.75rem; }
     </style>
 
@@ -58,7 +59,7 @@
                 </div>
 
               <div class="accordion" id="accordion-{{target}}">
-                <div class="accordion-item">
+                <div class="accordion-item has-data-{{hasData}}">
                   <h2 class="accordion-header" id="heading-{{target}}">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-tbl-{{target}}" aria-expanded="true" aria-controls="collapse-{{target}}">
                       {{target}} :: Compounds
