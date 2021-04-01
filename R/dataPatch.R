@@ -78,11 +78,22 @@ patch <- function(clueTable) {
   ##
   ## count of requests and estimated download times...
   ##
-  pubMedCount <- clueTable %>%
+  pubMedPerts <- clueTable %>%
     select(pert_iname, final_status, status_source) %>%
     filter(final_status == "Preclinical" && is.na(status_source)) %>%
-    distinct() %>% nrow()
+    distinct()
+  pubMedCount <- pubMedPerts %>% nrow()
   pubMedSecs <- pubMedCount * 2 * 35
+
+  ## pubMed searches
+  ## TODO: UPDATE the clueTable
+  print(Sys.time())
+  pubMedSearchResults <- sapply(
+    pubMedPerts %>% pull(pert_iname),
+    pubMed,
+    simplify = FALSE
+  )
+  print(Sys.time())
 
   fdaCount <- clueTable %>%
     select(pert_iname, final_status, orange_book) %>%
@@ -128,23 +139,24 @@ chemblXML <- function(chemblId) {
 #' @param inChIKey
 #'
 #' @return List containing the most relevant and the most recent IDs
-pubMed <- function(compound, inChIKey) {
+pubMed <- function(compound, inChIKey = NA) {
   assertthat::assert_that(!is.na(compound))
 
   ## search by relevance
   searchURL <- glue::glue(PUBMED.SORT.REL)
-  html <- rvest::read_html(searchURL)
-  articleLink <- html %>%
+  result <- getPageCached(searchURL, sleepTime = SLEEP_TIME)
+  articleLink <- result$document %>%
     rvest::html_elements(xpath = PUBMED.RESULT.XPATH)
   mostRelevantId <- rvest::html_attr(articleLink, name = "data-article-id")
 
   searchURL <- glue::glue(PUBMED.SORT.DATE)
-  html <- rvest::read_html(searchURL)
-  articleLink <- html %>%
+  result <- getPageCached(searchURL, sleepTime = SLEEP_TIME)
+  articleLink <- result$document %>%
     rvest::html_elements(xpath = PUBMED.RESULT.XPATH)
   mostRecentId <- rvest::html_attr(articleLink, name = "data-article-id")
 
   return(list(
+    compound = compound,
     mostRelevant = mostRelevantId,
     mostRecent = mostRecentId
   ))
@@ -215,7 +227,14 @@ scrapeUniProtSnippets <- function(id, name) {
 }
 
 
-getPageCached <- function(url) {
+#' Load and cache files
+#'
+#' @param url URL pointing to XML/HTML file.
+#' @param sleepTime sleep interval in seconds before download,
+#' if content is not cached. Default value is 3.
+#'
+#' @return XML representation of the file content.
+getPageCached <- function(url, sleepTime = 3) {
   cacheFile <- glue::glue(CACHE, "/cache.tsv")
   ## initialize tibble object
   cache <- if (file.exists(cacheFile)) {
@@ -249,13 +268,24 @@ getPageCached <- function(url) {
 
     path <- glue::glue("{CACHE}/{fileName}")
     if (!notFound && file.exists(path)) {
-      return(rvest::read_html(path))
+      print(glue::glue("{Sys.time()} :: from cache: {url}"))
+      # returning from cache
+      return(list(
+        document = rvest::read_html(path),
+        fromCache = TRUE
+      ))
     } else if (!notFound && !file.exists(path)) {
-      stop(glue::glue("file not found: {path}"))
+      stop(glue::glue("file not found: {path} *** url: {url}"))
     } else {
       # if file doesn't exists
+      # ...sleep
+      if (sleepTime > 0) {
+        print(glue::glue("# sleeping {sleepTime} secs"))
+        Sys.sleep(sleepTime)
+      }
       # ...download
       resultPage <- rvest::read_html(url)
+      print(glue::glue("{Sys.time()} :: donwloaded: {url}"))
       # ...and save
       write_file(toString(resultPage), file = path)
       # ...update cache
@@ -270,6 +300,11 @@ getPageCached <- function(url) {
       }
       # ...save updated cache
       readr::write_tsv(x = cache, file = cacheFile)
+      # returning recently downloaded page
+      return(list(
+        document = resultPage,
+        fromCache = FALSE
+      ))
     }
   }
 }
