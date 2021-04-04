@@ -64,20 +64,12 @@ patch <- function(clueTable) {
 
   # TODO: Launched: FDA / EMA (maybe DrugBank?)
 
-  # TODO: !!!!! pubChem
-  # TODO: JavaScript issue: result page is dynamic
-  pubChem <- function(compound, inChIKey) {
-    assertthat::assert_that(!is.na(compound))
-    # assertthat::assert_that(!is.na(inChIKey))
-    searchURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/#query={compound}")
-    #compoundURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
-    html <- rvest::read_html(searchURL)
-    return(html)
-  }
-
   ##
   ## count of requests and estimated download times...
   ##
+
+  ## pubMed searches
+  ## TODO: UPDATE the clueTable
   pubMedPerts <- clueTable %>%
     select(pert_iname, final_status, status_source) %>%
     filter(final_status == "Preclinical" && is.na(status_source)) %>%
@@ -85,20 +77,22 @@ patch <- function(clueTable) {
   pubMedCount <- pubMedPerts %>% nrow()
   pubMedSecs <- pubMedCount * 2 * 35
 
-  ## pubMed searches
-  ## TODO: UPDATE the clueTable
   print(Sys.time())
-  pubMedSearchResults <- sapply(
-    pubMedPerts %>% pull(pert_iname),
-    pubMed,
-    simplify = FALSE
-  )
+  # pubMedSearchResults <- sapply(
+  #   pubMedPerts %>% pull(pert_iname),
+  #   pubMed,
+  #   simplify = FALSE
+  # )
   print(Sys.time())
 
-  fdaCount <- clueTable %>%
+  ## FDA searches
+  ## TODO: UPDATE the clueTable
+  fdaPerts <- clueTable %>%
     select(pert_iname, final_status, orange_book) %>%
     filter(final_status == "Launched" && !is.na(orange_book)) %>%
-    distinct() %>% nrow()
+    distinct()
+  browser()
+  fdaCount <- fdaPerts %>% nrow()
   fdaSecs <- fdaCount * 2 * 35
 
   uniProtSecs <- 99 * 2 * 35 # 6930
@@ -163,68 +157,102 @@ pubMed <- function(compound, inChIKey = NA) {
 }
 
 
-#' Look up PubChem ID
-#'
-#' @param inChIKey International Chemical Identifier
-#'
-#' @return PubChem ID or NA
-pubChemId <- function(inchiKey) {
-  # other possible resolvers:
-  # https://en.wikipedia.org/wiki/International_Chemical_Identifier#InChI_resolvers
+fdaLabel <- function(pert_iname) {
+  # DailyMed - NIH’s labeling search tool over 130,000 labeling documents for
+  # prescription drugs (including biological products, vaccines, blood products,
+  # cellular and gene therapy products), over-the-counter drugs, homeopathic
+  # drugs, animal drugs, and other products.
+  # FDALabel - FDA’s labeling search tool over 130,000 labeling documents.
+  # FDALabel and DailyMed have the same database but have different search
+  # functions and different displays of search results.
 
-  stop("Not implemented")
+  ## TODO: https://www.fda.gov/science-research/bioinformatics-tools/fdalabel-full-text-search-drug-product-labeling#Live%20Queries
+  ## Biomarker “BRCA or BRAF”
 
-  searchURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/TODO")
-  compoundURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
+  # based on https://nctr-crs.fda.gov/fdalabel/ui/search results
+  ## TODO: Add "Vaccine"s to the labeling type
+  labelTable <- jsonlite::read_json(glue::glue("{CACHE}/{pret_iname.json}"))
+
+
+  ## TODO: https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/ab85719a-53de-547c-e053-2a95a90ae578/spl-doc?hl=retinol
+
+  ## TODO: https://nctr-crs.fda.gov/fdalabel/ui/database-updates
 }
 
-
-#' Scrape UniProt webpage
+#' #' Look up PubChem ID
+#' #'
+#' #' @param inChIKey International Chemical Identifier
+#' #'
+#' #' @return PubChem ID or NA
+#' pubChemId <- function(inchiKey) {
+#'   # other possible resolvers:
+#'   # https://en.wikipedia.org/wiki/International_Chemical_Identifier#InChI_resolvers
 #'
-#' @param id an UniProt ID
-#' @param name gene name
+#'   stop("Not implemented")
 #'
-#' @return Visualization of the subcellular location of the protein.
-scrapeUniProtSnippets <- function(id, name) {
-  ## empty id is not accepted
-  # assertthat::assert_that(
-  #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
-  # )
-  print(glue::glue("scraping: UniProt {id} {name}"))
-  if (is.null(id) || is.na(id) || stringr::str_length(id) == 0) {
-    warning(
-      glue::glue("UniProt id of {name} is missing: '{id}'"),
-      immediate. = TRUE
-    )
-    return("")
-  }
+#'   searchURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/TODO")
+#'   compoundURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
+#'
+#'   # # TODO: !!!!! pubChem
+#'   # # TODO: JavaScript issue: result page is dynamic
+#'   # pubChem <- function(compound, inChIKey) {
+#'   #   assertthat::assert_that(!is.na(compound))
+#'   #   # assertthat::assert_that(!is.na(inChIKey))
+#'   #   searchURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/#query={compound}")
+#'   #   #compoundURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
+#'   #   html <- rvest::read_html(searchURL)
+#'   #   return(html)
+#'   # }
+#'
+#' }
 
-  url <- glue::glue("https://www.uniprot.org/uniprot/{id}")
-  page <- rvest::read_html(url)
 
-  subcellular_location <- page %>%
-    rvest::html_elements("#subcellular_location>:not(#topology_section)")
-
-  hasSubCellFigure <- length(subcellular_location) >= 2 &&
-    xml2::xml_length(subcellular_location) > 0
-  htmlSnippet <- if (hasSubCellFigure) {
-    subCellNode <- subcellular_location[[2]]
-    ## simple verifications
-    assertthat::assert_that(
-      rvest::html_name(subCellNode) == "div"
-    )
-    assertthat::assert_that(
-      endsWith(rvest::html_attr(subCellNode, name = "id"), id)
-    )
-
-    ## TO BE REMOVED: xml2::write_html(subCellNode, "subcellular_location.html")
-    toString(subCellNode)
-  } else {
-    glue::glue("<div>Subcellular figure not found</div>")
-  }
-
-  return(htmlSnippet)
-}
+#' #' Scrape UniProt webpage
+#' #'
+#' #' @param id an UniProt ID
+#' #' @param name gene name
+#' #'
+#' #' @return Visualization of the subcellular location of the protein.
+#' scrapeUniProtSnippets <- function(id, name) {
+#'   ## empty id is not accepted
+#'   # assertthat::assert_that(
+#'   #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
+#'   # )
+#'   print(glue::glue("scraping: UniProt {id} {name}"))
+#'   if (is.null(id) || is.na(id) || stringr::str_length(id) == 0) {
+#'     warning(
+#'       glue::glue("UniProt id of {name} is missing: '{id}'"),
+#'       immediate. = TRUE
+#'     )
+#'     return("")
+#'   }
+#'
+#'   url <- glue::glue("https://www.uniprot.org/uniprot/{id}")
+#'   page <- rvest::read_html(url)
+#'
+#'   subcellular_location <- page %>%
+#'     rvest::html_elements("#subcellular_location>:not(#topology_section)")
+#'
+#'   hasSubCellFigure <- length(subcellular_location) >= 2 &&
+#'     xml2::xml_length(subcellular_location) > 0
+#'   htmlSnippet <- if (hasSubCellFigure) {
+#'     subCellNode <- subcellular_location[[2]]
+#'     ## simple verifications
+#'     assertthat::assert_that(
+#'       rvest::html_name(subCellNode) == "div"
+#'     )
+#'     assertthat::assert_that(
+#'       endsWith(rvest::html_attr(subCellNode, name = "id"), id)
+#'     )
+#'
+#'     ## TO BE REMOVED: xml2::write_html(subCellNode, "subcellular_location.html")
+#'     toString(subCellNode)
+#'   } else {
+#'     glue::glue("<div>Subcellular figure not found</div>")
+#'   }
+#'
+#'   return(htmlSnippet)
+#' }
 
 
 #' Load and cache files
@@ -262,7 +290,7 @@ getPageCached <- function(url, sleepTime = 3) {
     if(notFound) {
       now <- Sys.time()
       fileName <- glue::glue(
-        "{getRandom()}-{as.integer(now)}"
+        "{getRandomNumber()}-{as.integer(now)}"
       )
     }
 
@@ -315,7 +343,7 @@ getPageCached <- function(url, sleepTime = 3) {
 #' Generates random integers between 1 and 10000.
 #'
 #' @return Random integer number.
-getRandom <- function() {
+getRandomNumber <- function() {
   numbers <- runif(10, min = 1, max = 10000)
   return(
     floor(sample(numbers, 1))
