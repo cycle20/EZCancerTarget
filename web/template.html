@@ -75,7 +75,9 @@
                               MoA <sup data-bs-toggle="tooltip" title="Mechanism of Action" class="text-primary">i</sup>
                             </th>
                             <th scope="col">Clinical Status</th>
-                            <th scope="col">Resources</th>
+                            <th scope="col">
+                              Resources <sup data-bs-toggle="tooltip" title="Source(s) of Clinical Status" class="text-primary">i</sup>
+                            </th>
                             <th scope="col">DrugBank</th>
                             <th scope="col">PubChem</th>
                             <th scope="col">ChEMBL</th>
@@ -101,9 +103,9 @@
                               </span>
                             </td>
                             <td>
-                              <span class="d-inline-block text-truncate" style="max-width: 100px;">
+                              {{! TODO: <span class="d-inline-block text-truncate" style="max-width: 100px;">}}
                               {{{status_source}}}
-                              </span>
+                              {{!</span>}}
                             </td>
                             <td>
                               <span class="d-inline-block text-truncate" style="max-width: 100px;">
@@ -137,9 +139,8 @@
                   </h2>
                   <div id="collapse-string-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
-                      10 best STRING interaction
-                      <img src="https://string-db.org/api/image/network?identifiers={{stringID}}" alt="Network of {{stringID}}" />
-
+                      <!-- 10 best STRING interaction -->
+                      <!-- img src="https://string-db.org/api/image/network?identifiers={{stringID}}" alt="Network of {{stringID}}" /-->
                     </div>{{! END OF STRING accordion-body }}
 
                   </div>

@@ -21,7 +21,7 @@ OUTPUT <- "OUTPUT"
 WEB_OUT <- glue::glue("{OUTPUT}/index.target.with.data.html")
 WEB_OUT_NODATA <- glue::glue("{OUTPUT}/index.target.no_data.html")
 TARGET.INPUT <- "INPUT/target_list.tsv"
-CLUE.INPUT <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
+CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
 STRING.INPUT <- glue::glue("INPUT/string_tab.tsv")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 
@@ -37,10 +37,10 @@ main <- function() {
     mutate(HUGO = target)
 
   resultCollapsed <- readr::read_tsv(CLUE.INPUT)
-  proteinIDs <- readr::read_tsv(STRING.INPUT)
+  # proteinIDs <- readr::read_tsv(STRING.INPUT)
   resultCollapsed <- targetList %>%
     left_join(resultCollapsed) %>%
-    left_join(proteinIDs, by = c("HUGO" = "preferred_name")) %>%
+    # left_join(proteinIDs, by = c("HUGO" = "preferred_name")) %>%
     rowwise() %>%
     mutate(has_data = (!is.na(pert_iname) && !is.na(UNIPROT_KB_ID)))
 
@@ -69,14 +69,14 @@ renderWebPage <- function(result, outputHTML = NULL) {
   ## - this should be an iteration on each HUGO group
   ## - collect pert groups for each gene group
   ## Maybe I shouldn't join result tables in download function.
-  result <- result %>%
-    #filter(HUGO == "ANXA1") %>%
-    #head(2) %>%
-    group_by(HUGO)
   collection <- list()
-  for (geneGroup in group_split(result)) {
-    groupName <- geneGroup$HUGO[1]
-    stringID <- geneGroup$protein_external_id[1]
+  for (geneGroup in unique(result$HUGO)) {
+    groupName <- geneGroup
+    # overwrite variable with data subset
+    geneGroup <- result %>%
+      filter(HUGO == groupName)
+
+    stringID <- NULL # TODO: geneGroup$protein_external_id[1]
     hasData <- geneGroup$has_data[1]
     NE <- geneGroup$NE[1]
     UNIPROT_KB_ID <- geneGroup$UNIPROT_KB_ID[1]
@@ -87,7 +87,8 @@ renderWebPage <- function(result, outputHTML = NULL) {
     # finalStatus <- geneGroup$final_status[1]
 
     grouppedByPerts <- geneGroup %>%
-      select(-c(HUGO, target, protein_external_id, has_data)) %>%
+      # select(-c(HUGO, target, protein_external_id, has_data)) %>%
+      select(-c(HUGO, target, has_data)) %>%
       group_by(pert_iname) %>%
       group_split()
 
@@ -100,15 +101,15 @@ renderWebPage <- function(result, outputHTML = NULL) {
       data = grouppedByPerts,
       NE = NE,
       UNIPROT_KB_ID = UNIPROT_KB_ID,
-      hasData = tolower(hasData),
-      uniProtSubCell = scrapeUniProtSnippets(UNIPROT_KB_ID, groupName)
+      hasData = tolower(hasData) #,
+      #uniProtSubCell = scrapeUniProtSnippets(UNIPROT_KB_ID, groupName)
       # geneCardsSubCellTable = scrapeGeneCardsSnippets(groupName)
     )))
 
-    print(
-      glue::glue("waiting {SLEEP_TIME} seconds before the next download...")
-    )
-    Sys.sleep(SLEEP_TIME)
+    # print(
+    #   glue::glue("waiting {SLEEP_TIME} seconds before the next download...")
+    # )
+    # Sys.sleep(SLEEP_TIME)
   } # end of main for loop
 
   ## export as web page
@@ -139,15 +140,31 @@ multivaluedCellsToHTML <- function(dataList) {
 
   cellsToHTML <- function(dataframe) {
     # TODO: Does it eliminate duplications?
-    return(
-      dataframe %>%
-        rowwise() %>%
-        mutate(
-          status_source = statusSourceHTML(status_source, pert_iname),
-          drugbank_id = drugBankHTML(drugbank_id),
-          chembl_id = chemblHTML(chembl_id),
-          pubchem_cid = pubChemHTML(pubchem_cid))
-    )
+    ## collapsing moa
+    moa <- paste(unique(dataframe$moa), collapse = ", <br>")
+    pubchem_cid <- paste(unique(dataframe$pubchem_cid), collapse = ", <br>")
+    chembl_id <- paste(unique(dataframe$chembl_id), collapse = ", <br>")
+    dataframe <- dataframe %>%
+      # select(-c(moa, pubchem_cid, chembl_id)) %>%
+      select(
+        pert_iname,
+        status_source,
+        drugbank_id,
+        final_status
+      ) %>%
+      distinct() %>%
+      mutate(
+        status_source = statusSourceHTML(status_source, pert_iname),
+        drugbank_id = drugBankHTML(drugbank_id),
+        chembl_id = chembl_id, # chemblHTML(chembl_id),
+        pubchem_cid = pubchem_cid # pubChemHTML(pubchem_cid)
+      )
+    ## strict verification
+    browser(expr = (nrow(dataframe) != 1))
+    assertthat::assert_that(nrow(dataframe) == 1)
+    ## set collapsed moa
+    dataframe$moa <- moa
+    return(dataframe)
   }
   dataList <- lapply(dataList, cellsToHTML)
   return(dataList)
@@ -174,7 +191,11 @@ statusSourceHTML <- function(statusSource, pert_iname) {
     print(htmlText)
 
     return(htmlText)
+  } else if (stringr::str_starts(statusSource, "<a href=")) {
+    ## already converted HTML
+    return(statusSource)
   }
+
   statusSourceList <- listShrink(statusSource)
   htmlText <- ""
   for (statusSource in statusSourceList) {

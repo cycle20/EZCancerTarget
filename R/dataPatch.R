@@ -6,6 +6,7 @@
 library(assertthat)
 library(dplyr)
 library(glue)
+library(httr)
 library(readr)
 library(rvest)
 library(stringr)
@@ -14,12 +15,15 @@ set.seed(739)
 ##
 ## Settings of global variables
 ##
-SLEEP_TIME <- 15 # wait between two HTTP request in seconds
+SLEEP_TIME <- 35 # wait between two HTTP request in seconds
+INGREDIENT_FILTER <- FALSE # Is FDA Label API request strict or not?
 OUTPUT <- "OUTPUT"
 CACHE <- glue::glue("{OUTPUT}/DATAPATH_CACHE")
 TARGET.INPUT <- "INPUT/target_list.tsv"
 CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
+
+TOOL.NAME <- "https://github.com/cycle20/scancer/"
 
 PUBMED <- "https://pubmed.ncbi.nlm.nih.gov"
 PUBMED.SORT.REL <- paste0(PUBMED, "?term={compound}&sort=relevance")
@@ -54,6 +58,7 @@ main <- function() {
   #   arrange(NE, HUGO)
 
   result <- patch(result)
+  readr::write_tsv(result, file = CLUE.INPUT)
 }
 
 
@@ -91,26 +96,51 @@ patch <- function(clueTable) {
     select(pert_iname, final_status, orange_book) %>%
     filter(final_status == "Launched" && !is.na(orange_book)) %>%
     distinct()
-  browser()
   fdaCount <- fdaPerts %>% nrow()
   fdaSecs <- fdaCount * 2 * 35
 
+  print(Sys.time())
+  fdaSearchResults <- sapply(
+    fdaPerts %>% pull(pert_iname),
+    fdaLabel,
+    simplify = FALSE
+  )
+  print(Sys.time())
+  # TODO: export - debug purposed
+  concatenated <- paste(fdaSearchResults, collapse = " ")
+  readr::write_file(concatenated, "FDAResult.html")
+
+  ## transform status_source based on FDA results
+  clueTable <- clueTable %>%
+    mutate(status_source = if_else(
+      hasName(fdaSearchResults, pert_iname) &&
+        !is.null(fdaSearchResults[[pert_iname]]),
+      # WHAT AN UGLY HACK! How can I eliminate this paste0 call?
+      paste0("", fdaSearchResults[[pert_iname]]),
+      status_source
+    ))
+
+  ## TODO: chEbml data...
   uniProtSecs <- 99 * 2 * 35 # 6930
   chEmblPubChemCount <- clueTable %>%
     filter(is.na(chembl_id) && is.na(pubchem_cid)) %>%
     distinct() %>% nrow()
   chEmblPubChemSecs <- chEmblPubChemCount * 35
 
+  hour <- 60 * 60
   print(glue::glue(
-    "pubMedTime: {pubMedSecs}; FDATime: {fdaSecs}"
+    "pubMedTime: {pubMedSecs} / {pubMedSecs / hour}; ",
+    "FDATime: {fdaSecs} / {fdaSecs / hour}"
   ))
   print(glue::glue(
-    "UniProtTime: {uniProtSecs}; ChEmbl/PubChem: {chEmblPubChemSecs}"
+    "UniProtTime: {uniProtSecs} / {uniProtSecs / hour}; ",
+    "ChEmbl/PubChem: {chEmblPubChemSecs} / {chEmblPubChemSecs / hour}"
   ))
   sumSecs <- pubMedSecs + fdaSecs + uniProtSecs + chEmblPubChemSecs
-  hours <- sumSecs / 60 / 60
-  print(glue::glue("sum: {sumSecs} secs; {hours} hrs"))
-  browser()
+  print(glue::glue("sum: {sumSecs} secs; {sumSecs / hour} hrs"))
+
+  ## return updated tables
+  return(clueTable)
 }
 
 
@@ -135,6 +165,12 @@ chemblXML <- function(chemblId) {
 #' @return List containing the most relevant and the most recent IDs
 pubMed <- function(compound, inChIKey = NA) {
   assertthat::assert_that(!is.na(compound))
+
+  # TODO: PMC? And embargoed articles? https://www.ncbi.nlm.nih.gov/pmc
+
+  # TODO: https://drugs.ncats.io/substances?facet=Pharmacology%2FInhibitor
+
+  # TODO: https://drugs.ncats.io/drug/MRK240IY2L
 
   ## search by relevance
   searchURL <- glue::glue(PUBMED.SORT.REL)
@@ -166,17 +202,141 @@ fdaLabel <- function(pert_iname) {
   # FDALabel and DailyMed have the same database but have different search
   # functions and different displays of search results.
 
+  # More resources: https://www.fda.gov/drugs/laws-acts-and-rules/prescription-drug-labeling-resources
+
   ## TODO: https://www.fda.gov/science-research/bioinformatics-tools/fdalabel-full-text-search-drug-product-labeling#Live%20Queries
   ## Biomarker “BRCA or BRAF”
 
   # based on https://nctr-crs.fda.gov/fdalabel/ui/search results
-  ## TODO: Add "Vaccine"s to the labeling type
-  labelTable <- jsonlite::read_json(glue::glue("{CACHE}/{pret_iname.json}"))
+  fdaDownload <- function(url) {
+    if(startsWith(url, CACHE)) {
+      ## if reading from cache...
+      return(readr::read_file(url))
+    }
 
+    if (!INGREDIENT_FILTER) {
+      ## Simple search:
+      ## ..............
+      ## Labeling type: "Human Rx", "Human OTC"
+      ## Labeling Full Text Search
+      # postData <- paste0('{"criteria":[{"criteria":[',
+      #   '{"sourceEntity":"document-type","documentTypeCodes":',
+      #   '["34391-3","34390-5", "53404-0"]},{"sourceEntity":"spl-text",',
+      #   '"textQuery":"',
+      #   pert_iname,
+      #   '","advanced":false}],"logOps":["a","a"]}],"logOps":[]}')
+      postData <- paste0(
+        '{"criteria":[{
+          "criteria": [
+            {
+              "sourceEntity": "document-type",
+              "documentTypeCodes": [
+                "34391-3",
+                "34390-5",
+                "53404-0"
+              ]
+            },
+            {
+              "sourceEntity": "product",
+              "nameType": "ANY",
+              "namePatternType": "SUBSTR",
+              "namePattern": "', pert_iname, '"
+            }
+          ],
+          "logOps": ["a","a"]
+        }],"logOps":[]}'
+      )
+    } else {
+      ## Simple search: ingredient filter is ON
+      ## ......................................
+      postData <- paste0(
+        '{"criteria":[{"criteria":[',
+        '{"sourceEntity":"document-type","documentTypeCodes":',
+        ## Labeling type: "Human Rx", "Human OTC", "Vaccine"
+        '["34391-3","34390-5","53404-0"]},{"sourceEntity":"section",',
+        '"textQuery":"',
+        pert_iname,
+        ## Labeling Section(s): "ACTIVE INGERDIENT"
+        '","selectedLabelingType":"0","sectionTypeCode":"2-55106-9",',
+        '"advanced":false}],"logOps":["a","a"]}],"logOps":[]}'
+      )
+    }
+
+    ## compress by removing white spaces
+    postData <- stringr::str_remove_all(postData, "[[:space:]]")
+    # response <- httr::HEAD(url, body = postData, config = add_headers(
+    #   "Content-Type" = "application/json; charset=UTF-8",
+    #   "Accept" = "application/json"
+    # ))
+
+    ## send the POST request
+    response <- httr::POST(url, body = postData, config = add_headers(
+      "Content-Type" = "application/json; charset=UTF-8",
+      "Accept" = "application/json"
+    ))
+    responseContent <- httr::content(response, as = "text", encoding = "UTF-8")
+
+    return(responseContent)
+  }
+
+  #labelTable <- jsonlite::read_json(glue::glue("{CACHE}/{pret_iname.json}"))
+  url = paste0("https://nctr-crs.fda.gov/fdalabel/services/spl/summaries",
+               "?pert3=", pert_iname, "&ingr=", INGREDIENT_FILTER)
+
+  ## cached download
+  downloadResult <- getPageCached(
+    url, sleepTime = SLEEP_TIME, downloadFunc = fdaDownload
+  )
+
+  ## "compressing" result set
+  parsedResult <- jsonlite::fromJSON(downloadResult$document)
+  if (parsedResult$totalResultsCount == 0) {
+    print(glue::glue("fdaLabel :: {pert_iname} :: results not found"))
+    return(invisible(NA))
+  }
+
+  ## filtering
+  pertNamePattern <- gsub("-", ".{,4}", pert_iname)
+  products <- parsedResult$resultsArray %>%
+    filter(
+      !grepl("first aid", productNames, ignore.case = TRUE)
+        && (!grepl(" kit", productNames, ignore.case = TRUE)
+            && !grepl("KIT", dosageForms))
+    )
+
+  if ((products %>% nrow()) == 0) {
+    print(glue::glue("{pert_iname} :: results not found after filtering"))
+    return(invisible(NA))
+  }
+
+  products <- products %>%
+    ## ACTIVE INGREDIENTS UNIIs ---------- check it!!!
+    group_by(actIngrUniis) %>%
+    filter(marketDates == max(marketDates)) %>%
+    ungroup() %>%
+    arrange(actIngrNames)
+  print(glue::glue(
+    "{pert_iname} :: fdaLabel products shrinked from ",
+    "{parsedResult$totalResultsCount} to {nrow(products)}"
+  ))
 
   ## TODO: https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/ab85719a-53de-547c-e053-2a95a90ae578/spl-doc?hl=retinol
+  labelURLTemplate =
+    "https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/{setId}/spl-doc"
+  anchorTemplate = '<a href="{labelURL}">{productNames}</a>'
+
+  htmlOfURLs <- products %>%
+    mutate(
+      labelURL = glue::glue(labelURLTemplate),
+      htmlURL = glue::glue(anchorTemplate)
+    ) %>%
+    select(labelURL, htmlURL)
+
+  resultHTML <- htmlOfURLs %>% pull(htmlURL)
+  resultHTML <- paste(resultHTML, collapse = "<br/>")
 
   ## TODO: https://nctr-crs.fda.gov/fdalabel/ui/database-updates
+  return(resultHTML)
 }
 
 #' #' Look up PubChem ID
@@ -262,7 +422,7 @@ fdaLabel <- function(pert_iname) {
 #' if content is not cached. Default value is 3.
 #'
 #' @return XML representation of the file content.
-getPageCached <- function(url, sleepTime = 3) {
+getPageCached <- function(url, sleepTime = 3, downloadFunc = rvest::read_html) {
   cacheFile <- glue::glue(CACHE, "/cache.tsv")
   ## initialize tibble object
   cache <- if (file.exists(cacheFile)) {
@@ -299,7 +459,7 @@ getPageCached <- function(url, sleepTime = 3) {
       print(glue::glue("{Sys.time()} :: from cache: {url}"))
       # returning from cache
       return(list(
-        document = rvest::read_html(path),
+        document = downloadFunc(path),
         fromCache = TRUE
       ))
     } else if (!notFound && !file.exists(path)) {
@@ -312,8 +472,8 @@ getPageCached <- function(url, sleepTime = 3) {
         Sys.sleep(sleepTime)
       }
       # ...download
-      resultPage <- rvest::read_html(url)
-      print(glue::glue("{Sys.time()} :: donwloaded: {url}"))
+      resultPage <- downloadFunc(url)
+      print(glue::glue("{Sys.time()} :: downloaded: {url}"))
       # ...and save
       write_file(toString(resultPage), file = path)
       # ...update cache
