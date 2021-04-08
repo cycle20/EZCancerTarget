@@ -12,6 +12,8 @@ library(rvest)
 library(stringr)
 
 set.seed(739)
+options(width = 160)
+
 ##
 ## Settings of global variables
 ##
@@ -21,6 +23,7 @@ OUTPUT <- "OUTPUT"
 CACHE <- glue::glue("{OUTPUT}/DATAPATH_CACHE")
 TARGET.INPUT <- "INPUT/target_list.tsv"
 CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
+CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.tsv")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 
 TOOL.NAME <- "https://github.com/cycle20/scancer/"
@@ -44,6 +47,8 @@ main <- function() {
     mutate(HUGO = target)
 
   result <- readr::read_tsv(CLUE.INPUT)
+  checkCoverage(result)
+
   result <- targetList %>%
     left_join(result) %>%
     rowwise() %>%
@@ -58,7 +63,97 @@ main <- function() {
   #   arrange(NE, HUGO)
 
   result <- patch(result)
-  readr::write_tsv(result, file = CLUE.INPUT)
+  readr::write_tsv(result, file = CLUE.PATCHED.OUTPUT)
+
+  checkCoverage(result)
+}
+
+
+checkCoverage <- function(clueTable) {
+  separator <- paste(rep("#", 75), collapse = "")
+  print(glue::glue("\n\n{separator}"))
+  print(glue::glue("{separator}", "  !!! START OF DATA INTEGRITY TEST !!!"))
+  print(glue::glue("{separator}\n\n"))
+
+  ## internal helper function
+  checkTable <- function(table, msg) {
+   n <- nrow(table)
+   prefix <- glue::glue("\n\n>>>>>>>> {msg}: {n} ...")
+   if(nrow(table) > 0) {
+     print(glue::glue("{prefix} IS NOT OK!"))
+     print(table)
+   } else
+     print(glue::glue("{prefix} IS OK!"))
+  }
+
+  ## FDA Orange issue
+  distinctTable <- clueTable %>%
+    select(
+      pert_iname,
+      # moa,
+      final_status,
+      status_source,
+      orange_book
+    ) %>%
+    distinct() %>%
+    rowwise() %>%
+    filter(grepl("FDA Orange", status_source))
+  checkTable(distinctTable, "FDA Orange")
+
+  ## FDA Orange issue V2
+  distinctTable <- clueTable %>%
+    select(
+      pert_iname,
+      final_status,
+      status_source,
+      orange_book
+    ) %>%
+    distinct() %>%
+    rowwise() %>%
+    filter(!is.na(orange_book) && is.na(status_source))
+  checkTable(distinctTable, "FDA.V2 orange_book has value")
+
+  ## FDA Launched check
+  distinctTable <- clueTable %>%
+    select(
+      pert_iname,
+      final_status,
+      status_source,
+      orange_book
+    ) %>%
+    distinct() %>%
+    rowwise() %>%
+    filter(final_status == "Launched" &&
+      is.na(orange_book) && is.na(status_source))
+  checkTable(distinctTable, "FDA Launched check")
+
+  ## PubChem/ChEMBL check
+  distinctTable <- clueTable %>%
+    select(
+      pert_iname,
+      final_status,
+      pubchem_cid,
+      chembl_id,
+      inchi_key,
+      pert_id,
+      ttd_id,
+      drugbank_id,
+      source,
+      status_source
+    ) %>%
+    distinct() %>%
+    rowwise() %>%
+    filter(is.na(pubchem_cid) && is.na(chembl_id))
+  checkTable(distinctTable, "PubChem/ChEMBL check")
+
+
+##  print("Foreced quit")
+##  quit(save = "no")
+
+
+  print(glue::glue("{separator}"))
+  print(glue::glue("{separator}", "  !!! END OF DATA INTEGRITY TEST !!!"))
+  print(glue::glue("{separator}"))
 }
 
 
@@ -165,6 +260,8 @@ chemblXML <- function(chemblId) {
 #' @return List containing the most relevant and the most recent IDs
 pubMed <- function(compound, inChIKey = NA) {
   assertthat::assert_that(!is.na(compound))
+
+  # TODO: #########   PUBMED re-cache!!!!!!!!!
 
   # TODO: PMC? And embargoed articles? https://www.ncbi.nlm.nih.gov/pmc
 
@@ -367,52 +464,52 @@ fdaLabel <- function(pert_iname) {
 #' }
 
 
-#' #' Scrape UniProt webpage
-#' #'
-#' #' @param id an UniProt ID
-#' #' @param name gene name
-#' #'
-#' #' @return Visualization of the subcellular location of the protein.
-#' scrapeUniProtSnippets <- function(id, name) {
-#'   ## empty id is not accepted
-#'   # assertthat::assert_that(
-#'   #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
-#'   # )
-#'   print(glue::glue("scraping: UniProt {id} {name}"))
-#'   if (is.null(id) || is.na(id) || stringr::str_length(id) == 0) {
-#'     warning(
-#'       glue::glue("UniProt id of {name} is missing: '{id}'"),
-#'       immediate. = TRUE
-#'     )
-#'     return("")
-#'   }
+#' Scrape UniProt webpage
 #'
-#'   url <- glue::glue("https://www.uniprot.org/uniprot/{id}")
-#'   page <- rvest::read_html(url)
+#' @param id an UniProt ID
+#' @param name gene name
 #'
-#'   subcellular_location <- page %>%
-#'     rvest::html_elements("#subcellular_location>:not(#topology_section)")
-#'
-#'   hasSubCellFigure <- length(subcellular_location) >= 2 &&
-#'     xml2::xml_length(subcellular_location) > 0
-#'   htmlSnippet <- if (hasSubCellFigure) {
-#'     subCellNode <- subcellular_location[[2]]
-#'     ## simple verifications
-#'     assertthat::assert_that(
-#'       rvest::html_name(subCellNode) == "div"
-#'     )
-#'     assertthat::assert_that(
-#'       endsWith(rvest::html_attr(subCellNode, name = "id"), id)
-#'     )
-#'
-#'     ## TO BE REMOVED: xml2::write_html(subCellNode, "subcellular_location.html")
-#'     toString(subCellNode)
-#'   } else {
-#'     glue::glue("<div>Subcellular figure not found</div>")
-#'   }
-#'
-#'   return(htmlSnippet)
-#' }
+#' @return Visualization of the subcellular location of the protein.
+scrapeUniProtSnippets <- function(id, name) {
+  ## empty id is not accepted
+  # assertthat::assert_that(
+  #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
+  # )
+  print(glue::glue("scraping: UniProt {id} {name}"))
+  if (is.null(id) || is.na(id) || stringr::str_length(id) == 0) {
+    warning(
+      glue::glue("UniProt id of {name} is missing: '{id}'"),
+      immediate. = TRUE
+    )
+    return("")
+  }
+
+  url <- glue::glue("https://www.uniprot.org/uniprot/{id}")
+  page <- getPageCached(url, sleepTime = SLEEP_TIME)
+
+  subcellular_location <- page %>%
+    rvest::html_elements("#subcellular_location>:not(#topology_section)")
+
+  hasSubCellFigure <- length(subcellular_location) >= 2 &&
+    xml2::xml_length(subcellular_location) > 0
+  htmlSnippet <- if (hasSubCellFigure) {
+    subCellNode <- subcellular_location[[2]]
+    ## simple verifications
+    assertthat::assert_that(
+      rvest::html_name(subCellNode) == "div"
+    )
+    assertthat::assert_that(
+      endsWith(rvest::html_attr(subCellNode, name = "id"), id)
+    )
+
+    ## TO BE REMOVED: xml2::write_html(subCellNode, "subcellular_location.html")
+    toString(subCellNode)
+  } else {
+    glue::glue("<div>Subcellular figure not found</div>")
+  }
+
+  return(htmlSnippet)
+}
 
 
 #' Load and cache files
