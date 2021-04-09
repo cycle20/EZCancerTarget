@@ -1,8 +1,10 @@
 ##
-## dataPatch.R: supply missing data items for clue.io compounds
+## dataPatch.R: supply missing data items for clue.io compounds -----------
 ##
 
-
+##
+## Libraries --------------------------------------------------------------
+##
 library(assertthat)
 library(dplyr)
 library(glue)
@@ -10,12 +12,13 @@ library(httr)
 library(readr)
 library(rvest)
 library(stringr)
+library(xml2)
 
 set.seed(739)
 options(width = 160)
 
 ##
-## Settings of global variables
+## Settings of global variables -------------------------------------------
 ##
 SLEEP_TIME <- 35 # wait between two HTTP request in seconds
 INGREDIENT_FILTER <- FALSE # Is FDA Label API request strict or not?
@@ -23,7 +26,8 @@ OUTPUT <- "OUTPUT"
 CACHE <- glue::glue("{OUTPUT}/DATAPATH_CACHE")
 TARGET.INPUT <- "INPUT/target_list.tsv"
 CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
-CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.tsv")
+# CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.tsv")
+CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 
 TOOL.NAME <- "https://github.com/cycle20/scancer/"
@@ -34,7 +38,13 @@ PUBMED.SORT.DATE <- paste0(PUBMED, "?term={compound}&sort=date")
 PUBMED.RESULT.XPATH <-
   '/html/body/main//section[@class="search-results-list"]//article[1]//a'
 
+UNIPROT.HTML.TEMPL = "https://www.uniprot.org/uniprot/{id}"
+UNIPROT.XML.TEMPL = "https://www.uniprot.org/uniprot/{id}.xml"
 
+
+##
+## Functions --------------------------------------------------------------
+##
 
 #' Main function
 #'
@@ -47,7 +57,8 @@ main <- function() {
     mutate(HUGO = target)
 
   result <- readr::read_tsv(CLUE.INPUT)
-  checkCoverage(result)
+
+  #checkDataCoverage(result)
 
   result <- targetList %>%
     left_join(result) %>%
@@ -62,14 +73,24 @@ main <- function() {
   #   filter(has_data == FALSE) %>%
   #   arrange(NE, HUGO)
 
+  ## Append UniProt details
+  result <- xmlUniProt(result)
   result <- patch(result)
-  readr::write_tsv(result, file = CLUE.PATCHED.OUTPUT)
+  ## save tibble as RDS since write_tsv is not an obvious way
+  saveRDS(result, file = CLUE.PATCHED.OUTPUT)
+  # TODO: readr::write_tsv(result, file = CLUE.PATCHED.OUTPUT)
+  # TODO: or JSON format might be a portable solution
 
-  checkCoverage(result)
+  checkDataCoverage(result)
 }
 
 
-checkCoverage <- function(clueTable) {
+#' Check gaps in our data set
+#'
+#' @param clueTable
+#'
+#' @return Invisible NULL
+checkDataCoverage <- function(clueTable) {
   separator <- paste(rep("#", 75), collapse = "")
   print(glue::glue("\n\n{separator}"))
   print(glue::glue("{separator}", "  !!! START OF DATA INTEGRITY TEST !!!"))
@@ -154,9 +175,16 @@ checkCoverage <- function(clueTable) {
   print(glue::glue("{separator}"))
   print(glue::glue("{separator}", "  !!! END OF DATA INTEGRITY TEST !!!"))
   print(glue::glue("{separator}"))
+
+  return(invisible(NULL))
 }
 
 
+#' "Patch" data gaps in CLUE table
+#'
+#' @param clueTable
+#'
+#' @return Invisible NULL
 patch <- function(clueTable) {
 
 
@@ -216,6 +244,7 @@ patch <- function(clueTable) {
     ))
 
   ## TODO: chEbml data...
+
   uniProtSecs <- 99 * 2 * 35 # 6930
   chEmblPubChemCount <- clueTable %>%
     filter(is.na(chembl_id) && is.na(pubchem_cid)) %>%
@@ -287,6 +316,16 @@ pubMed <- function(compound, inChIKey = NA) {
     mostRelevant = mostRelevantId,
     mostRecent = mostRecentId
   ))
+}
+
+
+##
+## Labels for Launched Drugs/Compounds ------------------------------------
+##
+
+ema <- function() {
+  # TODO https://www.ema.europa.eu/en/medicines/field_ema_web_categories%253Aname_field/Human?sort=search_api_aggregation_sort_ema_active_substance_and_inn_common_name&order=asc&search_api_views_fulltext=Disulfiram
+  stop("Not implemented")
 }
 
 
@@ -420,7 +459,7 @@ fdaLabel <- function(pert_iname) {
   ## TODO: https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/ab85719a-53de-547c-e053-2a95a90ae578/spl-doc?hl=retinol
   labelURLTemplate =
     "https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/{setId}/spl-doc"
-  anchorTemplate = '<a href="{labelURL}">{productNames}</a>'
+  anchorTemplate = '<a href="{labelURL}" target="_blank">{productNames}</a>'
 
   htmlOfURLs <- products %>%
     mutate(
@@ -467,27 +506,26 @@ fdaLabel <- function(pert_iname) {
 #' Scrape UniProt webpage
 #'
 #' @param id an UniProt ID
-#' @param name gene name
 #'
 #' @return Visualization of the subcellular location of the protein.
-scrapeUniProtSnippets <- function(id, name) {
+scrapeUniProtSnippets <- function(id) {
   ## empty id is not accepted
   # assertthat::assert_that(
   #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
   # )
-  print(glue::glue("scraping: UniProt {id} {name}"))
+  print(glue::glue("scraping: UniProt {id}"))
   if (is.null(id) || is.na(id) || stringr::str_length(id) == 0) {
     warning(
-      glue::glue("UniProt id of {name} is missing: '{id}'"),
+      glue::glue("UniProt id of is missing: '{id}'"),
       immediate. = TRUE
     )
     return("")
   }
 
-  url <- glue::glue("https://www.uniprot.org/uniprot/{id}")
+  url <- glue::glue(UNIPROT.HTML.TEMPL)
   page <- getPageCached(url, sleepTime = SLEEP_TIME)
 
-  subcellular_location <- page %>%
+  subcellular_location <- page$document %>%
     rvest::html_elements("#subcellular_location>:not(#topology_section)")
 
   hasSubCellFigure <- length(subcellular_location) >= 2 &&
@@ -511,6 +549,68 @@ scrapeUniProtSnippets <- function(id, name) {
   return(htmlSnippet)
 }
 
+
+#' Supply details from UniProtKB
+#'
+#' @param clueTable Input dataframe with UNIPROT_KB_ID column.
+#'
+#' @return data.frame patched by UniProt details.
+xmlUniProt <- function(clueTable) {
+  #' Internal helper function
+  #'
+  #' @param xmlResult
+  #'
+  #' @return
+  unwrapXMLData <- function(xmlResult) {
+    root <- xml2::xml_root(result$document)
+
+    ## STRING and GO ids
+    dbReferences <- xml2::xml_find_all(
+      x = root, xpath="//dbreference[@type = 'GO' or @type = 'STRING']"
+    )
+
+    ## iterate on DB references
+    resultList <- list(GO.TERMS = list())
+    for (dbref in dbReferences) {
+      type <- xml_attr(dbref, "type")
+      id <- xml_attr(dbref, "id")
+      if (type == "STRING") {
+        ## TODO: if there are multiple ids, the last one "wins"
+        resultList[["STRING"]] <- id
+      } else {
+        resultList$GO.TERMS[[id]] <- "TODO"
+      }
+    }
+    return(resultList)
+  }
+
+  ## xmlUniProt "body"-----------------------------------------------------
+  uniProtIdList <- clueTable %>%
+    select(UNIPROT_KB_ID) %>%
+    distinct() %>%
+    filter(!is.na(UNIPROT_KB_ID)) %>%
+    pull(UNIPROT_KB_ID)
+
+  ## iterate on UniProtKB Id list and collect/download relevant details
+  filteredXMLData <- list()
+  for (id in uniProtIdList) {
+    ## Note: "id" referenced by the glue template below
+    result <- getPageCached(glue::glue(UNIPROT.XML.TEMPL), sleepTime = 0)
+    filteredXMLData[[id]] <- unwrapXMLData(result)
+    subCellularSnippet <- scrapeUniProtSnippets(id)
+    filteredXMLData[[id]]$subCellularHTML <- subCellularSnippet
+  }
+
+  clueTable <- clueTable %>%
+    rowwise() %>%
+    mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
+  return(clueTable)
+}
+
+
+##
+## Utils/Helpers ----------------------------------------------------------
+##
 
 #' Load and cache files
 #'

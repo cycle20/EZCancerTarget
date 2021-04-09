@@ -21,7 +21,8 @@ OUTPUT <- "OUTPUT"
 WEB_OUT <- glue::glue("{OUTPUT}/index.target.with.data.html")
 WEB_OUT_NODATA <- glue::glue("{OUTPUT}/index.target.no_data.html")
 TARGET.INPUT <- "INPUT/target_list.tsv"
-CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
+# CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
+CLUE.INPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
 STRING.INPUT <- glue::glue("INPUT/string_tab.tsv")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 
@@ -36,7 +37,12 @@ main <- function() {
   targetList <- readr::read_tsv(TARGET.INPUT) %>%
     mutate(HUGO = target)
 
-  resultCollapsed <- readr::read_tsv(CLUE.INPUT)
+  ## read input data prepared by dataPatch.R
+  resultCollapsed <- if (endsWith(CLUE.INPUT, ".rds")) {
+    readRDS(CLUE.INPUT)
+  } else {
+    readr::read_tsv(CLUE.INPUT)
+  }
   # proteinIDs <- readr::read_tsv(STRING.INPUT)
   resultCollapsed <- targetList %>%
     left_join(resultCollapsed) %>%
@@ -76,10 +82,18 @@ renderWebPage <- function(result, outputHTML = NULL) {
     geneGroup <- result %>%
       filter(HUGO == groupName)
 
-    stringID <- NULL # TODO: geneGroup$protein_external_id[1]
     hasData <- geneGroup$has_data[1]
     NE <- geneGroup$NE[1]
     UNIPROT_KB_ID <- geneGroup$UNIPROT_KB_ID[1]
+
+    # TODO: Old solution was: geneGroup$protein_external_id[1]
+    uniProtData <- result %>%
+      select(HUGO, UniProtData) %>%
+      filter(HUGO == groupName) %>%
+      distinct() %>%
+      pull(UniProtData)
+    stringID <- uniProtData[[UNIPROT_KB_ID]][["STRING"]]
+    uniProtSubCellular <- uniProtData[[UNIPROT_KB_ID]]$subCellularHTML
 
     ## group by pert_iname
     # drugBankId <- geneGroup$drugbank_id[1]
@@ -101,9 +115,8 @@ renderWebPage <- function(result, outputHTML = NULL) {
       data = grouppedByPerts,
       NE = NE,
       UNIPROT_KB_ID = UNIPROT_KB_ID,
-      hasData = tolower(hasData) #,
-      #uniProtSubCell = scrapeUniProtSnippets(UNIPROT_KB_ID, groupName)
-      # geneCardsSubCellTable = scrapeGeneCardsSnippets(groupName)
+      hasData = tolower(hasData),
+      uniProtSubCell = uniProtSubCellular
     )))
 
     # print(
@@ -141,9 +154,9 @@ multivaluedCellsToHTML <- function(dataList) {
   cellsToHTML <- function(dataframe) {
     # TODO: Does it eliminate duplications?
     ## collapsing moa
-    moa <- paste(unique(dataframe$moa), collapse = ", <br>")
-    pubchem_cid <- paste(unique(dataframe$pubchem_cid), collapse = ", <br>")
-    chembl_id <- paste(unique(dataframe$chembl_id), collapse = ", <br>")
+    moa <- paste(unique(dataframe$moa), collapse = ", <br/>")
+    pubchem_cid <- paste(unique(dataframe$pubchem_cid), collapse = ", <br/>")
+    chembl_id <- paste(unique(dataframe$chembl_id), collapse = ", <br/>")
     dataframe <- dataframe %>%
       # select(-c(moa, pubchem_cid, chembl_id)) %>%
       select(
@@ -273,6 +286,7 @@ drugBankHTML <- function(drugBankId) {
 
   HTMLtext <- if(stringr::str_ends(drugBankId, pattern = "^DB[0-9]+$")) {
     link <- glue::glue("http://www.drugbank.ca/drugs/{drugBankId}")
+    link <- glue::glue("http://www.drugbank.ca/drugs/{drugBankId}")
     aHref(link = link, titleText = drugBankId)
   } else {
     ## text as is
@@ -317,7 +331,7 @@ pubChemHTML <- function(pubChemId) {
 #'
 #' @return HTML "a" snippet that can be used in HTML document directly.
 aHref <- function(link, titleText) {
-  return(glue::glue("<a href=\"{link}\">{titleText}</a>"))
+  return(glue::glue("<a href=\"{link}\" target=\"_blank\">{titleText}</a>"))
 }
 
 
