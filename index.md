@@ -10,7 +10,7 @@
 #### Results
 
 - [ ] [targets with data](https://cycle20.github.io/scancer/index.target.with.data.html)
-- [ ] [targets with NO data](https://cycle20.github.io/scancer/index.target.with.no.data.html) (no results on CLUE.IO)
+- [ ] [targets with NO data](https://cycle20.github.io/scancer/index.target.no_data.html) (no results on CLUE.IO)
 
 ----
 
