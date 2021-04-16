@@ -22,8 +22,7 @@ WEB_OUT <- glue::glue("{OUTPUT}/index.target.with.data.html")
 WEB_OUT_NODATA <- glue::glue("{OUTPUT}/index.target.no_data.html")
 TARGET.INPUT <- "INPUT/target_list.tsv"
 # CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
-CLUE.INPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
-STRING.INPUT <- glue::glue("INPUT/string_tab.tsv")
+PATCHED.CLUE.INPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 
 
@@ -38,23 +37,21 @@ main <- function() {
     mutate(HUGO = target)
 
   ## read input data prepared by dataPatch.R
-  resultCollapsed <- if (endsWith(CLUE.INPUT, ".rds")) {
-    readRDS(CLUE.INPUT)
+  patchedData <- if (endsWith(PATCHED.CLUE.INPUT, ".rds")) {
+    readRDS(PATCHED.CLUE.INPUT)
   } else {
-    readr::read_tsv(CLUE.INPUT)
+    readr::read_tsv(PATCHED.CLUE.INPUT)
   }
-  # proteinIDs <- readr::read_tsv(STRING.INPUT)
-  resultCollapsed <- targetList %>%
-    left_join(resultCollapsed) %>%
-    # left_join(proteinIDs, by = c("HUGO" = "preferred_name")) %>%
+  patchedData <- targetList %>%
+    left_join(patchedData) %>%
     rowwise() %>%
     mutate(has_data = (!is.na(pert_iname) && !is.na(UNIPROT_KB_ID)))
 
-  resultHasData <- resultCollapsed %>%
+  resultHasData <- patchedData %>%
     filter(has_data == TRUE) %>%
     arrange(NE, HUGO)
 
-  resultHasNoData <- resultCollapsed %>%
+  resultHasNoData <- patchedData %>%
     filter(has_data == FALSE) %>%
     arrange(NE, HUGO)
 
@@ -119,13 +116,11 @@ renderWebPage <- function(result, outputHTML = NULL) {
       uniProtSubCell = uniProtSubCellular
     )))
 
-    # print(
-    #   glue::glue("waiting {SLEEP_TIME} seconds before the next download...")
-    # )
-    # Sys.sleep(SLEEP_TIME)
   } # end of main for loop
 
-  ## export as web page
+
+  ## export as web page ---------------------------------------------------
+
   message(glue("reading web template: {WEB_TEMPLATE}"))
   template <- readr::read_file(WEB_TEMPLATE)
 
@@ -197,10 +192,17 @@ statusSourceHTML <- function(statusSource, pert_iname) {
   if (is.na(pert_iname) || is.null(pert_iname)) {
     return(pert_iname)
   } else if(is.na(statusSource) || is.null(statusSource)) {
-    # TODO: sophisticated query: most relevant link and most recent
-    link <- "https://pubmed.ncbi.nlm.nih.gov/?term={pert_iname}&sort=relevance"
+    link <- paste0(
+      "https://pubmed.ncbi.nlm.nih.gov",
+      "/?term={pert_iname}&size=200",
+      "&filter=pubt.clinicaltrial","&filter=pubt.meta-analysis",
+      "&filter=pubt.randomizedcontrolledtrial",
+      "&filter=pubt.review",
+      "&filter=pubt.systematicreview"
+    )
+
     link <- glue::glue(link)
-    htmlText <- aHref(link = link, titleText = "PubMed Search")
+    htmlText <- aHref(link = link, titleText = "PubMed Result: 0")
     print(htmlText)
 
     return(htmlText)

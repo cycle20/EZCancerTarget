@@ -236,6 +236,27 @@ getJSONContentAsDataFrame <- function(httrResponse) {
 #'
 #' @return Final data.frame composed from multiple datasets.
 download <- function(...) {
+  ## function to transform and save perts data
+  pertsSaveAndExport <- function(pertsData) {
+    p <- perts %>%
+      mutate(
+        alt_name = null.to.na(alt_name),
+        pert_url = null.to.na(pert_url),
+        moa = null.to.na(moa)
+      )
+    data.table::fwrite(p, "full_perts.tsv", sep = "\t")
+
+    pertsData <- pertsData %>%
+        rowwise() %>%
+        mutate(target = paste(target, collapse = "|")) %>%
+        ## what are the other fields?
+        select(target, pert_iname, pubchem_cid) %>%
+        arrange(target, pert_iname)
+
+    data.table::fwrite(pertsData, file = PERTS.TSV, sep = "\t", )
+    message(glue::glue("{PERTS.TSV} created"))
+    return(invisible(NULL))
+  }
 
   ## helper function
   null.to.na <- function(x) {
@@ -244,6 +265,15 @@ download <- function(...) {
     return(x)
   }
   null.to.na <- Vectorize(null.to.na)
+
+  ## get data from "perts" endpoint
+  perts <- perts(...)
+  pertsSaveAndExport(perts)
+  # Renaming to avoid conflict with moa from repDrugMoAs
+  perts <- perts %>%
+    rename(moa_from_perts = moa)
+    # TODO: alt_name excluded since its complicated list values with NULLs
+    # select(-c(alt_name))
 
   repDrugTargets <- rep_drug_targets(...) %>%
     rename(HUGO = name) %>%
@@ -255,23 +285,8 @@ download <- function(...) {
     select(-c(id))
   repDrugs <- rep_drugs(repDrugTargets$pert_iname) %>%
     select(-c(id))
-  perts <- perts(...)
 
-  x <- perts %>%
-    rowwise() %>%
-    mutate(target = paste(target, collapse = "|")) %>%
-    select(target, pert_iname, pubchem_cid) %>%
-    arrange(target, pert_iname)
-
-  data.table::fwrite(x, file = PERTS.TSV, sep = "\t", )
-  message(glue::glue("{PERTS.TSV} created"))
-
-  # Renaming to avoid conflict with moa from repDrugMoAs
-  perts <- perts %>%
-    rename(moa_from_perts = moa)
-    # TODO: alt_name excluded since its complicated list values with NULLs
-    # select(-c(alt_name))
-
+  ## joining tables
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
     left_join(repDrugMoAs) %>%
@@ -315,6 +330,7 @@ download <- function(...) {
       -c(synonyms, in_cmap, iuphar_id, animal_only)
     )
 
+  browser()
   return(result)
 }
 
