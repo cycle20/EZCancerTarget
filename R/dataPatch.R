@@ -393,39 +393,6 @@ chemblXML <- function(chemblId) {
 }
 
 
-#' PubChem Id
-#'
-#' @param id.or.name
-#'
-#' @return PubChem cid/name or NA
-pubChem <- function(id.or.name) {
-  ## TODO: PubChem check/download
-
-  ##
-  ## TODO:
-  ##
-  ## to find description by name:
-  ## https://pubchem.ncbi.nlm.nih.gov/compound/nitroflurbiprofen
-  ##
-  ## Can be extracted:
-  ##
-  ## <meta name="pubchem_uid_type" content="CID">
-  ## <meta name="pubchem_uid_type_prefix" content="PubChem">
-  ## <meta name="pubchem_uid_name" content="compound">
-  ## <meta name="pubchem_uid_value" content="119387">
-  ##
-  ## <link rel="alternate" type="application/rdf+xml"
-  ##   title="CID:119387"
-  ##   href="https://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID119387">
-  ##
-
-  stop("Not implemented")
-
-  ##
-  url <- glue::glue(PUBCHEM.URL.TEMPLATE)
-}
-
-
 #' Extract and supply PMIDs/links
 #'
 #' @param clueTable
@@ -734,6 +701,39 @@ fdaLabel <- function(pert_iname) {
 #' }
 
 
+#' PubChem Id
+#'
+#' @param id.or.name
+#'
+#' @return PubChem cid/name or NA
+pubChem <- function(id.or.name) {
+  ## TODO: PubChem check/download
+
+  ##
+  ## TODO:
+  ##
+  ## to find description by name:
+  ## https://pubchem.ncbi.nlm.nih.gov/compound/nitroflurbiprofen
+  ##
+  ## Can be extracted:
+  ##
+  ## <meta name="pubchem_uid_type" content="CID">
+  ## <meta name="pubchem_uid_type_prefix" content="PubChem">
+  ## <meta name="pubchem_uid_name" content="compound">
+  ## <meta name="pubchem_uid_value" content="119387">
+  ##
+  ## <link rel="alternate" type="application/rdf+xml"
+  ##   title="CID:119387"
+  ##   href="https://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID119387">
+  ##
+
+  stop("Not implemented")
+
+  ##
+  url <- glue::glue(PUBCHEM.URL.TEMPLATE)
+}
+
+
 #' Scrape UniProt webpage
 #'
 #' @param id an UniProt ID
@@ -760,7 +760,7 @@ scrapeUniProtSnippets <- function(id, sleepTime) {
   url <- glue::glue(UNIPROT.HTML.TEMPL)
   page <- getPageCached(url, sleepTime = sleepTime)
 
-  ## pick the jensenlab-style image
+  ## pick the jensenlab-style image ---------------------------------------
   subcellular_location <- page$document %>%
     rvest::html_elements(
       xpath = "//div[@id = 'subcellular_location']"
@@ -768,7 +768,7 @@ scrapeUniProtSnippets <- function(id, sleepTime) {
 
   htmlSnippet <- if (length(subcellular_location) == 1) {
     subCellNode <- subcellular_location[[1]]
-    xml2::write_html(subCellNode, "subcellular_location.html")
+    xml2::write_html(subCellNode, "debug_subcellular_location.html")
     toString(subCellNode)
   } else {
     warning(
@@ -776,6 +776,7 @@ scrapeUniProtSnippets <- function(id, sleepTime) {
     )
     glue::glue("<div>Subcellular figure not found</div>")
   }
+
 
   # hasSubCellFigure <- subcellular_location %>%
   #   xml2::xml_find_all(".//sib-swissbiopics-sl") %>%
@@ -789,8 +790,25 @@ scrapeUniProtSnippets <- function(id, sleepTime) {
   #   glue::glue("<div>Subcellular figure not found</div>")
   # }
 
+  ## pick GO Molecular functions ------------------------------------------
+  molecularFunction <- page$document %>% rvest::html_elements(
+    xpath = '//div[@id="function"]//ul[contains(@class, "molecular_function")]'
+  )
+  molecularFunction <- if (length(molecularFunction) == 1) {
+    node <- molecularFunction[[1]]
+    xml2::write_html(node, "debug_molecular_function.html")
+    toString(node)
+  } else {
+    warning(
+      glue::glue("{id}: GO Molecular function not found"), immediate. = TRUE
+    )
+    glue::glue("<div>GO Molecular function not found</div>")
+  }
+
+
   return(list(
     htmlSnippet = htmlSnippet,
+    molecularFunction = molecularFunction,
     fromCache = page$fromCache
   ))
 }
@@ -856,6 +874,8 @@ xmlUniProt <- function(clueTable) {
     scrapeResult <- scrapeUniProtSnippets(id, sleepTime)
     scrapeFromCache <- scrapeResult$fromCache
     filteredXMLData[[id]]$subCellularHTML <- scrapeResult$htmlSnippet
+    filteredXMLData[[id]]$molecularFunctionHTML <-
+      scrapeResult$molecularFunction
   }
 
   ## update the input table and return the result -------------------------
