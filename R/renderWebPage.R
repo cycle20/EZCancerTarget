@@ -94,9 +94,14 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
       filter(HUGO == groupName) %>%
       distinct() %>%
       pull(UniProtData)
-    stringID <- uniProtData[[UNIPROT_KB_ID]][["STRING"]]
+
+    ## unwrap UniProt details
+    stringID <- uniProtData[[UNIPROT_KB_ID]]$STRING
     uniProtSubCellular <- uniProtData[[UNIPROT_KB_ID]]$subCellularHTML
     uniProtMolecular <- uniProtData[[UNIPROT_KB_ID]]$molecularFunctionHTML
+    ## create an iterable list of list of "pathwayID" and "pathwayName" pairs
+    reactomePathways <- uniProtData[[UNIPROT_KB_ID]]$Reactome %>%
+      whisker::iteratelist(name = "pathwayID", value = "pathwayName")
 
     ## group by pert_iname
     # drugBankId <- geneGroup$drugbank_id[1]
@@ -120,7 +125,8 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
       UNIPROT_KB_ID = UNIPROT_KB_ID,
       hasData = tolower(hasData),
       uniProtSubCell = uniProtSubCellular,
-      uniProtMolecular = uniProtMolecular
+      uniProtMolecular = uniProtMolecular,
+      reactomePathways
     )))
 
   } # end of main for loop

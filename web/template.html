@@ -21,7 +21,7 @@
       td > a:hover,
       .molecular_function > li > a:hover
         { text-decoration: none; border-bottom: dashed; }
-      #creation_time { font-size: 0.75rem; }
+      #creation_time, .sup { font-size: 0.75rem; }
     </style>
 
     <title>Drug Targets</title>
@@ -186,12 +186,17 @@
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-{{target}}">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-{{target}}" aria-expanded="false" aria-controls="collapse-string-{{target}}">
-                      {{target}} :: Pathways (TODO)
+                      {{target}} :: Pathways
                     </button>
                   </h2>
                   <div id="collapse-pathways-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
-                      TO BE DONE...
+                      <h6>Reactome Pathways <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#section_x-ref_pathway" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
+
+                      {{#reactomePathways}}
+                        <a href="https://www.reactome.org/PathwayBrowser/{{pathwayID}}&FLG={{UNIPROT_KB_ID}}">{{pathwayID}}</a>,
+                        {{pathwayName}}<br/>
+                      {{/reactomePathways}}
                     </div>{{! END OF Pathways accordion-body }}
 
                   </div>

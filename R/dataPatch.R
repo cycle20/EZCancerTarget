@@ -829,20 +829,36 @@ xmlUniProt <- function(clueTable) {
     root <- xml2::xml_root(result$document)
 
     ## STRING and GO ids
-    dbReferences <- xml2::xml_find_all(
-      x = root, xpath="//dbreference[@type = 'GO' or @type = 'STRING']"
+    xpath <- paste0(
+      # NOTE: dbReference vs dbreference ???
+      ## GO functional ("F:") references
+      "//dbreference[@type='GO']",
+        "//property[@type='term'][starts-with(@value, 'F:')]",
+        ## select parent node of this GO property
+        "/parent::node()",
+      ## STRING and Reactome references
+      " | //dbreference[@type='STRING' or @type='Reactome']"
     )
+    dbReferences <- xml2::xml_find_all(x = root, xpath = xpath)
 
     ## iterate on DB references
-    resultList <- list(GO.TERMS = list())
+    resultList <- list(GO.TERMS = list(), Reactome = list())
     for (dbref in dbReferences) {
       type <- xml_attr(dbref, "type")
       id <- xml_attr(dbref, "id")
       if (type == "STRING") {
         ## TODO: if there are multiple ids, the last one "wins"
         resultList[["STRING"]] <- id
-      } else {
-        resultList$GO.TERMS[[id]] <- "TODO"
+      } else if (type == "Reactome") {
+        pathway <-
+          xml2::xml_find_first(dbref, ".//property[@type='pathway name']") %>%
+          xml2::xml_attr(attr = "value")
+        resultList$Reactome[[id]] <- pathway
+      } else if (type == "GO") {
+        term <-
+          xml2::xml_find_first(dbref, ".//property[@type='term']") %>%
+          xml2::xml_attr(attr = "value")
+        resultList$GO.TERMS[[id]] <- term
       }
     }
     return(resultList)
@@ -864,6 +880,7 @@ xmlUniProt <- function(clueTable) {
   for (id in uniProtIdList) {
     ## Note: "id" referenced by the glue template below
     sleepTime <- ifelse(scrapeFromCache, 2, SLEEP_TIME)
+    ## load XML "page"
     result <- getPageCached(
       glue::glue(UNIPROT.XML.TEMPL), sleepTime
     )
@@ -871,6 +888,7 @@ xmlUniProt <- function(clueTable) {
 
     ## scrape the subcell. image
     sleepTime <- ifelse(result$fromCache, 2, SLEEP_TIME)
+    ## load HTML page
     scrapeResult <- scrapeUniProtSnippets(id, sleepTime)
     scrapeFromCache <- scrapeResult$fromCache
     filteredXMLData[[id]]$subCellularHTML <- scrapeResult$htmlSnippet
