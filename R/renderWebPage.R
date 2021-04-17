@@ -162,7 +162,6 @@ multivaluedCellsToHTML <- function(dataList) {
       ) %>%
       distinct() %>%
       mutate(
-        status_source = statusSourceHTML(status_source, pert_iname),
         drugbank_id = drugBankHTML(drugbank_id),
         chembl_id = chembl_id, # chemblHTML(chembl_id),
         pubchem_cid = pubchem_cid # pubChemHTML(pubchem_cid)
@@ -176,79 +175,6 @@ multivaluedCellsToHTML <- function(dataList) {
   }
   dataList <- lapply(dataList, cellsToHTML)
   return(dataList)
-}
-
-
-#' Represent sources as hyperlinks
-#'
-#' @param statusSource character if it is an URL, it points
-#' probably to ClinicalTrials; but other URLs and pure texts
-#' can be expected here as well. This function verifies the source
-#' value and transform it the most appropriate HTML string.
-#' @param pert_iname name of the perturbagen
-#'
-#' @return HTML string
-statusSourceHTML <- function(statusSource, pert_iname) {
-  if (is.na(pert_iname) || is.null(pert_iname)) {
-    return(pert_iname)
-  } else if(is.na(statusSource) || is.null(statusSource)) {
-    link <- paste0(
-      "https://pubmed.ncbi.nlm.nih.gov",
-      "/?term={pert_iname}&size=200",
-      "&filter=pubt.clinicaltrial","&filter=pubt.meta-analysis",
-      "&filter=pubt.randomizedcontrolledtrial",
-      "&filter=pubt.review",
-      "&filter=pubt.systematicreview"
-    )
-
-    link <- glue::glue(link)
-    htmlText <- aHref(link = link, titleText = "PubMed Result: 0")
-    print(htmlText)
-
-    return(htmlText)
-  } else if (stringr::str_starts(statusSource, "<a href=")) {
-    ## already converted HTML
-    return(statusSource)
-  }
-
-  statusSourceList <- listShrink(statusSource)
-  htmlText <- ""
-  for (statusSource in statusSourceList) {
-    label <- if(stringr::str_starts(statusSource,
-      pattern = "https?://.*clinicaltrials.gov/.+NCT[0-9]+")) {
-      "ClinicalTrials"
-    } else if (stringr::str_starts(statusSource,
-      "https?://.*ncbi.*gov/pubmed")) {
-      "PubMed"
-    } else if (stringr::str_starts(statusSource, "https?://.+fda.gov/")) {
-      "FDA"
-    } else if (stringr::str_starts(statusSource,
-      "https?://.*dailymed.*.gov/")) {
-      "DailyMed"
-    } else if (stringr::str_starts(statusSource, "https?://.*wikipedia.org/")) {
-      "Wikipedia"
-    } else if (stringr::str_starts(statusSource, "https?://www.drugs.com/")) {
-      "drugs.com"
-    } else if (stringr::str_starts(statusSource, "https?://.*springer.com/")) {
-      "Springer"
-    } else if (stringr::str_starts(statusSource, "https?://docslide.*/")) {
-      "docslide"
-    } else if (stringr::str_starts(statusSource, "https://guidebook.com/")) {
-      "guidebook"
-    } else if (stringr::str_starts(statusSource, "http")) {
-      # default URL text
-      "Unexpected Source"
-    } else {
-      ## plain text transformed to a tool-tipped entity
-      html <- glue::glue("<span data-bs-toggle=\"tooltip\" ",
-        "title=\"{statusSource}\" data-bs-placement=\"right\">",
-        "{statusSource}</span>")
-      return(html)
-    }
-    # TODO:
-    htmlText <- paste0(htmlText, aHref(link = statusSource, titleText = label))
-  }
-  return(htmlText)
 }
 
 

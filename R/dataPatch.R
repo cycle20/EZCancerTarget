@@ -92,12 +92,11 @@ main <- function() {
 
   ## Append UniProt details
   result <- pubMed(result)
-  # result <- ema(result)
+  result <- ema(result)
   result <- xmlUniProt(result)
   #result <- patch(result)
   result <- consolidateColumns(result)
   ## save tibble as RDS since write_tsv is not an obvious way
-  browser()
   print(result)
   saveRDS(result, file = CLUE.PATCHED.OUTPUT)
   # TODO: readr::write_tsv(result, file = CLUE.PATCHED.OUTPUT)
@@ -207,6 +206,133 @@ checkDataCoverage <- function(clueTable) {
   print(glue::glue("{separator}"))
 
   return(invisible(NULL))
+}
+
+
+#' Cross-checking columns
+#'
+#' @param clueTable Input dataframe.
+#'
+#' @return data.frame updated based on column-wide decisions.
+consolidateColumns <- function(clueTable) {
+  composeLink <- function(PMID) {
+    link <- paste0(PUBMED.BASE, PMID)
+    return(aHref(link, "PM from search"))
+  }
+  # returns an HTML string
+  composeLinks <- function(PMIDs) {
+    if(!is.list(PMIDs) || length(PMIDs) == 0) {
+      return(NA)
+    } else {
+      return(paste(sapply(PMIDs, composeLink), collapse = "<br/>"))
+    }
+  }
+  appendEMALinks <- function(status_source, emaLinks) {
+    if(all(is.na(emaLinks))) {
+      return(status_source)
+    } else {
+      status_source <- paste(
+        c(status_source, "<strong>From EMA:</strong>"),
+        collapse = "<br/>"
+      )
+
+      status_source <- paste(
+        c(
+          status_source,
+          sapply(emaLinks, function(link) aHref(link, "Search Result"))
+        ),
+        collapse = "<br/>"
+      )
+
+      return(status_source)
+    }
+  }
+
+  clueTable <- clueTable %>%
+    rowwise() %>%
+    mutate(pubMedPreClinicalLinks = composeLinks(pubMedPreClinicalLinks)) %>%
+    mutate(
+        status_source = statusSourceHTML(status_source, pert_iname)
+    ) %>%
+    mutate(
+      status_source = if_else(
+        final_status == "Preclinical",
+        pubMedPreClinicalLinks,
+        toString(status_source))
+    ) %>%
+    mutate(status_source = appendEMALinks(status_source, emaLinks))
+
+  return(clueTable)
+}
+
+
+#' Represent sources as hyperlinks
+#'
+#' @param statusSource character if it is an URL, it points
+#' probably to ClinicalTrials; but other URLs and pure texts
+#' can be expected here as well. This function verifies the source
+#' value and transform it the most appropriate HTML string.
+#' @param pert_iname name of the perturbagen
+#'
+#' @return HTML string
+statusSourceHTML <- function(statusSource, pert_iname) {
+  if (is.na(pert_iname) || is.null(pert_iname)) {
+    return(pert_iname)
+  } else if(is.na(statusSource) || is.null(statusSource)) {
+    link <- paste0(
+      "https://pubmed.ncbi.nlm.nih.gov",
+      "/?term={pert_iname}&size=200",
+      "&filter=pubt.clinicaltrial","&filter=pubt.meta-analysis",
+      "&filter=pubt.randomizedcontrolledtrial",
+      "&filter=pubt.review",
+      "&filter=pubt.systematicreview"
+    )
+
+    link <- glue::glue(link)
+    htmlText <- aHref(link = link, titleText = "PubMed Result: 0")
+
+    return(htmlText)
+  } else if (stringr::str_starts(statusSource, "<a href=")) {
+    ## already converted HTML
+    return(statusSource)
+  }
+
+  htmlText <- ""
+  label <- if(stringr::str_starts(statusSource,
+    pattern = "https?://.*clinicaltrials.gov/.+NCT[0-9]+")) {
+    "ClinicalTrials"
+  } else if (stringr::str_starts(statusSource,
+    "https?://.*ncbi.*gov/pubmed")) {
+    "PubMed"
+  } else if (stringr::str_starts(statusSource, "https?://.+fda.gov/")) {
+    "FDA"
+  } else if (stringr::str_starts(statusSource,
+    "https?://.*dailymed.*.gov/")) {
+    "DailyMed"
+  } else if (stringr::str_starts(statusSource, "https?://.*wikipedia.org/")) {
+    "Wikipedia"
+  } else if (stringr::str_starts(statusSource, "https?://www.drugs.com/")) {
+    "drugs.com"
+  } else if (stringr::str_starts(statusSource, "https?://.*springer.com/")) {
+    "Springer"
+  } else if (stringr::str_starts(statusSource, "https?://docslide.*/")) {
+    "docslide"
+  } else if (stringr::str_starts(statusSource, "https://guidebook.com/")) {
+    "guidebook"
+  } else if (stringr::str_starts(statusSource, "http")) {
+    # default URL text
+    "Unexpected Source"
+  } else {
+    ## plain text transformed to a tool-tipped entity
+    html <- glue::glue("<span data-bs-toggle=\"tooltip\" ",
+      "title=\"{statusSource}\" data-bs-placement=\"right\">",
+      "{statusSource}</span>")
+    return(html)
+  }
+  # TODO:
+  htmlText <- paste0(htmlText, aHref(link = statusSource, titleText = label))
+
+  return(htmlText)
 }
 
 
@@ -613,7 +739,7 @@ fdaLabel <- function(pert_iname) {
 #' @param id an UniProt ID
 #'
 #' @return Visualization of the subcellular location of the protein.
-scrapeUniProtSnippets <- function(id) {
+scrapeUniProtSnippets <- function(id, sleepTime) {
   ## empty id is not accepted
   # assertthat::assert_that(
   #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
@@ -624,21 +750,26 @@ scrapeUniProtSnippets <- function(id) {
       glue::glue("UniProt id of is missing: '{id}'"),
       immediate. = TRUE
     )
-    return("")
+    return(lits(
+      htmlSnippet = "",
+      fromCache = TRUE
+    ))
   }
 
   ## cached download of HTML page
   url <- glue::glue(UNIPROT.HTML.TEMPL)
-  page <- getPageCached(url, sleepTime = SLEEP_TIME)
+  page <- getPageCached(url, sleepTime = sleepTime)
 
+  ## pick the jensenlab-style image
   subcellular_location <- page$document %>%
-    rvest::html_elements(xpath = "//*[@id=\"subcellular_location\"]")
+    rvest::html_elements(
+      xpath = "//div[@id = 'subcellular_location']"
+    )
 
-  hasSubCellFigure <- subcellular_location %>%
-    xml2::xml_find_all(".//sib-swissbiopics-sl") %>%
-    length()
-  htmlSnippet <- if (hasSubCellFigure > 0) {
-    toString(subcellular_location)
+  htmlSnippet <- if (length(subcellular_location) == 1) {
+    subCellNode <- subcellular_location[[1]]
+    xml2::write_html(subCellNode, "subcellular_location.html")
+    toString(subCellNode)
   } else {
     warning(
       glue::glue("{id}: Subcellular figure not found"), immediate. = TRUE
@@ -646,7 +777,22 @@ scrapeUniProtSnippets <- function(id) {
     glue::glue("<div>Subcellular figure not found</div>")
   }
 
-  return(htmlSnippet)
+  # hasSubCellFigure <- subcellular_location %>%
+  #   xml2::xml_find_all(".//sib-swissbiopics-sl") %>%
+  #   length()
+  # htmlSnippet <- if (hasSubCellFigure > 0) {
+  #   toString(subcellular_location)
+  # } else {
+  #   warning(
+  #     glue::glue("{id}: Subcellular figure not found"), immediate. = TRUE
+  #   )
+  #   glue::glue("<div>Subcellular figure not found</div>")
+  # }
+
+  return(list(
+    htmlSnippet = htmlSnippet,
+    fromCache = page$fromCache
+  ))
 }
 
 
@@ -696,52 +842,26 @@ xmlUniProt <- function(clueTable) {
   ## collect/download relevant details
   ##
   filteredXMLData <- list()
+  scrapeFromCache <- TRUE
   for (id in uniProtIdList) {
     ## Note: "id" referenced by the glue template below
+    sleepTime <- ifelse(scrapeFromCache, 2, SLEEP_TIME)
     result <- getPageCached(
-      glue::glue(UNIPROT.XML.TEMPL), sleepTime = SLEEP_TIME
+      glue::glue(UNIPROT.XML.TEMPL), sleepTime
     )
     filteredXMLData[[id]] <- unwrapXMLData(result)
-    subCellularSnippet <- scrapeUniProtSnippets(id)
-    filteredXMLData[[id]]$subCellularHTML <- subCellularSnippet
+
+    ## scrape the subcell. image
+    sleepTime <- ifelse(result$fromCache, 2, SLEEP_TIME)
+    scrapeResult <- scrapeUniProtSnippets(id, sleepTime)
+    scrapeFromCache <- scrapeResult$fromCache
+    filteredXMLData[[id]]$subCellularHTML <- scrapeResult$htmlSnippet
   }
 
   ## update the input table and return the result -------------------------
   clueTable <- clueTable %>%
     rowwise() %>%
     mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
-  return(clueTable)
-}
-
-
-#' Cross-checking columns
-#'
-#' @param clueTable Input dataframe.
-#'
-#' @return data.frame updated based on column-wide decisions.
-consolidateColumns <- function(clueTable) {
-  composeLink <- function(PMID) {
-    link <- paste0(PUBMED.BASE, PMID)
-    return(aHref(link, "PM from search"))
-  }
-  composeLinks <- function(PMIDs) {
-    if(!is.list(PMIDs) || length(PMIDs) == 0) {
-      return(NA)
-    } else {
-      paste(sapply(PMIDs, composeLink), collapse = "<br/>")
-    }
-  }
-
-  clueTable <- clueTable %>%
-    rowwise() %>%
-    mutate(pubMedPreClinicalLinks = composeLinks(pubMedPreClinicalLinks)) %>%
-    mutate(
-      status_source = if_else(
-        final_status == "Preclinical",
-        pubMedPreClinicalLinks,
-        status_source)
-    )
-
   return(clueTable)
 }
 
