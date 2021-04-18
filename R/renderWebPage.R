@@ -126,7 +126,7 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
       hasData = tolower(hasData),
       uniProtSubCell = uniProtSubCellular,
       uniProtMolecular = uniProtMolecular,
-      reactomePathways
+      reactomePathways = reactomePathways
     )))
 
   } # end of main for loop
