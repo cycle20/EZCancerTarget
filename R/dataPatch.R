@@ -734,86 +734,6 @@ pubChem <- function(id.or.name) {
 }
 
 
-#' Scrape UniProt webpage
-#'
-#' @param id an UniProt ID
-#'
-#' @return Visualization of the subcellular location of the protein.
-scrapeUniProtSnippets <- function(id, sleepTime) {
-  ## empty id is not accepted
-  # assertthat::assert_that(
-  #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
-  # )
-  print(glue::glue("scraping: UniProt {id}"))
-  if (is.null(id) || is.na(id) || stringr::str_length(id) == 0) {
-    warning(
-      glue::glue("UniProt id of is missing: '{id}'"),
-      immediate. = TRUE
-    )
-    return(lits(
-      htmlSnippet = "",
-      fromCache = TRUE
-    ))
-  }
-
-  ## cached download of HTML page
-  url <- glue::glue(UNIPROT.HTML.TEMPL)
-  page <- getPageCached(url, sleepTime = sleepTime)
-
-  ## pick the jensenlab-style image ---------------------------------------
-  subcellular_location <- page$document %>%
-    rvest::html_elements(
-      xpath = "//div[@id = 'subcellular_location']"
-    )
-
-  htmlSnippet <- if (length(subcellular_location) == 1) {
-    subCellNode <- subcellular_location[[1]]
-    xml2::write_html(subCellNode, "debug_subcellular_location.html")
-    toString(subCellNode)
-  } else {
-    warning(
-      glue::glue("{id}: Subcellular figure not found"), immediate. = TRUE
-    )
-    glue::glue("<div>Subcellular figure not found</div>")
-  }
-
-
-  # hasSubCellFigure <- subcellular_location %>%
-  #   xml2::xml_find_all(".//sib-swissbiopics-sl") %>%
-  #   length()
-  # htmlSnippet <- if (hasSubCellFigure > 0) {
-  #   toString(subcellular_location)
-  # } else {
-  #   warning(
-  #     glue::glue("{id}: Subcellular figure not found"), immediate. = TRUE
-  #   )
-  #   glue::glue("<div>Subcellular figure not found</div>")
-  # }
-
-  ## pick GO Molecular functions ------------------------------------------
-  molecularFunction <- page$document %>% rvest::html_elements(
-    xpath = '//div[@id="function"]//ul[contains(@class, "molecular_function")]'
-  )
-  molecularFunction <- if (length(molecularFunction) == 1) {
-    node <- molecularFunction[[1]]
-    xml2::write_html(node, "debug_molecular_function.html")
-    toString(node)
-  } else {
-    warning(
-      glue::glue("{id}: GO Molecular function not found"), immediate. = TRUE
-    )
-    glue::glue("<div>GO Molecular function not found</div>")
-  }
-
-
-  return(list(
-    htmlSnippet = htmlSnippet,
-    molecularFunction = molecularFunction,
-    fromCache = page$fromCache
-  ))
-}
-
-
 #' Supply details from UniProtKB
 #'
 #' @param clueTable Input dataframe with UNIPROT_KB_ID column.
@@ -829,13 +749,11 @@ xmlUniProt <- function(clueTable) {
     root <- xml2::xml_root(result$document)
 
     ## STRING and GO ids
+    ## NOTE: dbReference vs dbreference ???
     xpath <- paste0(
-      # NOTE: dbReference vs dbreference ???
-      ## GO functional ("F:") references
-      "//dbreference[@type='GO']",
+      "//dbreference[@type='GO']", ## GO functional ("F:") references
         "//property[@type='term'][starts-with(@value, 'F:')]",
-        ## select parent node of this GO property
-        "/parent::node()",
+        "/parent::node()", ## select parent node of this GO property
       ## STRING and Reactome references
       " | //dbreference[@type='STRING' or @type='Reactome']"
     )
@@ -901,6 +819,93 @@ xmlUniProt <- function(clueTable) {
     rowwise() %>%
     mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
   return(clueTable)
+}
+
+
+#' Scrape UniProt webpage
+#'
+#' @param id an UniProt ID
+#'
+#' @return Visualization of the subcellular location of the protein.
+scrapeUniProtSnippets <- function(id, sleepTime) {
+  browser(expr = (id == "P07202"))
+  ## empty id is not accepted
+  # assertthat::assert_that(
+  #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
+  # )
+  print(glue::glue("scraping: UniProt {id}"))
+  if (is.null(id) || is.na(id) || stringr::str_length(id) == 0) {
+    warning(
+      glue::glue("UniProt id of is missing: '{id}'"),
+      immediate. = TRUE
+    )
+    return(lits(
+      htmlSnippet = "",
+      fromCache = TRUE
+    ))
+  }
+
+  ## cached download of HTML page
+  url <- glue::glue(UNIPROT.HTML.TEMPL)
+  page <- getPageCached(url, sleepTime = sleepTime)
+
+  ## pick the jensenlab-style image ---------------------------------------
+  subCellImgPath <- paste0(
+    "//div[@id = 'subcellular_location']",
+      "/div[starts-with(@id, 'subcell-image-')]"
+  )
+  subCellNode <- page$document %>%
+    rvest::html_element(xpath = subCellImgPath)
+
+  htmlSnippet <- if (xml2::xml_length(subCellNode) > 0) {
+    ## select unneeded children, then remove them
+    subCellNode %>%
+      xml_find_all(xpath = "./*[position() > 2]") %>%
+      xml_remove()
+
+    xml2::write_html(subCellNode, "debug_subcellular_location.html")
+    toString(subCellNode)
+  } else {
+    warning(
+      glue::glue("{id}: Subcellular figure not found"), immediate. = TRUE
+    )
+    glue::glue("<div>Subcellular figure not found</div>")
+  }
+
+
+  # hasSubCellFigure <- subcellular_location %>%
+  #   xml2::xml_find_all(".//sib-swissbiopics-sl") %>%
+  #   length()
+  # htmlSnippet <- if (hasSubCellFigure > 0) {
+  #   toString(subcellular_location)
+  # } else {
+  #   warning(
+  #     glue::glue("{id}: Subcellular figure not found"), immediate. = TRUE
+  #   )
+  #   glue::glue("<div>Subcellular figure not found</div>")
+  # }
+
+  ## pick GO Molecular functions ------------------------------------------
+  molecularFunction <- page$document %>% rvest::html_elements(
+    xpath = '//div[@id="function"]//ul[contains(@class, "molecular_function")]'
+  )
+  molecularFunction <- if (length(molecularFunction) == 1) {
+    node <- molecularFunction[[1]]
+    xml2::write_html(node, "debug_molecular_function.html")
+    toString(node)
+  } else {
+    warning(
+      glue::glue("{id}: GO Molecular function not found"), immediate. = TRUE
+    )
+    glue::glue("<div>GO Molecular function not found</div>")
+  }
+
+
+  return(list(
+    htmlSnippet = htmlSnippet,
+    molecularFunction = molecularFunction,
+    fromCache = page$fromCache
+  ))
 }
 
 

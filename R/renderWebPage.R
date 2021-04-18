@@ -15,7 +15,6 @@ library(whisker)
 ##
 ## Settings of global variables
 ##
-SLEEP_TIME <- 15 # wait between two HTTP request in seconds
 WEB_TEMPLATE <- "web/template.html"
 OUTPUT <- "OUTPUT"
 WEB_OUT <- glue::glue("{OUTPUT}/index.target.with.data.html")

@@ -10,11 +10,18 @@
 
     <!-- Some customization -->
     <style type="text/css" media="all">
+      .tab-pane > .btn-group { margin-bottom: 0.3rem; }
       .HIGH { border-left-width: 5px; border-left-color: #800080; }
       .LOW { border-left-width: 5px; border-left-color: #99FFAA; }
       .URINE { border-left-width: 5px; border-left-color: orange; }
-      small.has-data-true { background-color: #99FFAA; }
-      .has-data-false { }
+
+      .HIGH > sup { color: white; background-color: #800080; }
+      .LOW > sup { background-color: #99FFAA; }
+      .URINE > sup { background-color: orange; }
+      .HIGH > sup, .LOW > sup, .URINE > sup {
+        padding: 2px 1px 2px 1px;
+      }
+
       div.has-data-false { display: none; }
       #compartmentsTable { font-size: 0.75rem; }
       span > a:hover,
@@ -24,7 +31,7 @@
       #creation_time, .sup { font-size: 0.75rem; }
     </style>
 
-    <title>Drug Targets</title>
+    <title>Drug Targets - {{title}}</title>
   </head>
   <body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
@@ -40,7 +47,7 @@
           <div class="list-group" id="list-tab" role="tablist">
 {{#targets}}
 {{#target}}
-            <a class="list-group-item list-group-item-action {{NE}}" id="list-{{.}}-list" data-bs-toggle="list" href="#list-{{.}}" role="tab" aria-controls="profile">{{target}} <small class="small has-data-{{hasData}}">[{{NE}}]</small></a>
+            <a class="list-group-item list-group-item-action {{NE}}" id="list-{{.}}-list" data-bs-toggle="list" href="#list-{{.}}" role="tab" aria-controls="profile">{{target}} <sup>[{{NE}}]</sup></a>
 {{/target}}
 {{/targets}}
           </div>
@@ -158,6 +165,8 @@
                   </h2>
                   <div id="collapse-localization-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
+                      <h6>Subcellular Location <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#subcellular_location" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
+
                       <div class="col-sm">{{{uniProtSubCell}}}</div>
 
                     </div>{{! END OF Subcellular Location accordion-body }}
@@ -174,6 +183,8 @@
                   </h2>
                   <div id="collapse-molecular-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
+                      <h6>Molecular Functions <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#function" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
+
                       <div class="text-muted">From <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#function" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></div>
                       <div class="molecular-function">
                         {{{uniProtMolecular}}}
