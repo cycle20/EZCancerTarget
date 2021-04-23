@@ -299,41 +299,6 @@ listShrink <- function(text) {
 }
 
 
-#' #' Scrape GeneCards webpage
-#' #'
-#' #' @param name gene name
-#' #'
-#' #' @return Table of localization values.
-#' scrapeGeneCardsSnippets <- function(name) {
-#'   browser()
-#'   print(glue::glue("scraping: GeneCards {name}"))
-#'   ## empty names is not accepted
-#'   assertthat::assert_that(
-#'     !(is.null(name) || is.na(name) || stringr::str_length(name) == 0)
-#'   )
-#'   url <- glue::glue("https://www.genecards.org/cgi-bin/carddisp.pl?gene={name}")
-#'   page <- rvest::read_html(url)
-#'
-#'   compartmentsTable <- page %>%
-#'     rvest::html_elements("#compartmentsTable")
-#'
-#'   hasSubCellFigure <- length(compartmentsTable) == 1 &&
-#'     xml2::xml_length(compartmentsTable) == 2
-#'   htmlSnippet <- if (hasSubCellFigure) {
-#'     ## simple verifications
-#'     assertthat::assert_that(
-#'       rvest::html_name(compartmentsTable) == "table"
-#'     )
-#'
-#'     toString(compartmentsTable)
-#'   } else {
-#'     glue::glue("<div>Subcellular table not found</div>")
-#'   }
-#'
-#'   return(htmlSnippet)
-#' }
-
-
 ## just call the main
 main()
 

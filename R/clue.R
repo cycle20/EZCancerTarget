@@ -330,7 +330,6 @@ download <- function(...) {
       -c(synonyms, in_cmap, iuphar_id, animal_only)
     )
 
-  browser()
   return(result)
 }
 
