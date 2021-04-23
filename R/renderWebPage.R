@@ -15,7 +15,6 @@ library(whisker)
 ##
 ## Settings of global variables
 ##
-SLEEP_TIME <- 15 # wait between two HTTP request in seconds
 WEB_TEMPLATE <- "web/template.html"
 OUTPUT <- "OUTPUT"
 WEB_OUT <- glue::glue("{OUTPUT}/index.target.with.data.html")
@@ -55,18 +54,23 @@ main <- function() {
     filter(has_data == FALSE) %>%
     arrange(NE, HUGO)
 
-  renderWebPage(resultHasData, outputHTML = WEB_OUT)
-  renderWebPage(resultHasNoData, outputHTML = WEB_OUT_NODATA)
+  renderWebPage(
+    resultHasData, title = "Has CLUE.IO Entries", outputHTML = WEB_OUT
+  )
+  renderWebPage(
+    resultHasNoData, title = "Not found on CLUE.IO", outputHTML = WEB_OUT_NODATA
+  )
 }
 
 
 #' Render web page
 #'
 #' @param result List of data structures to be visualized as a web page.
+#' @param title Extension title.
 #' @param outputHTML Name of result HTML file.
 #'
 #' @return Invisible NULL.
-renderWebPage <- function(result, outputHTML = NULL) {
+renderWebPage <- function(result, title, outputHTML = NULL) {
   assertthat::assert_that(!is.null(outputHTML))
 
   ## - this should be an iteration on each HUGO group
@@ -89,8 +93,14 @@ renderWebPage <- function(result, outputHTML = NULL) {
       filter(HUGO == groupName) %>%
       distinct() %>%
       pull(UniProtData)
-    stringID <- uniProtData[[UNIPROT_KB_ID]][["STRING"]]
+
+    ## unwrap UniProt details
+    stringID <- uniProtData[[UNIPROT_KB_ID]]$STRING
     uniProtSubCellular <- uniProtData[[UNIPROT_KB_ID]]$subCellularHTML
+    uniProtMolecular <- uniProtData[[UNIPROT_KB_ID]]$molecularFunctionHTML
+    ## create an iterable list of list of "pathwayID" and "pathwayName" pairs
+    reactomePathways <- uniProtData[[UNIPROT_KB_ID]]$Reactome %>%
+      whisker::iteratelist(name = "pathwayID", value = "pathwayName")
 
     ## group by pert_iname
     # drugBankId <- geneGroup$drugbank_id[1]
@@ -113,7 +123,9 @@ renderWebPage <- function(result, outputHTML = NULL) {
       NE = NE,
       UNIPROT_KB_ID = UNIPROT_KB_ID,
       hasData = tolower(hasData),
-      uniProtSubCell = uniProtSubCellular
+      uniProtSubCell = uniProtSubCellular,
+      uniProtMolecular = uniProtMolecular,
+      reactomePathways = reactomePathways
     )))
 
   } # end of main for loop
@@ -125,7 +137,7 @@ renderWebPage <- function(result, outputHTML = NULL) {
   template <- readr::read_file(WEB_TEMPLATE)
 
   targets <- collection
-
+  creationTime <- Sys.time()
   message(glue("rendering web page, template is '{WEB_TEMPLATE}'"))
   renderResult <- whisker::whisker.render(template, debug = TRUE)
   readr::write_file(renderResult, file = outputHTML)
@@ -285,41 +297,6 @@ listShrink <- function(text) {
   }
   return(returnVal)
 }
-
-
-#' #' Scrape GeneCards webpage
-#' #'
-#' #' @param name gene name
-#' #'
-#' #' @return Table of localization values.
-#' scrapeGeneCardsSnippets <- function(name) {
-#'   browser()
-#'   print(glue::glue("scraping: GeneCards {name}"))
-#'   ## empty names is not accepted
-#'   assertthat::assert_that(
-#'     !(is.null(name) || is.na(name) || stringr::str_length(name) == 0)
-#'   )
-#'   url <- glue::glue("https://www.genecards.org/cgi-bin/carddisp.pl?gene={name}")
-#'   page <- rvest::read_html(url)
-#'
-#'   compartmentsTable <- page %>%
-#'     rvest::html_elements("#compartmentsTable")
-#'
-#'   hasSubCellFigure <- length(compartmentsTable) == 1 &&
-#'     xml2::xml_length(compartmentsTable) == 2
-#'   htmlSnippet <- if (hasSubCellFigure) {
-#'     ## simple verifications
-#'     assertthat::assert_that(
-#'       rvest::html_name(compartmentsTable) == "table"
-#'     )
-#'
-#'     toString(compartmentsTable)
-#'   } else {
-#'     glue::glue("<div>Subcellular table not found</div>")
-#'   }
-#'
-#'   return(htmlSnippet)
-#' }
 
 
 ## just call the main

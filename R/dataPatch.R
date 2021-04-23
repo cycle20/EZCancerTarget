@@ -33,9 +33,9 @@ CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 TOOL.NAME <- "https://github.com/cycle20/scancer/"
 
 PUBMED.BASE <- "https://pubmed.ncbi.nlm.nih.gov/"
-PUBMED <- paste0(
+PUBMED.SEARCH <- paste0(
   PUBMED.BASE,
-  "?term={compound}&size=200",
+  "?term={compound}&size=200", # "compound" as glue::glue variable
   "&filter=pubt.clinicaltrial","&filter=pubt.meta-analysis",
   "&filter=pubt.randomizedcontrolledtrial",
   "&filter=pubt.review",
@@ -81,7 +81,9 @@ main <- function() {
   targetList <- readr::read_tsv(TARGET.INPUT) %>%
     mutate(HUGO = target)
 
-  result <- readr::read_tsv(CLUE.INPUT)
+  result <- readr::read_tsv(CLUE.INPUT) %>%
+    ## NOTE: this filter drops some not well-curated compounds
+    filter(!is.na(source))
 
   checkDataCoverage(result)
 
@@ -90,12 +92,8 @@ main <- function() {
     rowwise() %>%
     mutate(has_data = (!is.na(pert_iname) && !is.na(UNIPROT_KB_ID)))
 
-  ## Append UniProt details
-  result <- pubMed(result)
-  result <- ema(result)
-  result <- xmlUniProt(result)
-  #result <- patch(result)
-  result <- consolidateColumns(result)
+  result <- patch(result)
+
   ## save tibble as RDS since write_tsv is not an obvious way
   print(result)
   saveRDS(result, file = CLUE.PATCHED.OUTPUT)
@@ -105,6 +103,32 @@ main <- function() {
   # TODO: should be another logic: checkDataCoverage(result)
 
   return(result)
+}
+
+
+#' "Patch" data gaps in CLUE table
+#'
+#' @param clueTable
+#'
+#' @return Invisible NULL
+patch <- function(clueTable) {
+
+  ## FDA searches
+  clueTable <- fdaLabel(clueTable)
+  ## PubMed searches
+  clueTable <- pubMed(clueTable)
+  ## EMA searches
+  clueTable <- ema(clueTable)
+  ## Append UniProt details
+  clueTable <- xmlUniProt(clueTable)
+
+  ## Adjustment of data of columns and HTML fragments
+  clueTable <- consolidateColumns(clueTable)
+
+  ## TODO: chEbml data...
+
+  ## return updated tables
+  return(clueTable)
 }
 
 
@@ -215,52 +239,105 @@ checkDataCoverage <- function(clueTable) {
 #'
 #' @return data.frame updated based on column-wide decisions.
 consolidateColumns <- function(clueTable) {
-  composeLink <- function(PMID) {
+  ##
+  ## TODO: Where should be construct the HTML code?
+  ##       Template file would be the best place.
+  ##
+
+
+  ## FUNC: to compose PubMed link
+  pubMedLink <- function(PMID) {
     link <- paste0(PUBMED.BASE, PMID)
-    return(aHref(link, "PM from search"))
+    return(aHref(link, glue::glue("PubMed {PMID}")))
   }
-  # returns an HTML string
-  composeLinks <- function(PMIDs) {
+  ## FUNC: returns an HTML string of PubMed links
+  pubMedLinks <- function(PMIDs, compound) {
+    title <- "<strong>From PubMed:</strong>"
     if(!is.list(PMIDs) || length(PMIDs) == 0) {
-      return(NA)
+      searchLinkHTML <- aHref(link = glue::glue(PUBMED.SEARCH),
+        titleText = "No search result"
+      )
+      return(paste(c(title, searchLinkHTML), collapse = "<br class='cl'/>"))
     } else {
-      return(paste(sapply(PMIDs, composeLink), collapse = "<br/>"))
+      htmlLinks <- paste(sapply(PMIDs, pubMedLink), collapse = "<br class='cl'/>")
+      return(paste(c(title, htmlLinks), collapse = "<br class='cl2'/>"))
     }
   }
-  appendEMALinks <- function(status_source, emaLinks) {
+
+  ## FUNC: to compose EMA and append links to "status_source"
+  appendEMALinks <- function(status_source = "", emaLinks) {
     if(all(is.na(emaLinks))) {
       return(status_source)
     } else {
       status_source <- paste(
         c(status_source, "<strong>From EMA:</strong>"),
-        collapse = "<br/>"
+        collapse = "<br class='ael'/>"
       )
 
       status_source <- paste(
         c(
           status_source,
-          sapply(emaLinks, function(link) aHref(link, "Search Result"))
+          sapply(emaLinks, function(link) aHref(link, "Found PDF"))
         ),
-        collapse = "<br/>"
+        collapse = "<br class='ael2'/>"
       )
 
       return(status_source)
     }
   }
 
+  ## FUNC: to compose FDA and append links to "status_source"
+  appendFDALinks <- function(status_source = "", fdaLabelDetails) {
+    if (is.na(fdaLabelDetails$pert_iname)) {
+      return(status_source)
+    } else {
+      ## old value + title of FDA "section":
+      status_source <- paste(
+        c(status_source, "<strong>FDA Labels:</strong>"),
+        collapse = "<br class='afl'/>"
+      )
+
+      ## glue variable accessed from dplyr environment: "setId"
+      ## TODO: https://nctr-crs.fda.gov/fdalabel...spl-doc?hl=PATTERN_TO_HIGHLIGHT
+      labelURLTemplate =
+        "https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/{setId}/spl-doc"
+      ## glue variable accessed from dplyr environment: "productNames"
+      anchorTemplate = '<a href="{labelURL}" target="_blank">{productNames}</a>'
+
+      ## concatenate labels as HTML URL list
+      htmlOfURLs <- fdaLabelDetails$productsTable %>%
+        mutate(
+          labelURL = glue::glue(labelURLTemplate),
+          htmlURL = glue::glue(anchorTemplate)
+        ) %>%
+        select(labelURL, htmlURL)
+
+      resultHTML <- htmlOfURLs %>% pull(htmlURL)
+      resultHTML <- paste(resultHTML, collapse = "<br class='fld'/>")
+
+      status_source <- paste(c(status_source, resultHTML), collapse = "<br class='fld2'/>")
+      return(status_source)
+    }
+  }
+
+  ## update "status_source" by HTML representation of various sources
   clueTable <- clueTable %>%
     rowwise() %>%
-    mutate(pubMedPreClinicalLinks = composeLinks(pubMedPreClinicalLinks)) %>%
     mutate(
-        status_source = statusSourceHTML(status_source, pert_iname)
+      pubMedPreClinicalLinks = pubMedLinks(pubMedPreClinicalLinks, pert_iname),
+      fdaSearchResults = appendFDALinks(pubMedPreClinicalLinks,
+                                        fdaLabelDetails = fdaSearchResults),
+      emaLinks = appendEMALinks(fdaSearchResults, emaLinks = emaLinks)
     ) %>%
+    rowwise() %>%
+    mutate(clueSource = glue::glue(
+      "<div class='clue'><strong>CLUE.IO</strong><br/>",
+      "{statusSourceHTML(status_source, pert_iname)}</div>"
+    )) %>%
+    mutate() %>%
     mutate(
-      status_source = if_else(
-        final_status == "Preclinical",
-        pubMedPreClinicalLinks,
-        toString(status_source))
-    ) %>%
-    mutate(status_source = appendEMALinks(status_source, emaLinks))
+      status_source = paste(c(emaLinks, clueSource), collapse = "<br class='mut'/>")
+    )
 
   return(clueTable)
 }
@@ -279,19 +356,7 @@ statusSourceHTML <- function(statusSource, pert_iname) {
   if (is.na(pert_iname) || is.null(pert_iname)) {
     return(pert_iname)
   } else if(is.na(statusSource) || is.null(statusSource)) {
-    link <- paste0(
-      "https://pubmed.ncbi.nlm.nih.gov",
-      "/?term={pert_iname}&size=200",
-      "&filter=pubt.clinicaltrial","&filter=pubt.meta-analysis",
-      "&filter=pubt.randomizedcontrolledtrial",
-      "&filter=pubt.review",
-      "&filter=pubt.systematicreview"
-    )
-
-    link <- glue::glue(link)
-    htmlText <- aHref(link = link, titleText = "PubMed Result: 0")
-
-    return(htmlText)
+    return("No status source")
   } else if (stringr::str_starts(statusSource, "<a href=")) {
     ## already converted HTML
     return(statusSource)
@@ -336,50 +401,6 @@ statusSourceHTML <- function(statusSource, pert_iname) {
 }
 
 
-#' "Patch" data gaps in CLUE table
-#'
-#' @param clueTable
-#'
-#' @return Invisible NULL
-patch <- function(clueTable) {
-
-  # TODO: phase I... : clinicalTrials -------------------------------------
-
-  ## FDA searches
-  ## TODO: UPDATE the clueTable
-  fdaPerts <- clueTable %>%
-    select(pert_iname, final_status, orange_book) %>%
-    filter(final_status == "Launched" && !is.na(orange_book)) %>%
-    distinct()
-
-  fdaSearchResults <- sapply(
-    fdaPerts %>% pull(pert_iname),
-    fdaLabel,
-    simplify = FALSE
-  )
-
-  ## transform status_source based on FDA results
-  clueTable <- clueTable %>%
-    mutate(status_source = if_else(
-      hasName(fdaSearchResults, pert_iname) &&
-        !is.null(fdaSearchResults[[pert_iname]]),
-      # WHAT AN UGLY HACK! How can I eliminate this paste0 call?
-      paste0("", fdaSearchResults[[pert_iname]]),
-      status_source
-    ))
-
-  ## TODO: chEbml data...
-
-  chEmblPubChemCount <- clueTable %>%
-    filter(is.na(chembl_id) && is.na(pubchem_cid)) %>%
-    distinct() %>% nrow()
-  chEmblPubChemSecs <- chEmblPubChemCount * 35
-
-  ## return updated tables
-  return(clueTable)
-}
-
-
 #' ChEMBL Id
 #'
 #' @param chemblId
@@ -390,39 +411,6 @@ chemblXML <- function(chemblId) {
   ## https://www.ebi.ac.uk/chembl/api/data/target/search?q=ANXA3
 
   stop("Not implemented")
-}
-
-
-#' PubChem Id
-#'
-#' @param id.or.name
-#'
-#' @return PubChem cid/name or NA
-pubChem <- function(id.or.name) {
-  ## TODO: PubChem check/download
-
-  ##
-  ## TODO:
-  ##
-  ## to find description by name:
-  ## https://pubchem.ncbi.nlm.nih.gov/compound/nitroflurbiprofen
-  ##
-  ## Can be extracted:
-  ##
-  ## <meta name="pubchem_uid_type" content="CID">
-  ## <meta name="pubchem_uid_type_prefix" content="PubChem">
-  ## <meta name="pubchem_uid_name" content="compound">
-  ## <meta name="pubchem_uid_value" content="119387">
-  ##
-  ## <link rel="alternate" type="application/rdf+xml"
-  ##   title="CID:119387"
-  ##   href="https://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID119387">
-  ##
-
-  stop("Not implemented")
-
-  ##
-  url <- glue::glue(PUBCHEM.URL.TEMPLATE)
 }
 
 
@@ -444,7 +432,7 @@ pubMed <- function(clueTable) {
       return(NA)
     }
     # download page or read it from cache
-    searchURL <- glue::glue(PUBMED)
+    searchURL <- glue::glue(PUBMED.SEARCH)
     result <- getPageCached(searchURL, sleepTime = SLEEP_TIME)
     # get article <a> elements (top3, if there are more)
     articleLinks <- result$document %>%
@@ -455,15 +443,6 @@ pubMed <- function(clueTable) {
     return(as.list(articleIds))
   }
 
-  ## TODO: UPDATE the clueTable
-  # pubMedPerts <- clueTable %>%
-  #   select(pert_iname, final_status, status_source) %>%
-  #   filter(final_status == "Preclinical" && is.na(status_source)) %>%
-  #   distinct()
-
-  # clueTable$pubMedPreClinicalLinks <- NA
-  # #  //pubMedSearch( pert_iname, final_status ))
-  # clueTable$pubMedPreClinicalLinks[1] <- list(NA, NA)
   clueTable <- clueTable %>%
     mutate(pubMedPreClinicalLinks = list(pubMedSearch(pert_iname, final_status)))
 
@@ -540,13 +519,17 @@ ema <- function(clueTable) {
       print(glue::glue("Sleep before HEAD request: {SLEEP_TIME} secs"))
       Sys.sleep(SLEEP_TIME)
     } else {
-      Sys.sleep(5)
+      Sys.sleep(2)
     }
     ## HEAD request and assert
     print(glue::glue("Check URL (HEAD request): {pdfURL}"))
     sCode <- httr::HEAD(pdfURL)$status_code
     print(sCode)
-    assertthat::assert_that(sCode %in% c(200, 301, 302))
+    if (sCode == 404) { ## NOTE: this case needs a better handler
+      print("ERROR 404: PAGE NOT FOUND")
+    } else {
+      assertthat::assert_that(sCode %in% c(200, 301, 302))
+    }
 
     ## return the public summary PDF link of the first hit from the search list
     penv$emaSearchLocalCache[[compound]] <- pdfURL
@@ -560,7 +543,11 @@ ema <- function(clueTable) {
 }
 
 
-fdaLabel <- function(pert_iname) {
+fdaLabel <- function(clueTable) {
+  ## url with "pert_iname" placeholder
+  url = paste0("https://nctr-crs.fda.gov/fdalabel/services/spl/summaries",
+               "?pert={pert_iname}&ingr=", INGREDIENT_FILTER)
+
   # DailyMed - NIH’s labeling search tool over 130,000 labeling documents for
   # prescription drugs (including biological products, vaccines, blood products,
   # cellular and gene therapy products), over-the-counter drugs, homeopathic
@@ -574,13 +561,17 @@ fdaLabel <- function(pert_iname) {
   ## TODO: https://www.fda.gov/science-research/bioinformatics-tools/fdalabel-full-text-search-drug-product-labeling#Live%20Queries
   ## Biomarker “BRCA or BRAF”
 
-  # based on https://nctr-crs.fda.gov/fdalabel/ui/search results
+  ## FUNC: Custom download function instead of rvest::read_html.
+  ##       Passed as parameter of getPageCached function.
+  ##       based on https://nctr-crs.fda.gov/fdalabel/ui/search results
   fdaDownload <- function(url) {
     if(startsWith(url, CACHE)) {
       ## if reading from cache...
       return(readr::read_file(url))
     }
 
+    ## TODO: Ugly hack to resolve variable from the call-chain
+    pert_iname <- get("pert_iname", envir = sys.frame(-2))
     if (!INGREDIENT_FILTER) {
       ## Simple search:
       ## ..............
@@ -646,64 +637,111 @@ fdaLabel <- function(pert_iname) {
     return(responseContent)
   }
 
-  #labelTable <- jsonlite::read_json(glue::glue("{CACHE}/{pret_iname.json}"))
-  url = paste0("https://nctr-crs.fda.gov/fdalabel/services/spl/summaries",
-               "?pert3=", pert_iname, "&ingr=", INGREDIENT_FILTER)
+  ## FUNC: internal helper function
+  getFDALabelResults <- function(pert_iname) {
+    #labelTable <- jsonlite::read_json(glue::glue("{CACHE}/{pret_iname.json}"))
 
-  ## cached download
-  downloadResult <- getPageCached(
-    url, sleepTime = SLEEP_TIME, downloadFunc = fdaDownload
-  )
+    ## "empty" result
+    emptyList <- list(pert_iname = NA, productsTable = NA)
 
-  ## "compressing" result set
-  parsedResult <- jsonlite::fromJSON(downloadResult$document)
-  if (parsedResult$totalResultsCount == 0) {
-    print(glue::glue("fdaLabel :: {pert_iname} :: results not found"))
-    return(invisible(NA))
-  }
-
-  ## filtering
-  pertNamePattern <- gsub("-", ".{,4}", pert_iname)
-  products <- parsedResult$resultsArray %>%
-    filter(
-      !grepl("first aid", productNames, ignore.case = TRUE)
-        && (!grepl(" kit", productNames, ignore.case = TRUE)
-            && !grepl("KIT", dosageForms))
+    ## cached download, uses custom function above
+    downloadResult <- getPageCached(
+      glue::glue(url), ## replace pert_iname placeholder before pass it
+      sleepTime = SLEEP_TIME,
+      ## send and get HTTP request and result in a specialized manner
+      downloadFunc = fdaDownload
     )
 
-  if ((products %>% nrow()) == 0) {
-    print(glue::glue("{pert_iname} :: results not found after filtering"))
-    return(invisible(NA))
+    ## parsing and "compressing" result set
+    parsedResult <- jsonlite::fromJSON(downloadResult$document)
+    if (parsedResult$totalResultsCount == 0) {
+      print(glue::glue("fdaLabel :: {pert_iname} :: results not found"))
+      return(emptyList) ## return "empty" list
+    }
+
+    ## filtering
+    pertNamePattern <- gsub("-", ".{,4}", pert_iname)
+    products <- parsedResult$resultsArray %>%
+      filter(
+        !any(grepl("first aid", productNames, ignore.case = TRUE))
+          && (!any(grepl(" kit", productNames, ignore.case = TRUE))
+              && !any(grepl("KIT", dosageForms)))
+      )
+
+    if ((products %>% nrow()) == 0) {
+      print(glue::glue("{pert_iname} :: results not found after filtering"))
+      return(emptyList) ## return "empty" list
+    }
+
+    ## FUNC: Shrink found labels selecting by
+    ##       max. market date of each group
+    ingredientsMatchLevel <- Vectorize(function(pert_iname, ingrList) {
+      ## to uppercase and split the list
+      ingrList <- ingrList %>%
+        stringr::str_to_upper() %>%
+        stringr::str_split(string = ., pattern = "; *")
+      ingrList <- ingrList[[1]]
+      pert_iname <- stringr::str_to_upper(pert_iname)
+
+      matchLevel <- if (pert_iname %in% ingrList) {
+        1 # exact match
+      } else if (any(stringr::str_starts(ingrList, pert_iname))) {
+        2 # partial match A: starts with
+      } else if (any(stringr::str_ends(ingrList, pert_iname))) {
+        3 # partial match B: ends with
+      } else if (any(grepl(pert_iname, ingrList))) {
+        4 # partial match C: contains
+      } else {
+        5 # no match at all
+      }
+    })
+
+    ## FUNC: split and returns actIngrUniis string
+    ingrLength <- Vectorize(function(actIngrUniis) {
+      actIngrUniis <- actIngrUniis %>%
+        stringr::str_to_upper() %>%
+        stringr::str_split(string = ., pattern = "; *")
+      actIngrUniis <- actIngrUniis[[1]]
+
+      return(length(actIngrUniis))
+    })
+
+    products <- products %>%
+      mutate(matchLevel = ingredientsMatchLevel(pert_iname, actIngrNames)) %>%
+      mutate(ingrLength = ingrLength(actIngrUniis)) %>%
+      filter(matchLevel < 5) %>%
+      group_by(matchLevel, ingrLength)
+
+    ## probably "best" matches"
+    ## TODO: needs more work: since it picks from each matchLevel,
+    ##       but incremental selection would be better:
+    ##       - first try to get results from level 1,
+    ##       - then try level 2,...
+    ##       - etc...
+    products <- products %>%
+      filter(marketDates == max(marketDates)) %>%
+      ungroup() %>%
+      arrange(matchLevel, ingrLength)
+
+    nr <- nrow(products)
+    percentage <- round((1 - nr / parsedResult$totalResultsCount) * 100, 2)
+    print(glue::glue(
+      "fdaLabel({pert_iname}) products counts ({nr}) shrinked by {percentage} %"
+    ))
+
+    productsTable <- (products %>% select(productNames, setId))
+    return(list(
+      pert_iname = pert_iname,
+      productsTable = productsTable
+    ))
   }
 
-  products <- products %>%
-    ## ACTIVE INGREDIENTS UNIIs ---------- check it!!!
-    group_by(actIngrUniis) %>%
-    filter(marketDates == max(marketDates)) %>%
-    ungroup() %>%
-    arrange(actIngrNames)
-  print(glue::glue(
-    "{pert_iname} :: fdaLabel products shrinked from ",
-    "{parsedResult$totalResultsCount} to {nrow(products)}"
-  ))
+  ## transform status_source based on FDA results
+  clueTable <- clueTable %>%
+    # filter(final_status == "Launched" && !is.na(orange_book)) %>%
+    mutate(fdaSearchResults = list(getFDALabelResults(pert_iname)))
 
-  ## TODO: https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/ab85719a-53de-547c-e053-2a95a90ae578/spl-doc?hl=retinol
-  labelURLTemplate =
-    "https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/{setId}/spl-doc"
-  anchorTemplate = '<a href="{labelURL}" target="_blank">{productNames}</a>'
-
-  htmlOfURLs <- products %>%
-    mutate(
-      labelURL = glue::glue(labelURLTemplate),
-      htmlURL = glue::glue(anchorTemplate)
-    ) %>%
-    select(labelURL, htmlURL)
-
-  resultHTML <- htmlOfURLs %>% pull(htmlURL)
-  resultHTML <- paste(resultHTML, collapse = "<br/>")
-
-  ## TODO: https://nctr-crs.fda.gov/fdalabel/ui/database-updates
-  return(resultHTML)
+  return(clueTable)
 }
 
 #' #' Look up PubChem ID
@@ -734,6 +772,127 @@ fdaLabel <- function(pert_iname) {
 #' }
 
 
+#' PubChem Id
+#'
+#' @param id.or.name
+#'
+#' @return PubChem cid/name or NA
+pubChem <- function(id.or.name) {
+  ## TODO: PubChem check/download
+
+  ##
+  ## TODO:
+  ##
+  ## to find description by name:
+  ## https://pubchem.ncbi.nlm.nih.gov/compound/nitroflurbiprofen
+  ##
+  ## Can be extracted:
+  ##
+  ## <meta name="pubchem_uid_type" content="CID">
+  ## <meta name="pubchem_uid_type_prefix" content="PubChem">
+  ## <meta name="pubchem_uid_name" content="compound">
+  ## <meta name="pubchem_uid_value" content="119387">
+  ##
+  ## <link rel="alternate" type="application/rdf+xml"
+  ##   title="CID:119387"
+  ##   href="https://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID119387">
+  ##
+
+  stop("Not implemented")
+
+  ##
+  url <- glue::glue(PUBCHEM.URL.TEMPLATE)
+}
+
+
+#' Supply details from UniProtKB
+#'
+#' @param clueTable Input dataframe with UNIPROT_KB_ID column.
+#'
+#' @return data.frame patched by UniProt details.
+xmlUniProt <- function(clueTable) {
+  #' Internal helper function
+  #'
+  #' @param xmlResult
+  #'
+  #' @return
+  unwrapXMLData <- function(xmlResult) {
+    root <- xml2::xml_root(result$document)
+
+    ## STRING and GO ids
+    ## NOTE: dbReference vs dbreference ???
+    xpath <- paste0(
+      "//dbreference[@type='GO']", ## GO functional ("F:") references
+        "//property[@type='term'][starts-with(@value, 'F:')]",
+        "/parent::node()", ## select parent node of this GO property
+      ## STRING and Reactome references
+      " | //dbreference[@type='STRING' or @type='Reactome']"
+    )
+    dbReferences <- xml2::xml_find_all(x = root, xpath = xpath)
+
+    ## iterate on DB references
+    resultList <- list(GO.TERMS = list(), Reactome = list())
+    for (dbref in dbReferences) {
+      type <- xml_attr(dbref, "type")
+      id <- xml_attr(dbref, "id")
+      if (type == "STRING") {
+        ## TODO: if there are multiple ids, the last one "wins"
+        resultList[["STRING"]] <- id
+      } else if (type == "Reactome") {
+        pathway <-
+          xml2::xml_find_first(dbref, ".//property[@type='pathway name']") %>%
+          xml2::xml_attr(attr = "value")
+        resultList$Reactome[[id]] <- pathway
+      } else if (type == "GO") {
+        term <-
+          xml2::xml_find_first(dbref, ".//property[@type='term']") %>%
+          xml2::xml_attr(attr = "value")
+        resultList$GO.TERMS[[id]] <- term
+      }
+    }
+    return(resultList)
+  }
+
+  ## xmlUniProt "body"-----------------------------------------------------
+  uniProtIdList <- clueTable %>%
+    select(UNIPROT_KB_ID) %>%
+    distinct() %>%
+    filter(!is.na(UNIPROT_KB_ID)) %>%
+    pull(UNIPROT_KB_ID)
+
+  ##
+  ## iterate on UniProtKB Id list and -------------------------------------
+  ## collect/download relevant details
+  ##
+  filteredXMLData <- list()
+  scrapeFromCache <- TRUE
+  for (id in uniProtIdList) {
+    ## Note: "id" referenced by the glue template below
+    sleepTime <- ifelse(scrapeFromCache, 2, SLEEP_TIME)
+    ## load XML "page"
+    result <- getPageCached(
+      glue::glue(UNIPROT.XML.TEMPL), sleepTime
+    )
+    filteredXMLData[[id]] <- unwrapXMLData(result)
+
+    ## scrape the subcell. image
+    sleepTime <- ifelse(result$fromCache, 2, SLEEP_TIME)
+    ## load HTML page
+    scrapeResult <- scrapeUniProtSnippets(id, sleepTime)
+    scrapeFromCache <- scrapeResult$fromCache
+    filteredXMLData[[id]]$subCellularHTML <- scrapeResult$htmlSnippet
+    filteredXMLData[[id]]$molecularFunctionHTML <-
+      scrapeResult$molecularFunction
+  }
+
+  ## update the input table and return the result -------------------------
+  clueTable <- clueTable %>%
+    rowwise() %>%
+    mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
+  return(clueTable)
+}
+
+
 #' Scrape UniProt webpage
 #'
 #' @param id an UniProt ID
@@ -760,15 +919,20 @@ scrapeUniProtSnippets <- function(id, sleepTime) {
   url <- glue::glue(UNIPROT.HTML.TEMPL)
   page <- getPageCached(url, sleepTime = sleepTime)
 
-  ## pick the jensenlab-style image
-  subcellular_location <- page$document %>%
-    rvest::html_elements(
-      xpath = "//div[@id = 'subcellular_location']"
-    )
+  ## pick the jensenlab-style image ---------------------------------------
+  subCellImgPath <- paste0(
+    "//div[@id = 'subcellular_location']",
+      "/div[starts-with(@id, 'subcell-image-')]"
+  )
+  subCellNode <- page$document %>%
+    rvest::html_element(xpath = subCellImgPath)
 
-  htmlSnippet <- if (length(subcellular_location) == 1) {
-    subCellNode <- subcellular_location[[1]]
-    xml2::write_html(subCellNode, "subcellular_location.html")
+  htmlSnippet <- if (xml2::xml_length(subCellNode) > 0) {
+    ## select unneeded children, then remove them
+    subCellNode %>%
+      xml_find_all(xpath = "./*[position() > 2]") %>%
+      xml_remove()
+
     toString(subCellNode)
   } else {
     warning(
@@ -776,6 +940,7 @@ scrapeUniProtSnippets <- function(id, sleepTime) {
     )
     glue::glue("<div>Subcellular figure not found</div>")
   }
+
 
   # hasSubCellFigure <- subcellular_location %>%
   #   xml2::xml_find_all(".//sib-swissbiopics-sl") %>%
@@ -789,80 +954,26 @@ scrapeUniProtSnippets <- function(id, sleepTime) {
   #   glue::glue("<div>Subcellular figure not found</div>")
   # }
 
+  ## pick GO Molecular functions ------------------------------------------
+  molecularFunction <- page$document %>% rvest::html_elements(
+    xpath = '//div[@id="function"]//ul[contains(@class, "molecular_function")]'
+  )
+  molecularFunction <- if (length(molecularFunction) == 1) {
+    node <- molecularFunction[[1]]
+    toString(node)
+  } else {
+    warning(
+      glue::glue("{id}: GO Molecular function not found"), immediate. = TRUE
+    )
+    glue::glue("<div>GO Molecular function not found</div>")
+  }
+
+
   return(list(
     htmlSnippet = htmlSnippet,
+    molecularFunction = molecularFunction,
     fromCache = page$fromCache
   ))
-}
-
-
-#' Supply details from UniProtKB
-#'
-#' @param clueTable Input dataframe with UNIPROT_KB_ID column.
-#'
-#' @return data.frame patched by UniProt details.
-xmlUniProt <- function(clueTable) {
-  #' Internal helper function
-  #'
-  #' @param xmlResult
-  #'
-  #' @return
-  unwrapXMLData <- function(xmlResult) {
-    root <- xml2::xml_root(result$document)
-
-    ## STRING and GO ids
-    dbReferences <- xml2::xml_find_all(
-      x = root, xpath="//dbreference[@type = 'GO' or @type = 'STRING']"
-    )
-
-    ## iterate on DB references
-    resultList <- list(GO.TERMS = list())
-    for (dbref in dbReferences) {
-      type <- xml_attr(dbref, "type")
-      id <- xml_attr(dbref, "id")
-      if (type == "STRING") {
-        ## TODO: if there are multiple ids, the last one "wins"
-        resultList[["STRING"]] <- id
-      } else {
-        resultList$GO.TERMS[[id]] <- "TODO"
-      }
-    }
-    return(resultList)
-  }
-
-  ## xmlUniProt "body"-----------------------------------------------------
-  uniProtIdList <- clueTable %>%
-    select(UNIPROT_KB_ID) %>%
-    distinct() %>%
-    filter(!is.na(UNIPROT_KB_ID)) %>%
-    pull(UNIPROT_KB_ID)
-
-  ##
-  ## iterate on UniProtKB Id list and -------------------------------------
-  ## collect/download relevant details
-  ##
-  filteredXMLData <- list()
-  scrapeFromCache <- TRUE
-  for (id in uniProtIdList) {
-    ## Note: "id" referenced by the glue template below
-    sleepTime <- ifelse(scrapeFromCache, 2, SLEEP_TIME)
-    result <- getPageCached(
-      glue::glue(UNIPROT.XML.TEMPL), sleepTime
-    )
-    filteredXMLData[[id]] <- unwrapXMLData(result)
-
-    ## scrape the subcell. image
-    sleepTime <- ifelse(result$fromCache, 2, SLEEP_TIME)
-    scrapeResult <- scrapeUniProtSnippets(id, sleepTime)
-    scrapeFromCache <- scrapeResult$fromCache
-    filteredXMLData[[id]]$subCellularHTML <- scrapeResult$htmlSnippet
-  }
-
-  ## update the input table and return the result -------------------------
-  clueTable <- clueTable %>%
-    rowwise() %>%
-    mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
-  return(clueTable)
 }
 
 
@@ -918,7 +1029,7 @@ getPageCached <- function(url, sleepTime = 3, downloadFunc = rvest::read_html) {
         fromCache = TRUE
       ))
     } else if (!notFound && !file.exists(path)) {
-      stop(glue::glue("file not found: {path} *** url: {url}"))
+      stop(glue::glue("file not found: {path} !!!!!! url: {url}"))
     } else {
       # if file doesn't exists
       # ...sleep
@@ -972,7 +1083,7 @@ getRandomNumber <- function() {
 #'
 #' @return HTML "a" snippet that can be used in HTML document directly.
 aHref <- function(link, titleText) {
-  return(glue::glue("<a href=\"{link}\" target=\"_blank\">{titleText}</a>"))
+  return(glue::glue('<a href="{link}" target="_blank">{titleText}</a>'))
 }
 
 
