@@ -42,7 +42,7 @@ jobs:
       - name: apt-get update and install R packages
         run: |
           sudo apt-get update
-          sudo aptitude install --fix-broken --assume-yes r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-readr r-cran-stringr r-cran-xml2 r-cran-whisker
+          sudo apt-get install --fix-broken --assume-yes r-api-3.5 r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-readr r-cran-stringr r-cran-xml2 r-cran-whisker
       
       # Install r-vest
       - name: rvest packge install
