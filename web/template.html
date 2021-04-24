@@ -96,9 +96,7 @@
                             <th scope="col">
                               Resources <sup data-bs-toggle="tooltip" title="Source(s) of Clinical Status" class="text-primary">i</sup>
                             </th>
-                            <th scope="col">DrugBank</th>
-                            <th scope="col">PubChem</th>
-                            <th scope="col">ChEMBL</th>
+                            <th scope="col">DrugBank/PubChem/ChEMBL</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -126,19 +124,7 @@
                               {{!</span>}}
                             </td>
                             <td>
-                              <span class="d-inline-block text-truncate" style="max-width: 100px;">
-                              {{{drugbank_id}}}
-                              </span>
-                            </td>
-                            <td>
-                              <span class="d-inline-block text-truncate" style="max-width: 100px;">
-                              {{{pubchem_cid}}}
-                              </span>
-                            </td>
-                            <td>
-                              <span class="d-inline-block text-truncate" style="max-width: 100px;">
-                              {{{chembl_id}}}
-                              </span>
+                              {{{chem_drugs}}}
                             </td>
                           </tr>
                     {{/.}}{{/.}}
