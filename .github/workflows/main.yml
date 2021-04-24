@@ -37,4 +37,5 @@ jobs:
           which R
           which grep
           which egrep
+          sudo apt-get update
           sudo apt-cache policy r-cran-httr r-cran-httr r-cran-dplyr r-cran-rvest r-cran-stringr r-cran-assertthat r-cran-tibble
