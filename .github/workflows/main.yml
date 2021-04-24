@@ -35,6 +35,6 @@ jobs:
           pwd
           /usr/bin/R --version
           which R
-          /usr/bin/R -e '(installed.packages())[, c("Package", "Version")]'
           which grep
           which egrep
+          sudo apt search r-cran-httr r-cran-httr r-cran-dplyr r-cran-rvest r-cran-stringr r-cran-assertthat r-cran-tibble
