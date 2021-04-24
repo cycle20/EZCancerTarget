@@ -34,6 +34,7 @@ jobs:
         run: |
           pwd
           /usr/bin/R --version
-          /usr/bin/find $GITHUB_WORKSPACE
           which R
-          /usr/bin/R -e '(installed.packages())[, c("Package", "Version")]' | egrep 'dplyr|tibble|stringr|httr|rvest|xml2|glue|whisker|jsonlite|readr|data.table|assertthat'
+          /usr/bin/R -e '(installed.packages())[, c("Package", "Version")]'
+          which grep
+          which egrep
