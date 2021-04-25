@@ -138,12 +138,18 @@
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="string-data-{{target}}">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-string-{{target}}" aria-expanded="false" aria-controls="collapse-string-{{target}}" onclick="javascript:getSTRING('{{stringID}}')">
-                      {{target}} :: STRING (IN PROGRESS...)
+                      {{target}} :: STRING
                     </button>
                   </h2>
                   <div id="collapse-string-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
-                      10 best STRING interaction (confidense-based: should be replaced)
+                      <h6>10 best STRING interaction</h6>
+                      PARAMTERS:
+                      <ul>
+                      <li>the style of edges in the network: <strong>evidence</strong>;</li>
+                      <li>network type: <strong>physical</strong>;</li>
+                      <li>threshold of significance to include an interaction, a number between 0 and 1000: <strong>900</strong></li>
+                      </ul>
                       <div id="{{stringID}}"></div>
                     </div>{{! END OF STRING accordion-body }}
 
