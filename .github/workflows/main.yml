@@ -1,6 +1,10 @@
-# This is a basic workflow to help you get started with Actions
+#
+# main.yml: CI workflow
+#
 
-# NOTE:
+#
+# NOTEs:
+#
 # Further readings: https://launchpad.net/~c2d4u.team/+archive/ubuntu/c2d4u4.0+
 #                   https://github.com/r-lib/actions
 #                   https://pkgs.org/download/r-base-core
@@ -9,6 +13,11 @@
 #                    https://rstudio.github.io/renv/articles/renv.html#cache
 #                    https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#outputs
 #                    https://thomasadventure.blog/posts/install-r-packages/
+#
+# rocker links: https://github.com/rocker-org/rocker
+#               https://hub.docker.com/r/_/r-base
+#               https://hub.docker.com/r/rocker/r-apt
+#
 
 name: CI
 
