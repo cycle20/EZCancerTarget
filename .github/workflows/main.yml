@@ -51,3 +51,12 @@ jobs:
       # Install r-vest
       - name: rvest packge install
         run: sudo /usr/bin/R -e 'install.packages("rvest")'
+
+  exec:
+    runs-on: ubuntu-latest
+    steps:
+      - name: workspace check
+        run: |
+          ls -lt $GITHUB_WORKSPACE
+          echo "R library:"
+          ls -l /usr/lib/R/library/
