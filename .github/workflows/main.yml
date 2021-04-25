@@ -46,7 +46,7 @@ jobs:
 
       # rvest dependencies by binaries
       - name: rvest deps
-        run: aptitude install -f -y r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-selectr r-cran-xml2
+        run: sudo aptitude install -f -y r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-selectr r-cran-xml2
 
       # Install r-vest
       - name: rvest packge install
