@@ -62,6 +62,7 @@ jobs:
 
   exec:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: runner state and workspace check
         run: |
