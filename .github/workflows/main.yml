@@ -46,19 +46,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install aptitude -y
 
-      - name: aptitude why-not r-api-3.5
-        run: |
-          sudo aptitude-curses why-not r-api-3.5
-        #sudo apt-get install --fix-broken --assume-yes r-base-core r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-readr r-cran-stringr r-cran-xml2 r-cran-whisker
+      #sudo apt-get install --fix-broken --assume-yes r-base-core r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-readr r-cran-stringr r-cran-xml2 r-cran-whisker
 
       - name: aptitude why r-api-3.5 and r-base-core
         run: |
           echo echo r-api-3.5
-          sudo aptitude-curses -f -y r-api-3.5
+          sudo aptitude install -f -y r-api-3.5
           echo r-base-core
-          sudo aptitude-curses -f -y r-base-core
+          sudo aptitude install -f -y r-base-core
           echo r-cran-dplyr
-          sudo aptitude-curses -f -y r-cran-dplyr
+          sudo aptitude install -f -y r-cran-dplyr
 
       # Install r-vest
       - name: rvest packge install
