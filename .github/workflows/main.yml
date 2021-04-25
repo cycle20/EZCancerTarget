@@ -25,38 +25,26 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: "Version check: curl"
-        run: curl --version
-
-      # Runs a set of commands using the runners shell
-      - name: Version check R; some minor exploration of the environment
-        run: |
-          pwd
-          /usr/bin/R --version
-          which R
-          which grep
-          which egrep
-        
       #
       # Install R pkgs
       #
+      - name: Add cran2deb4ubuntu 4.0 PPA
+        run: sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+
       - name: apt-get update & install aptitude
         run: |
           sudo apt-get update
           sudo apt-get install aptitude -y
+      - name: apt-get upgrade
+        run: sudo apt-get upgrade
 
       #sudo apt-get install --fix-broken --assume-yes r-base-core r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-readr r-cran-stringr r-cran-xml2 r-cran-whisker
 
-      - name: aptitude why r-api-3.5 and r-base-core
+      - name: aptitude r-cran-xml2
         run: |
-          echo echo r-api-3.5
-          sudo aptitude install -f -y r-api-3.5
-          echo r-base-core
-          sudo aptitude install -f -y r-base-core
-          echo r-cran-dplyr
-          sudo aptitude install -f -y r-cran-dplyr
+          sudo apt-cache policy r-api-3.5 r-api-4.0
+          echo r-cran-xml2 r-cran-dplyr
+          sudo aptitude install -f -y r-cran-xml2
 
       # Install r-vest
       - name: rvest packge install
-        run: /usr/bin/R -e 'install.packages("rvest")'
+        run: sudo /usr/bin/R -e 'install.packages("rvest")'
