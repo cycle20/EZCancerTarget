@@ -1,5 +1,10 @@
 # This is a basic workflow to help you get started with Actions
 
+# NOTE:
+# Further readings: https://launchpad.net/~c2d4u.team/+archive/ubuntu/c2d4u4.0+
+#                   https://github.com/r-lib/actions
+#                   https://pkgs.org/download/r-base-core
+
 name: CI
 
 # Controls when the action will run. 
@@ -39,11 +44,9 @@ jobs:
 
       #sudo apt-get install --fix-broken --assume-yes r-base-core r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-readr r-cran-stringr r-cran-xml2 r-cran-whisker
 
-      - name: aptitude r-cran-xml2
-        run: |
-          sudo apt-cache policy r-api-3.5 r-api-4.0
-          echo r-cran-xml2 r-cran-dplyr
-          sudo aptitude install -f -y r-cran-xml2
+      # rvest dependencies by binaries
+      - name: rvest deps
+        run: aptitude install -f -y r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-selectr r-cran-xml2
 
       # Install r-vest
       - name: rvest packge install
