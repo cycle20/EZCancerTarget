@@ -27,7 +27,7 @@ API_BASE <- "https://api.clue.io/api/"
 VERBOSE <- NULL
 ## for verbosed httr requests use the following:
 ## VERBOSE <- verbose()
-OUTPUT <- "OUTPUT";
+OUTPUT <- "OUTPUT"
 CLUE.TSV <- glue::glue("{OUTPUT}/clue.tsv")
 CLUE.COLLAPSED.TSV <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
 PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
