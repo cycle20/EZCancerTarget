@@ -51,12 +51,43 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      # Caching
+      - name: Get cached result
+        uses: actions/cache@v2.1.5
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: OUTPUT-action-pilot.tgz
+          # An explicit key for restoring and saving the cache
+          key: OUTPUT-action-pilot.tgz
+
+      #
+      # This step inspired by this comment: https://github.com/actions/toolkit/issues/299#issuecomment-574918750
+      #
+      # Is there a cached content?
+      # If yes, then clue.io is not needed.
+      - name: Previous result exists
+        id: cache_exists
+        run: |
+          if [ -f OUTPUT-action-pilot.tgz ]; then
+            echo ::set-output name=cache_check::yes
+          fi
+
       #
       # Dependencies
       #
       - name: "Dependencies: R pkgs from added PPA and CRAN"
-        run: sudo bash src/gh_action__setup_and_install.bash
-   
+        if: steps.cache_exists.outputs.cache_check == 'yes'
+        run: |
+          echo CANCEL
+          BAMMM
+        # run: sudo bash src/gh_action__setup_and_install.bash
+
+      # REMOVE THIS
+      - name: FORCED END
+        if: steps.cache_exists.outputs.cache_check != 'yes'
+        run: |
+          FORCED_END
+          
       # Exec clue.R
       - name: R/clue.R
         run: Rscript R/clue.R
@@ -75,6 +106,7 @@ jobs:
           path: OUTPUT-action-pilot.tgz
           # An explicit key for restoring and saving the cache
           key: OUTPUT-action-pilot.tgz
+
 
   # Supply missing data fields in dataset resulted by R/clue.R
   patch_dataset_from_clue:
@@ -105,6 +137,7 @@ jobs:
         # TODO: wrap into a bash script
         run: |
           tar xvzf OUTPUT-action-pilot.tgz
+          ls -lh OUTPUT-action-pilot.tgz
 
       #
       # Dependencies
@@ -120,4 +153,7 @@ jobs:
       # Wrap OUTPUT into tgz package
       - name: create archive file for caching
         # TODO: wrap into a bash script
-        run: tar cvzf OUTPUT-action-pilot.tgz  OUTPUT/*.tsv OUTPUT/*.rds OUTPUT/*.html OUTPUT/DATAPATH_CACHE
+        run: |
+          tar cvzf OUTPUT-action-pilot.tgz  OUTPUT/*
+          ls -lh OUTPUT-action-pilot.tgz
+          
