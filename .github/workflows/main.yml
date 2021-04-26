@@ -77,29 +77,23 @@ jobs:
       #
       - name: "Dependencies: R pkgs from added PPA and CRAN"
         if: steps.cache_exists.outputs.cache_check != 'yes'
-        run: |
-          echo CANCEL
-          BAMMM
-        # run: sudo bash src/gh_action__setup_and_install.bash
+        run: sudo bash src/gh_action__setup_and_install.bash
 
-      # REMOVE THIS
-      - name: FORCED END
-        if: steps.cache_exists.outputs.cache_check != 'yes'
-        run: |
-          FORCED_END
-          
       # Exec clue.R
       - name: R/clue.R
+        if: steps.cache_exists.outputs.cache_check != 'yes'
         run: Rscript R/clue.R
         env:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
       
       # OUTPUT package
       - name: create archive file for caching
+        if: steps.cache_exists.outputs.cache_check != 'yes'
         run: tar cvzf OUTPUT-action-pilot.tgz  OUTPUT/*
         
       # Caching
       - name: Cache the result
+        if: steps.cache_exists.outputs.cache_check != 'yes'
         uses: actions/cache@v2.1.5
         with:
           # A list of files, directories, and wildcard patterns to cache and restore
