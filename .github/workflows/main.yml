@@ -65,7 +65,7 @@ jobs:
       
       # OUTPUT package
       - name: create archive file for caching
-        run: tar cvzf OUTPUT-action-pilot.tgz  OUTPUT/*.tsv OUTPUT/*.rds OUTPUT/*.html OUTPUT/DATAPATH_CACHE
+        run: tar cvzf OUTPUT-action-pilot.tgz  OUTPUT/*
         
       # Caching
       - name: Cache the result
