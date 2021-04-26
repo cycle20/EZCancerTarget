@@ -27,10 +27,12 @@ API_BASE <- "https://api.clue.io/api/"
 VERBOSE <- NULL
 ## for verbosed httr requests use the following:
 ## VERBOSE <- verbose()
-OUTPUT <- "OUTPUT"
+OUTPUT <- "OUTPUT";
 CLUE.TSV <- glue::glue("{OUTPUT}/clue.tsv")
 CLUE.COLLAPSED.TSV <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
 PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
+## pert API call result with each columns
+PERTS_WIDE.TSV <- glue::glue("{OUTPUT}/perts_wide.tsv")
 
 # TODO: do we need information from these endpoints as well?
 # - rep_fda_product
@@ -50,9 +52,13 @@ main <- function() {
     pull(target)
   message(glue::glue("reading from {TARGET.INPUT} done"))
 
+  # prepare output directory
+  dir.create(OUTPUT, recursive = TRUE)
+
   message("downloading data from clue.io...")
   result <- download(targetList)
   message("download finished")
+
   # export result as TSV
   data.table::fwrite(result, CLUE.TSV, sep = "\t")
   message(glue::glue("{CLUE.TSV} created"))
@@ -244,7 +250,8 @@ download <- function(...) {
         pert_url = null.to.na(pert_url),
         moa = null.to.na(moa)
       )
-    data.table::fwrite(p, "full_perts.tsv", sep = "\t")
+    data.table::fwrite(p, file = PERTS_WIDE.TSV, sep = "\t")
+    message(glue::glue("{PERTS_WIDE.TSV} created"))
 
     pertsData <- pertsData %>%
         rowwise() %>%
@@ -253,7 +260,7 @@ download <- function(...) {
         select(target, pert_iname, pubchem_cid) %>%
         arrange(target, pert_iname)
 
-    data.table::fwrite(pertsData, file = PERTS.TSV, sep = "\t", )
+    data.table::fwrite(pertsData, file = PERTS.TSV, sep = "\t")
     message(glue::glue("{PERTS.TSV} created"))
     return(invisible(NULL))
   }

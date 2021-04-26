@@ -427,17 +427,23 @@ pubMed <- function(clueTable) {
 
   ## pubMed search request and extract results
   pubMedSearch <- function(compound, final_status) {
-    if (final_status != "Preclinical"
-        || is.null(final_status) || is.na(final_status)) {
-      return(NA)
-    }
-    # download page or read it from cache
+
+    # ## if this harvest probable will be an "extra" effort and
+    # ## will produce some optional details.
+    # extraPubMed <- if_else(
+    #   is.na(final_status) || final_status != "Preclinical",
+    #   TRUE,
+    #   FALSE
+    # )
+
+    ## download page or read it from cache
     searchURL <- glue::glue(PUBMED.SEARCH)
     result <- getPageCached(searchURL, sleepTime = SLEEP_TIME)
-    # get article <a> elements (top3, if there are more)
+
+    ## get article <a> elements (top3, if there are more)
     articleLinks <- result$document %>%
       rvest::html_elements(xpath = PUBMED.RESULT.XPATH)
-    # get article identifiers
+    ## get article identifiers
     articleIds <- rvest::html_attr(articleLinks, name = "data-article-id")
 
     return(as.list(articleIds))
