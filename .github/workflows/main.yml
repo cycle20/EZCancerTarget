@@ -73,14 +73,21 @@ jobs:
         
       # R library after install
       - name: R library
-        run: ls -lt /usr/lib/R/library/
+        run: |
+          ls -lt /usr/lib/R/library/
+          echo $CLUE_USER_KEY
+ 
+        env:
+          CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
+          
+      # TODO: caching etc.
 
   exec:
     runs-on: ubuntu-latest
     needs: setup_and_install
     steps:
       - name: From CRAN
-        run: sudo /usr/bin/R -e 'install.packages("dplyr", type = "binary", dependencies = TRUE)'
+        run: sudo /usr/bin/R -e 'install.packages("dplyr", dependencies = TRUE)'
       - name: runner state and workspace check
         run: |
           ls -lt $GITHUB_WORKSPACE
