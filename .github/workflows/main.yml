@@ -117,8 +117,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Caching
-      - name: Cache the result
+      # Cache restore
+      - name: Get cache result
         uses: actions/cache@v2.1.5
         with:
           # A list of files, directories, and wildcard patterns to cache and restore
@@ -148,6 +148,14 @@ jobs:
       - name: create archive file for caching
         # TODO: wrap into a bash script
         run: |
-          tar cvzf OUTPUT-action-pilot.tgz  OUTPUT/*
-          ls -lh OUTPUT-action-pilot.tgz
+          tar cvzf OUTPUT-action-pilot-v2.tgz  OUTPUT/*
+          ls -lh OUTPUT-action-pilot-v2.tgz
           
+      # Caching
+      - name: Store result into cache
+        uses: actions/cache@v2.1.5
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: OUTPUT-action-pilot-v2.tgz
+          # An explicit key for restoring and saving the cache
+          key: OUTPUT-action-pilot-v2.tgz
