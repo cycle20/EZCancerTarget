@@ -21,6 +21,8 @@ apt-get upgrade
 # rvest dependencies by binaries
 echo "rvest dependencies by binaries"
 aptitude install -f -y \
+  r-cran-assertthat \
+  r-cran-dplyr  \
   r-cran-dplyr  \
   r-cran-httr \
   r-cran-jsonlite \
