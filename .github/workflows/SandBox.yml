@@ -28,4 +28,4 @@ jobs:
       run: echo "Hello ${{ github.event.inputs.name }}"
 
     - name: Snoop
-      run: tree ~
+      run: find ~ -maxdepth 2 -type d
