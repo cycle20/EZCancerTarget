@@ -26,7 +26,9 @@ aptitude install -f -y \
   r-cran-dplyr  \
   r-cran-httr \
   r-cran-jsonlite \
+  r-cran-readr \
   r-cran-selectr \
+  r-cran-whisker \
   r-cran-xml2
 
 # Install r-vest from R
