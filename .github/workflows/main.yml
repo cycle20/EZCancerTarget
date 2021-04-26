@@ -50,36 +50,11 @@ jobs:
       - uses: actions/checkout@v2
 
       #
-      # Install R pkgs
+      # Dependencies
       #
-      - name: Add cran2deb4ubuntu 4.0 PPA
-        run: sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+
-      - name: apt-get update & install aptitude
-        run: |
-          sudo apt-get update
-          sudo apt-get install aptitude -y
-      - name: apt-get upgrade
-        run: sudo apt-get upgrade
-
-      #sudo apt-get install --fix-broken --assume-yes r-base-core r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-readr r-cran-stringr r-cran-xml2 r-cran-whisker
-
-      # rvest dependencies by binaries
-      - name: rvest deps
-        run: sudo aptitude install -f -y r-cran-dplyr r-cran-httr r-cran-jsonlite r-cran-selectr r-cran-xml2
-
-      # Install r-vest
-      - name: rvest packge install
-        run: sudo /usr/bin/R -e 'install.packages("rvest")'
-
-      # R site-library after install
-      - name: R site-library
-        run: ls -lt /usr/lib/R/site-library/
-        
-      # R library after install
-      - name: R library
-        run: |
-          ls -lt /usr/lib/R/library/
- 
+      - name: "Dependencies: R pkgs from added PPA and CRAN"
+        run: sudo bash src/gh_action__setup_and_install.bash
+   
       # Exec clue.R
       - name: R/clue.R
         run: Rscript R/clue.R
@@ -96,6 +71,7 @@ jobs:
         run: sudo /usr/bin/R -e 'install.packages("dplyr", dependencies = TRUE)'
       - name: runner state and workspace check
         run: |
+          echo "Workspace:"
           ls -lt $GITHUB_WORKSPACE
           echo "R library:"
           ls -l /usr/lib/R/library/
