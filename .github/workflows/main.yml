@@ -1,4 +1,24 @@
-# This is a basic workflow to help you get started with Actions
+#
+# main.yml: CI workflow
+#
+
+#
+# NOTEs:
+#
+# Further readings: https://launchpad.net/~c2d4u.team/+archive/ubuntu/c2d4u4.0+
+#                   https://github.com/r-lib/actions
+#                   https://github.com/actions/starter-workflows/blob/main/ci/r.yml
+#                   https://pkgs.org/download/r-base-core
+#
+# Cache and "share": https://github.com/actions/cache
+#                    https://rstudio.github.io/renv/articles/renv.html#cache
+#                    https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#outputs
+#                    https://thomasadventure.blog/posts/install-r-packages/
+#
+# rocker links: https://github.com/rocker-org/rocker
+#               https://hub.docker.com/r/_/r-base
+#               https://hub.docker.com/r/rocker/r-apt
+#
 
 name: CI
 
@@ -15,26 +35,127 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+
+  # Download input data from clue.io by API calls
+  clue_dot_io_API_calls:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: /home/runner/work/scancer/scancer
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+    
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: "Version check: curl"
-        run: curl --version
+      # Caching
+      - name: Get cached result
+        uses: actions/cache@v2.1.5
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: OUTPUT-action-pilot.tgz
+          # An explicit key for restoring and saving the cache
+          key: OUTPUT-action-pilot.tgz
 
-      # Runs a set of commands using the runners shell
-      - name: Version check R; some minor exploration of the environment
+      #
+      # This step inspired by this comment: https://github.com/actions/toolkit/issues/299#issuecomment-574918750
+      #
+      # Is there a cached content?
+      # If yes, then clue.io is not needed.
+      - name: Previous result exists
+        id: cache_exists
         run: |
-          pwd
-          /usr/bin/R --version
-          which R
-          which grep
-          which egrep
-          sudo apt-cache policy r-cran-httr r-cran-httr r-cran-dplyr r-cran-rvest r-cran-stringr r-cran-assertthat r-cran-tibble
+          if [ -f OUTPUT-action-pilot.tgz ]; then
+            echo ::set-output name=cache_check::yes
+          fi
+
+      #
+      # Dependencies
+      #
+      - name: "Dependencies: R pkgs from added PPA and CRAN"
+        if: steps.cache_exists.outputs.cache_check != 'yes'
+        run: sudo bash src/gh_action__setup_and_install.bash
+
+      # Exec clue.R
+      - name: R/clue.R
+        if: steps.cache_exists.outputs.cache_check != 'yes'
+        run: Rscript R/clue.R
+        env:
+          CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
+      
+      # OUTPUT package
+      - name: create archive file for caching
+        if: steps.cache_exists.outputs.cache_check != 'yes'
+        run: tar cvzf OUTPUT-action-pilot.tgz  OUTPUT/*
+        
+      # Caching
+      - name: Cache the result
+        if: steps.cache_exists.outputs.cache_check != 'yes'
+        uses: actions/cache@v2.1.5
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: OUTPUT-action-pilot.tgz
+          # An explicit key for restoring and saving the cache
+          key: OUTPUT-action-pilot.tgz
+
+
+  # Supply missing data fields in dataset resulted by R/clue.R
+  patch_dataset_from_clue:
+    runs-on: ubuntu-latest
+    needs: [clue_dot_io_API_calls]
+    
+    defaults:
+      run:
+        shell: bash
+        working-directory: /home/runner/work/scancer/scancer
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Cache restore
+      - name: Get cache result
+        uses: actions/cache@v2.1.5
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: OUTPUT-action-pilot.tgz
+          # An explicit key for restoring and saving the cache
+          key: OUTPUT-action-pilot.tgz
+
+      # Extract OUTPUT from the cached tgz package
+      - name: Extract cached and restored archive file
+        # TODO: wrap into a bash script
+        run: |
+          tar xvzf OUTPUT-action-pilot.tgz
+          ls -lh OUTPUT-action-pilot.tgz
+
+      #
+      # Dependencies
+      #
+      - name: "Dependencies: R pkgs from added PPA and CRAN"
+        run: sudo bash src/gh_action__setup_and_install.bash
+   
+      # Exec dataPatch.R
+      # TODO: this can be a long process: downloads in parallel jobs is a potential improvement
+      - name: R/dataPatch.R
+        run: Rscript R/dataPatch.R
+      
+      # Wrap OUTPUT into tgz package
+      - name: create archive file for caching
+        # TODO: wrap into a bash script
+        run: |
+          tar cvzf OUTPUT-action-pilot-v2.tgz  OUTPUT/*
+          ls -lh OUTPUT-action-pilot-v2.tgz
+          
+      # Caching
+      - name: Store result into cache
+        uses: actions/cache@v2.1.5
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: OUTPUT-action-pilot-v2.tgz
+          # An explicit key for restoring and saving the cache
+          key: OUTPUT-action-pilot-v2.tgz
