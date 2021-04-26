@@ -76,7 +76,7 @@ jobs:
       # Dependencies
       #
       - name: "Dependencies: R pkgs from added PPA and CRAN"
-        if: steps.cache_exists.outputs.cache_check == 'yes'
+        if: steps.cache_exists.outputs.cache_check != 'yes'
         run: |
           echo CANCEL
           BAMMM
