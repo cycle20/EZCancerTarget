@@ -162,22 +162,31 @@ multivaluedCellsToHTML <- function(dataList) {
     # TODO: Does it eliminate duplications?
     ## collapsing moa
     moa <- paste(unique(dataframe$moa), collapse = ", <br/>")
-    pubchem_cid <- paste(unique(dataframe$pubchem_cid), collapse = ", <br/>")
-    chembl_id <- paste(unique(dataframe$chembl_id), collapse = ", <br/>")
+
     dataframe <- dataframe %>%
       # select(-c(moa, pubchem_cid, chembl_id)) %>%
       select(
         pert_iname,
         status_source,
         drugbank_id,
+        pubchem_cid,
+        chembl_id,
         final_status
       ) %>%
       distinct() %>%
       mutate(
-        drugbank_id = drugBankHTML(drugbank_id),
-        chembl_id = chembl_id, # chemblHTML(chembl_id),
-        pubchem_cid = pubchem_cid # pubChemHTML(pubchem_cid)
-      )
+        chembl_id = chemblHTML(chembl_id),
+        pubchem_cid = pubChemHTML(pert_iname, pubchem_cid),
+        drugbank_id = drugBankHTML(drugbank_id)
+      ) %>%
+      rowwise() %>%
+      mutate(chem_drugs = paste0(
+        na.exclude(c(chembl_id, pubchem_cid, drugbank_id)),
+        collapse = "<br/>")
+      ) %>%
+      select(-c(chembl_id, pubchem_cid, drugbank_id)) %>%
+      distinct()
+
     ## strict verification
     browser(expr = (nrow(dataframe) != 1))
     assertthat::assert_that(nrow(dataframe) == 1)
@@ -197,19 +206,29 @@ multivaluedCellsToHTML <- function(dataList) {
 #' @return Character object containing a HTML code fragment with
 #' an "anchor" element.
 chemblHTML <- function(chemblId) {
-  if(is.na(chemblId) || is.null(chemblId)) {
-    return(chemblId)
-  }
-  chemblId <- listShrink(chemblId)
-
-  HTMLtext <- if(stringr::str_ends(chemblId, pattern = "^CHEMBL[0-9]+$")) {
-    link <- glue::glue("{CHEMBL.URL.TEMPLATE}/{chemblId}")
-    aHref(link = link, titleText = chemblId)
-  } else {
-    ## text as is
-    chemblId
-  }
-  return(HTMLtext)
+  chemblId <- unique(chemblId)
+  ## choose appropriate one
+  HTMLtext <- dplyr::if_else(is.na(chemblId),
+    ## TRUE branch
+    glue::as_glue(NA),
+    ## FALSE branch
+    dplyr::if_else(stringr::str_ends(chemblId, pattern = "^CHEMBL[0-9]+$"),
+      ## TRUE branch
+      {
+        link <- glue::glue("{CHEMBL.URL.TEMPLATE}/{chemblId}")
+        aHref(link = link, titleText = chemblId)
+      },
+      ## FALSE branch
+      # warning(
+      #   glue::glue("Unexpected ChEMBL value: {chemblId}"), immediate. = TRUE
+      # )
+        glue::glue("Unexpected ChEMBL value: {chemblId}")
+    ) # inner if_else
+  ) # outer if_else
+  return(if_else(is.na(HTMLtext),
+    HTMLtext,
+    paste(HTMLtext, collapse = "<br/>")
+  ))
 }
 
 
@@ -219,48 +238,43 @@ chemblHTML <- function(chemblId) {
 #'
 #' @return HTML "a" snippet(s) that can be used in HTML document directly.
 drugBankHTML <- function(drugBankId) {
-  if(is.na(drugBankId) || is.null(drugBankId)) {
-    return(drugBankId)
-  }
-  drugBankId <- listShrink(drugBankId)
+  drugBankId <- unique(drugBankId)
 
-  HTMLtext <- if(stringr::str_ends(drugBankId, pattern = "^DB[0-9]+$")) {
-    link <- glue::glue("http://www.drugbank.ca/drugs/{drugBankId}")
+  HTMLtext <- if_else(stringr::str_ends(drugBankId, pattern = "^DB[0-9]+$"), {
     link <- glue::glue("http://www.drugbank.ca/drugs/{drugBankId}")
     aHref(link = link, titleText = drugBankId)
-  } else {
-    ## text as is
-    drugBankId
-  }
-  return(HTMLtext)
+  },
+    if_else(is.na(drugBankId),
+      glue::as_glue(NA),
+      ## text as is
+      glue::as_glue(drugBankId)
+    )
+  )
+  return(if_else(is.na(HTMLtext),
+    HTMLtext,
+    paste(HTMLtext, collapse = "<br/>")
+  ))
 }
 
 
 #' Create PubChem links
 #'
+#' @param pert_iname compound name
 #' @param pubChemId PubChem ID(s)
 #'
 #' @return HTML "a" snippet(s) that can be used in HTML document directly.
-pubChemHTML <- function(pubChemId) {
-  if(is.na(pubChemId) || is.null(pubChemId)) {
-    return(pubChemId)
-  }
-  #browser(expr = startsWith(pubChemId, "3117"))
-  pubChemId <- listShrink(pubChemId)
-  HTMLtext <- if(all(stringr::str_ends(pubChemId, pattern = "^[0-9]+$"))) {
-    retVal <- ""
-    for (id in pubChemId) {
-      url <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
-      href <- aHref(link = url, titleText = id)
-      retVal <- paste0(retVal, href)
-    }
-    # result of the accumulation loop above
-    retVal
-  } else {
-    ## text as is
-    pubChemId
-  }
-  return(HTMLtext)
+pubChemHTML <- function(pert_iname, pubChemId) {
+  pubChemId <- unique(pubChemId)
+  pert_iname <- unique(pert_iname)
+
+  ## choose appropriate one
+  id <- if_else(is.na(pubChemId), pert_iname, as.character(pubChemId))
+  label <- if_else(is.na(pubChemId), glue::glue("PubChem??{id}??"),
+                   glue::glue("PubChem: {id}"))
+  url <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
+  return(
+    paste(aHref(link = url, titleText = label), collapse = "<br/>")
+  )
 }
 
 
@@ -272,30 +286,6 @@ pubChemHTML <- function(pubChemId) {
 #' @return HTML "a" snippet that can be used in HTML document directly.
 aHref <- function(link, titleText) {
   return(glue::glue("<a href=\"{link}\" target=\"_blank\">{titleText}</a>"))
-}
-
-
-#' Shrink a simple list
-#'
-#' listShrink splits the input vector and return a distinct list of the
-#' vector of elements.
-#'
-#' @param text Character vector represents a list.
-#' Its elements are separated by "," or "|" characters.
-#'
-#' @return Unique elements represented by a vector or NULL if the input
-#' string cannot be splitted.
-listShrink <- function(text) {
-  ## expected separators with optional space: "," and "|"
-  resultList <- stringr::str_split(text, " ?(,|\\|) ?")
-  assertthat::assert_that(length(resultList) <= 1)
-  returnVal <- if(length(resultList) == 1) {
-    ## drop duplications and collapse
-    unique(resultList[[1]])
-  } else {
-    NULL
-  }
-  return(returnVal)
 }
 
 
