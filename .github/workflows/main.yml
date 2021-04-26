@@ -79,8 +79,10 @@ jobs:
       - name: R library
         run: |
           ls -lt /usr/lib/R/library/
-          echo $CLUE_USER_KEY
  
+      # Exec clue.R
+      - name: R/clue.R
+        run: Rscript R/clue.R
         env:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
           
