@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: SandBox
+name: SandBox2
 
 on:
   workflow_dispatch:
