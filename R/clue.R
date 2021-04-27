@@ -11,6 +11,7 @@ library(assertthat)
 library(data.table)
 library(dplyr)
 library(glue)
+library(googlesheets4)
 library(httr)
 library(jsonlite)
 library(readr)
@@ -23,6 +24,7 @@ USER_KEY <- Sys.getenv("CLUE_USER_KEY")
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
 TARGET.INPUT <- "INPUT/target_list.tsv"
+TARGET.LIST.ID <- Sys.getenv("TARGET_LIST_ID")
 API_BASE <- "https://api.clue.io/api/"
 VERBOSE <- NULL
 ## for verbosed httr requests use the following:
@@ -47,13 +49,22 @@ PERTS_WIDE.TSV <- glue::glue("{OUTPUT}/perts_wide.tsv")
 #'
 #' @return
 main <- function() {
-  message(glue::glue("reading data from {TARGET.INPUT}..."))
-  targetList <- readr::read_tsv(TARGET.INPUT) %>%
-    pull(target)
-  message(glue::glue("reading from {TARGET.INPUT} done"))
+  ## read input list of targets
+  if (TARGET.LIST.ID != character(1)) {
+    message(glue::glue("reading data from spreadsheet..."))
+    googlesheets4::gs4_deauth()
+    targetList <- googlesheets4::read_sheet(TARGET.LIST.ID)
+    message(glue::glue("reading data from spreadsheet done"))
+  } else {
+    message(glue::glue("reading data from {TARGET.INPUT}..."))
+    targetList <- readr::read_tsv(TARGET.INPUT)
+    message(glue::glue("reading from {TARGET.INPUT} done"))
+  }
+  targetList <- targetList %>% pull(target)
+  print(glue::glue("Input list: {targetList}"))
 
   # prepare output directory
-  dir.create(OUTPUT, recursive = TRUE)
+  dir.create(OUTPUT, recursive = TRUE, showWarnings = FALSE)
 
   message("downloading data from clue.io...")
   result <- download(targetList)

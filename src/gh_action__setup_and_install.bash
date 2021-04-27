@@ -23,7 +23,8 @@ echo "rvest dependencies by binaries"
 aptitude install -f -y \
   r-cran-assertthat \
   r-cran-data.table  \
-  r-cran-dplyr  \
+  r-cran-dplyr \
+  r-cran-googlesheets4 \
   r-cran-httr \
   r-cran-jsonlite \
   r-cran-readr \
