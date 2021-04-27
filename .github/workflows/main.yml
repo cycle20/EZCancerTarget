@@ -66,6 +66,7 @@ jobs:
       # Is there a cached content?
       # If yes, then clue.io is not needed.
       - name: Previous result exists
+        if: always()
         id: cache_exists
         run: |
           if [ -f OUTPUT-action-pilot.tgz ]; then
