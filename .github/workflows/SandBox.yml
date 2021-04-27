@@ -41,9 +41,10 @@ jobs:
     - run: rm arti.txt
     
     - uses: actions/download-artifact@v2
+      continue-on-error: true
       with:
         name: my-artifact2
         path: arti2.txt
 
     - run: ls -ldt
-      if: always()
+      # if: always()
