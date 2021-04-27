@@ -84,6 +84,7 @@ jobs:
         run: Rscript R/clue.R
         env:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
+          TARGET_LIST_ID: ${{ secrets.TARGET_LIST_ID }}
       
       # OUTPUT package
       - name: create archive file for caching
