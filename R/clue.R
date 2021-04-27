@@ -20,117 +20,19 @@ library(whisker)
 ## Settings of global variables
 ##
 USER_KEY <- Sys.getenv("CLUE_USER_KEY")
-WEB_TEMPLATE <- "web/index.proto.html"
-WEB_OUT <- "web/index.html"
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
+TARGET.INPUT <- "INPUT/target_list.tsv"
 API_BASE <- "https://api.clue.io/api/"
 VERBOSE <- NULL
 ## for verbosed httr requests use the following:
 ## VERBOSE <- verbose()
-
-##### Data Section
-NEW.LOW10 <- c(
-  "CD70",
-  "CXCR2",
-  "MMP7",
-  "TP63",
-  "ANXA1",
-  "KRT5",
-  "IFI27",
-  "FCGR1A",
-  "BIRC3",
-  "ITBG6"
-)
-NE.LOW <- c(
-  NEW.LOW10,
-  "ITGAM",
-  "YBX3",
-  "CTSS",
-  "CD5",
-  "C1QA",
-  "KLRD1",
-  "CCL21",
-  "MX1",
-  "GZMA",
-  "ISG15",
-  "PRF1",
-  "CASP14",
-  "CXCL2",
-  "CYP35A",
-  "MAGEA4",
-  "LRMP",
-  "ITGB4",
-  "KRT17",
-  "BCAT1",
-  "VSNL1",
-  "CAV2",
-  "ANXA3",
-  "ALDH2",
-  "PGC",
-  "VAMP8",
-  "LAMB3",
-  "REL",
-  "TNFSF10",
-  "PRAME",
-  "CES1",
-  "COL6A",
-  "FOXI1",
-  "MYC",
-  "PTGS2",
-  "CD44",
-  "BCL3",
-  "ROS1",
-  "RAB27B",
-  "CXCL10",
-  "CCL20",
-  "CCL21",
-  "CXCL9"
-)
-NE.HIGH <- c(
-  "RTN1",
-  "NCAM1",
-  "DNAJC6",
-  "GRP",
-  "CDH2",
-  "SYP",
-  "ID4",
-  "ISL1",
-  "CHGA",
-  "FGF5",
-  "FGF10",
-  "IL9",
-  "HSPB8",
-  "HIC1",
-  "metrn",
-  "TPO",
-  "LAMB4",
-  "EGLN2",
-  "INS",
-  "SIX1",
-  "L1CAM",
-  "MYBL1",
-  "PTN",
-  "CCNA1",
-  "DYSPL4",
-  "CDKN2C",
-  "ADAM23",
-  "TP73",
-  "NKX2-1",
-  "AMH",
-  "RBP1",
-  "PAK7",
-  "CXXC4",
-  "CKB",
-  "SOX2",
-  "PAK3",
-  "SMAD9",
-  "DLL3",
-  "FZD9",
-  "COL9A3",
-  "ZIC2",
-  "CACNAE1"
-)
+OUTPUT <- "OUTPUT"
+CLUE.TSV <- glue::glue("{OUTPUT}/clue.tsv")
+CLUE.COLLAPSED.TSV <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
+PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
+## pert API call result with each columns
+PERTS_WIDE.TSV <- glue::glue("{OUTPUT}/perts_wide.tsv")
 
 # TODO: do we need information from these endpoints as well?
 # - rep_fda_product
@@ -145,22 +47,26 @@ NE.HIGH <- c(
 #'
 #' @return
 main <- function() {
+  message(glue::glue("reading data from {TARGET.INPUT}..."))
+  targetList <- readr::read_tsv(TARGET.INPUT) %>%
+    pull(target)
+  message(glue::glue("reading from {TARGET.INPUT} done"))
+
+  # prepare output directory
+  dir.create(OUTPUT, recursive = TRUE)
+
   message("downloading data from clue.io...")
-  result <- download(c(NE.LOW, NE.HIGH))
+  result <- download(targetList)
   message("download finished")
-  # potential debug snippet
-  #result <- readr::read_tsv("clue.tsv")
-  #colnames(result) <- c("HUGO", colnames(result)[-1])
+
   # export result as TSV
-  data.table::fwrite(result, "clue.tsv", sep = "\t")
-  message("clue.tsv created")
+  data.table::fwrite(result, CLUE.TSV, sep = "\t")
+  message(glue::glue("{CLUE.TSV} created"))
 
   resultCollapsed <- collapseResult(result)
   ## export collapsed table as TSV
-  data.table::fwrite(resultCollapsed, "clueCollapsed.tsv", sep = "\t")
-  message("clueCollapsed.tsv created")
-
-  renderWebPage(resultCollapsed)
+  data.table::fwrite(resultCollapsed, CLUE.COLLAPSED.TSV, sep = "\t")
+  message(glue::glue("{CLUE.COLLAPSED.TSV} created"))
 }
 
 #' Get drug-targets information from clue.io
@@ -284,7 +190,15 @@ perts <- function(...) {
   responseFrame <-
     responseFrame %>%
     select(
-      id,
+      #id,
+      # other fields?
+      alt_name,
+      pert_id,
+      inchi_key,
+      pert_url,
+      # pert_summary, # maybe "description" is enough
+      pcl_membership,
+
       target,
       pert_iname,
       moa,
@@ -328,13 +242,45 @@ getJSONContentAsDataFrame <- function(httrResponse) {
 #'
 #' @return Final data.frame composed from multiple datasets.
 download <- function(...) {
+  ## function to transform and save perts data
+  pertsSaveAndExport <- function(pertsData) {
+    p <- perts %>%
+      mutate(
+        alt_name = null.to.na(alt_name),
+        pert_url = null.to.na(pert_url),
+        moa = null.to.na(moa)
+      )
+    data.table::fwrite(p, file = PERTS_WIDE.TSV, sep = "\t")
+    message(glue::glue("{PERTS_WIDE.TSV} created"))
+
+    pertsData <- pertsData %>%
+        rowwise() %>%
+        mutate(target = paste(target, collapse = "|")) %>%
+        ## what are the other fields?
+        select(target, pert_iname, pubchem_cid) %>%
+        arrange(target, pert_iname)
+
+    data.table::fwrite(pertsData, file = PERTS.TSV, sep = "\t")
+    message(glue::glue("{PERTS.TSV} created"))
+    return(invisible(NULL))
+  }
 
   ## helper function
   null.to.na <- function(x) {
+    if (is.list(x) || is.vector(x)) return(x)
     if(is.null(x)) x <- NA
     return(x)
   }
   null.to.na <- Vectorize(null.to.na)
+
+  ## get data from "perts" endpoint
+  perts <- perts(...)
+  pertsSaveAndExport(perts)
+  # Renaming to avoid conflict with moa from repDrugMoAs
+  perts <- perts %>%
+    rename(moa_from_perts = moa)
+    # TODO: alt_name excluded since its complicated list values with NULLs
+    # select(-c(alt_name))
 
   repDrugTargets <- rep_drug_targets(...) %>%
     rename(HUGO = name) %>%
@@ -346,29 +292,24 @@ download <- function(...) {
     select(-c(id))
   repDrugs <- rep_drugs(repDrugTargets$pert_iname) %>%
     select(-c(id))
-  perts <- perts(...) %>%
-    select(target, pert_iname, pubchem_cid)
 
-  browser()
-
-  perts <- perts(...) %>%
-    select(target, pert_iname, pubchem_cid)
-
-  x <- perts %>%
-    rowwise() %>%
-    mutate(target = paste(target, collapse = ", ")) %>%
-    select(target, pert_iname, pubchem_cid) %>%
-    arrange(target, pert_iname)
-
-  write.table(x, file = "perts.tsv", sep = "\t")
-
+  ## joining tables
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
     left_join(repDrugMoAs) %>%
     left_join(repDrugIndications) %>%
     left_join(perts) %>%
     arrange(HUGO) %>%
-    mutate(orange_book = null.to.na(orange_book)) %>%
+    mutate(
+      source = null.to.na(source),
+      orange_book = null.to.na(orange_book),
+
+      # variables from perts
+      alt_name = null.to.na(alt_name),
+      moa_from_perts = null.to.na(moa_from_perts),
+      pcl_membership = null.to.na(pcl_membership),
+      pert_url = null.to.na(pert_url)
+    ) %>%
     ## re-position and exclusion of columns
     select(
       HUGO,
@@ -384,8 +325,14 @@ download <- function(...) {
       clinical_notes,
       orange_book,
       disease_area,
-    	indication,
+      indication,
       indication_source,
+      alt_name,
+      pert_id, # BRD-...
+      inchi_key,
+      pert_url,
+      pcl_membership,
+
       ## exclude some optional columns
       -c(synonyms, in_cmap, iuphar_id, animal_only)
     )
@@ -409,46 +356,15 @@ collapseResult <- function(result) {
       final_status,
       status_source,
       drugbank_id,
-      chembl_id
+      chembl_id,
+      pubchem_cid
     ) %>%
     group_by(HUGO, pert_iname) %>%
     mutate(
-      drugbank_ids = paste(unique(drugbank_id), collapse = "|"),
-      chembl_ids = paste(unique(chembl_id, collapse = "|"))) %>%
-    select(-c(drugbank_id, chembl_id)) %>%
+      drugbank_id = paste(unique(drugbank_id), collapse = "|"),
+      pubchem_cid = paste(unique(pubchem_cid), collapse = "|"),
+      chembl_id = paste(unique(chembl_id, collapse = "|"))) %>%
     distinct()
-}
-
-renderWebPage <- function(result) {
-  ## - this should be an iteration on each HUGO group
-  ## - collect pert groups for each gene group
-  ## Maybe I shouldn't join result tables in download function.
-  result <- result %>% group_by(HUGO)
-  collection <- list()
-  for (geneGroup in group_split(result)) {
-  # browser()
-    groupName <- geneGroup$HUGO[1]
-    grouppedByPerts <- geneGroup %>%
-      group_by(pert_iname) %>%
-      group_split()
-
-    ## collect pert groups per genes and creates
-    #collection[[groupName]] <- list(
-    collection <- c(collection, list(list(
-      target = groupName,
-      data = grouppedByPerts
-    )))
-  }
-
-  ## export as web page
-  message(glue("reading web template: {WEB_TEMPLATE}"))
-  template <- readr::read_file(WEB_TEMPLATE)
-
-  targets <- collection
-  message(glue("rendering web page, template is '{WEB_TEMPLATE}'"))
-  renderResult <- whisker::whisker.render(template, debug = TRUE)
-  readr::write_file(renderResult, file = WEB_OUT)
-  message(glue("rendered web page is saved into '{WEB_OUT}'"))
 }
 
 ## just call the main

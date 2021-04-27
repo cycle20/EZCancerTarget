@@ -1,2 +1,9 @@
 *.swp
 .Rhistory
+web/index.html
+OUTPUT/
+INPUT/
+INPUT.PPI.MODEL/
+INPUT.REP/
+TRASH/
+NOTEs/
