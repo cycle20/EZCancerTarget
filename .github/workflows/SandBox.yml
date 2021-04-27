@@ -45,5 +45,5 @@ jobs:
         name: my-artifact2
         path: arti2.txt
 
-    - run: ls -lt *.txt
+    - run: ls -ldt
       if: always()
