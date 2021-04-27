@@ -30,13 +30,13 @@ jobs:
     - name: Snoop
       run: find ~ -maxdepth 2 -type d
       
-    - run: echo hello > arti.txt
-    
     - name: Get some external files pre-fetched earlier
     - run: |
         bash -x src/google_download.bash ${{ secrets.UNIPROT_PRE_CACHED }} uni.zip
         time { unzip -l uni.zip | head -30; }
 
+    - name: Create an "artifact"
+    - run: echo hello > arti.txt    
     - uses: actions/upload-artifact@v2
       with:
         name: my-artifact
