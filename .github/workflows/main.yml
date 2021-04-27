@@ -56,10 +56,8 @@ jobs:
         uses: actions/download-artifact@v2.0.9
         continue-on-error: true
         with:
-          # A list of files, directories, and wildcard patterns to cache and restore
-          name: OUTPUT-action-pilot.tgz
-          # An explicit key for restoring and saving the cache
-          path: OUTPUT-action-pilot.tgz
+          name: OUTPUT-action-pilot.tar
+          path: .
 
       #
       # This step inspired by this comment: https://github.com/actions/toolkit/issues/299#issuecomment-574918750
@@ -69,7 +67,7 @@ jobs:
       - name: Previous result exists
         id: cache_exists
         run: |
-          if [ -f OUTPUT-action-pilot.tgz ]; then
+          if [ -f OUTPUT-action-pilot.tar ]; then
             echo ::set-output name=cache_check::yes
           fi
 
@@ -90,17 +88,17 @@ jobs:
       # OUTPUT package
       - name: create archive file for caching
         if: steps.cache_exists.outputs.cache_check != 'yes'
-        run: tar cvzf OUTPUT-action-pilot.tgz  OUTPUT/*
+        run: tar cvf OUTPUT-action-pilot.tar  OUTPUT/*
         
       # Caching
       - name: Upload result
         if: steps.cache_exists.outputs.cache_check != 'yes'
         uses: actions/upload-artifact@v2.2.3
         with:
-          # A list of files, directories, and wildcard patterns to cache and restore
-          name: OUTPUT-action-pilot.tgz
-          # An explicit key for restoring and saving the cache
-          path: OUTPUT-action-pilot.tgz
+          name: OUTPUT-action-pilot.tar
+          path: OUTPUT-action-pilot.tar
+          
+      - run: find OUTPUT-action-pilot.tar
 
 
   # Supply missing data fields in dataset resulted by R/clue.R
@@ -123,16 +121,16 @@ jobs:
         uses: actions/download-artifact@v2.0.9
         with:
           # A list of files, directories, and wildcard patterns to cache and restore
-          name: OUTPUT-action-pilot.tgz
+          name: OUTPUT-action-pilot.tar
           # An explicit key for restoring and saving the cache
-          path: OUTPUT-action-pilot.tgz
+          path: .
 
       # Extract OUTPUT from the cached tgz package
       - name: Extract cached and restored archive file
         # TODO: wrap into a bash script
         run: |
-          tar xvzf OUTPUT-action-pilot.tgz
-          ls -lh OUTPUT-action-pilot.tgz
+          tar xvf OUTPUT-action-pilot.tar
+          ls -lh OUTPUT-action-pilot.tar
 
       #
       # Dependencies
@@ -149,14 +147,12 @@ jobs:
       - name: create archive file for caching
         # TODO: wrap into a bash script
         run: |
-          tar cvzf OUTPUT-action-pilot-v2.tgz  OUTPUT/*
-          ls -lh OUTPUT-action-pilot-v2.tgz
+          tar cvf OUTPUT-action-pilot-v2.tar  OUTPUT/*
+          ls -lh OUTPUT-action-pilot-v2.tar
           
       # Caching
       - name: Upload result
         uses: actions/upload-artifact@v2.2.3
         with:
-          # A list of files, directories, and wildcard patterns to cache and restore
-          name: OUTPUT-action-pilot.tgz
-          # An explicit key for restoring and saving the cache
-          path: OUTPUT-action-pilot.tgz
+          name: OUTPUT-action-pilot-v2.tar
+          path: OUTPUT-action-pilot-v2.tar
