@@ -29,3 +29,20 @@ jobs:
 
     - name: Snoop
       run: find ~ -maxdepth 2 -type d
+      
+    - run: echo hello > arti.txt
+    
+    - uses: actions/upload-artifact@v2
+      with:
+        name: my-artifact
+        path: arti.txt
+        retention-days: 1
+        
+    - run: rm arti.txt
+    
+    - uses: actions/download-artifact@v2
+      with:
+        name: my-artifact
+        path: arti2.txt
+
+    - run: ls -lt *.txt
