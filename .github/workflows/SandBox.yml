@@ -1,6 +1,7 @@
 name: SandBox
 env:
   ARTIFACT_02: dataPatch.R.tgz
+  UNIPROT_CACHE_DIR: G.D.CACHE
 
 on:
   # This is an experimental workflow that is manually triggered
@@ -45,8 +46,8 @@ jobs:
 
     - name: tarball verbosed extraction of downloaded cache stuffs
       run: |
-        mkdir -p G.D.CACHE
-        tar --directory=G.D.CACHE -xzf u.tgz
+        mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
+        tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
         
         mkdir -p OUTPUT
         tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
@@ -60,7 +61,7 @@ jobs:
     - name: Merge UniProt cache into restored OUTPUT
       run: |
         CACHE="OUTPUT/DATAPATH_CACHE/cache.tsv"
-        UNI_CACHE="UniProt_CacheLines.tsv"
+        UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}/UniProt_CacheLines.tsv"
 
         if [ -f "$CACHE" ]; then
           # exclude UniProt HTML lines
@@ -70,8 +71,10 @@ jobs:
             egrep '\.html\s' "$UNI_CACHE"
           } > new_cache.tsv
           cp new_cache.tsv "$CACHE"
+          tail -30 "$CACHE"
         else
           # just set it as starter cache file
           mkdir -p OUTPUT/DATAPATH_CACHE
           mv -v "$UNI_CACHE" "$CACHE"
+          head -30 "$CACHE"
         fi
