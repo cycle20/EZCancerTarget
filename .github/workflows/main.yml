@@ -2,25 +2,11 @@
 # main.yml: CI workflow
 #
 
-#
-# NOTEs:
-#
-# Further readings: https://launchpad.net/~c2d4u.team/+archive/ubuntu/c2d4u4.0+
-#                   https://github.com/r-lib/actions
-#                   https://github.com/actions/starter-workflows/blob/main/ci/r.yml
-#                   https://pkgs.org/download/r-base-core
-#
-# Cache and "share": https://github.com/actions/cache
-#                    https://rstudio.github.io/renv/articles/renv.html#cache
-#                    https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#outputs
-#                    https://thomasadventure.blog/posts/install-r-packages/
-#
-# rocker links: https://github.com/rocker-org/rocker
-#               https://hub.docker.com/r/_/r-base
-#               https://hub.docker.com/r/rocker/r-apt
-#
-
 name: CI
+env:
+  ARTIFACT_01: clue.R.tgz
+  ARTIFACT_02: dataPatch.R.tgz
+  ARTIFACT_03: renderWebPage.R.tgz
 
 # Controls when the action will run. 
 on:
@@ -36,28 +22,19 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  # Download input data from clue.io by API calls
-  clue_dot_io_API_calls:
-    # The type of runner that the job will run on
+  clue:
+    name: "Download perturbagens from clue.io (R/clue.R)"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: /home/runner/work/scancer/scancer
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Caching
-      - name: Get cached result
-        uses: actions/download-artifact@v2.0.9
+      - name: Download recent "${{ env.ARTIFACT_01 }}"
+        run: bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
         continue-on-error: true
-        with:
-          name: OUTPUT-action-pilot.tar
-          path: .
 
       #
       # This step inspired by this comment: https://github.com/actions/toolkit/issues/299#issuecomment-574918750
@@ -67,7 +44,7 @@ jobs:
       - name: Previous result exists
         id: cache_exists
         run: |
-          if [ -f OUTPUT-action-pilot.tar ]; then
+          if [ -f "${{ env.ARTIFACT_01 }}" ]; then
             echo ::set-output name=cache_check::yes
           fi
 
@@ -84,76 +61,69 @@ jobs:
         run: Rscript R/clue.R
         env:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
-          TARGET_LIST_ID: ${{ secrets.TARGET_LIST_ID }}
       
-      # OUTPUT package
-      - name: create archive file for caching
+      # Wrap OUTPUT directory
+      - name: Create archive file for "caching"
         if: steps.cache_exists.outputs.cache_check != 'yes'
-        run: tar cvf OUTPUT-action-pilot.tar  OUTPUT/*
-        
+        run: bash src/wrap_directory.bash "${{ env.ARTIFACT_01 }}" OUTPUT
+
       # Caching
-      - name: Upload result
+      - name: Upload result artifact as a cache custom cache solution
         if: steps.cache_exists.outputs.cache_check != 'yes'
         uses: actions/upload-artifact@v2.2.3
         with:
-          name: OUTPUT-action-pilot.tar
-          path: OUTPUT-action-pilot.tar
-          
-      - run: find OUTPUT-action-pilot.tar
+          name: "${{ env.ARTIFACT_01 }}"
+          path: "${{ env.ARTIFACT_01 }}"
+
+      - run: md5sum "${{ env.ARTIFACT_01 }}"
 
 
   # Supply missing data fields in dataset resulted by R/clue.R
-  patch_dataset_from_clue:
+  dataPatch:
+    name: "Collect missing data (R/dataPatch.R)"
     runs-on: ubuntu-latest
-    needs: [clue_dot_io_API_calls]
-    
-    defaults:
-      run:
-        shell: bash
-        working-directory: /home/runner/work/scancer/scancer
+    needs: [clue]
 
     steps:
 
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Repository checkout
       - uses: actions/checkout@v2
 
-      # Cache restore
-      - name: Get cached result
-        uses: actions/download-artifact@v2.0.9
-        with:
-          # A list of files, directories, and wildcard patterns to cache and restore
-          name: OUTPUT-action-pilot.tar
-          # An explicit key for restoring and saving the cache
-          path: .
-
-      # Extract OUTPUT from the cached tgz package
-      - name: Extract cached and restored archive file
-        # TODO: wrap into a bash script
+      # Cache restore 01
+      - name: "Restore cache 01: get ${{ env.ARTIFACT_01 }}"
         run: |
-          tar xvf OUTPUT-action-pilot.tar
-          ls -lh OUTPUT-action-pilot.tar
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
+          tree PREV_RESULT
+          mv PREV_RESULT/OUTPUT OUTPUT
+
+      # Cache restore 02
+      - name: "Restore cache 02: get ${{ env.ARTIFACT_02 }}"
+        run: |
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
+          tree -d PREV_RESULT
+          mkdir -p OUTPUT
+          mv PREV_RESULT/* OUTPUT
 
       #
-      # Dependencies
+      # Install dependencies
       #
-      - name: "Dependencies: R pkgs from added PPA and CRAN"
+      - name: "Install dependencies: R pkgs from added PPA and CRAN"
         run: sudo bash src/gh_action__setup_and_install.bash
-   
+
       # Exec dataPatch.R
       # TODO: this can be a long process: downloads in parallel jobs is a potential improvement
       - name: R/dataPatch.R
         run: Rscript R/dataPatch.R
-      
-      # Wrap OUTPUT into tgz package
-      - name: create archive file for caching
-        # TODO: wrap into a bash script
+
+      # Wrap OUTPUT into tar package
+      - name: Prepare archive file for upload
         run: |
-          tar cvf OUTPUT-action-pilot-v2.tar  OUTPUT/*
-          ls -lh OUTPUT-action-pilot-v2.tar
-          
+          bash src/wrap_directory.bash "${{ env.ARTIFACT_02 }}" OUTPUT
+          md5sum "${{ env.ARTIFACT_02 }}"
+
       # Caching
       - name: Upload result
         uses: actions/upload-artifact@v2.2.3
         with:
-          name: OUTPUT-action-pilot-v2.tar
-          path: OUTPUT-action-pilot-v2.tar
+          name: "${{ env.ARTIFACT_02 }}"
+          path: "${{ env.ARTIFACT_02 }}"
