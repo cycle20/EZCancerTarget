@@ -62,4 +62,4 @@ jobs:
       run: |
         UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
         GH_CACHE="OUTPUT/DATAPATH_CACHE"
-        bash -x src/gh_action__merge_caches.bash
+        bash -x src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"

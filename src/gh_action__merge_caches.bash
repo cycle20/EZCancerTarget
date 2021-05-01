@@ -8,7 +8,7 @@
 # cache dir contains UniProt "historical" files
 UNI_CACHE_DIR="$1"
 # extracted from GitHub artifcat or created by GitHub action
-GH_CACHE_DiR="$2"
+GH_CACHE_DIR="$2"
 
 UNI_CACHE_FILE="$UNI_CACHE_DIR/UniProt_CacheLines.tsv"
 GH_CACHE_FILE="$GH_CACHE_DIR/cache.tsv"
