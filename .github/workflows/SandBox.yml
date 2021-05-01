@@ -33,7 +33,7 @@ jobs:
 
     - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
       run: |
-        curl  "https://api.github.com/repos/cycle20/scancer/actions/artifacts
+        curl "https://api.github.com/repos/cycle20/scancer/actions/artifacts"
         bash -x src/get_artifact.bash "${{ env.ARTIFACT_02 }}"
 
     - name: "Drive task: download external UniProt cache stuff"
