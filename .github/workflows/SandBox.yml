@@ -44,7 +44,7 @@ jobs:
         echo "md5sum of cache file"
         md5sum u.tgz
 
-    - name: tarball verbosed extraction of downloaded cache stuffs
+    - name: tarball verbosed extraction of downloaded cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
       run: |
         mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
         tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
@@ -58,23 +58,8 @@ jobs:
         ls -ldt *
         find ~ -maxdepth 2 -type d
 
-    - name: Merge UniProt cache into restored OUTPUT
+    - name: Merge UniProt cache into restored OUTPUT directory
       run: |
-        CACHE="OUTPUT/DATAPATH_CACHE/cache.tsv"
-        UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}/UniProt_CacheLines.tsv"
-
-        if [ -f "$CACHE" ]; then
-          # exclude UniProt HTML lines
-          echo "Merge cache files"
-          {
-            egrep -v 'https://www.uniprot.org/uniprot/[A-Z0-9]{6,10}\s' "$CACHE"
-            egrep '\.html\s' "$UNI_CACHE"
-          } > new_cache.tsv
-          cp new_cache.tsv "$CACHE"
-          tail -30 "$CACHE"
-        else
-          # just set it as starter cache file
-          mkdir -p OUTPUT/DATAPATH_CACHE
-          mv -v "$UNI_CACHE" "$CACHE"
-          head -30 "$CACHE"
-        fi
+        UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
+        GH_CACHE="OUTPUT/DATAPATH_CACHE"
+        bash -x src/gh_action__merge_caches.bash
