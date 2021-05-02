@@ -1,3 +1,5 @@
+#! /bin/bash
+
 #
 # gh_action__merge_caches.bash:
 #
@@ -17,8 +19,8 @@ if [ -f "$GH_CACHE_FILE" ]; then
   # exclude UniProt HTML lines
   echo "Merge cache files"
   {
-    egrep -v 'https://www.uniprot.org/uniprot/[A-Z0-9]{6,10}\s' "$GH_CACHE_FILE"
-    egrep '\.html\s' "$UNI_CACHE_FILE"
+    grep -E -v 'https://www.uniprot.org/uniprot/[A-Z0-9]{6,10}\s' "$GH_CACHE_FILE"
+    grep -E '\.html\s' "$UNI_CACHE_FILE"
   } > new_cache.tsv
   cp new_cache.tsv "$GH_CACHE_FILE"
   tail -30 "$GH_CACHE_FILE"
@@ -28,3 +30,7 @@ else
   mv -v "$UNI_CACHE_FILE" "$GH_CACHE_FILE"
   head -30 "$GH_CACHE_FILE"
 fi
+
+# move HTML files into actual cache directory
+mv -v -t "$GH_CACHE_DIR" "$UNI_CACHE_DIR/*.xml"
+tree "$GH_CACHE_DIR"
