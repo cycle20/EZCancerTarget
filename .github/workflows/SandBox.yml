@@ -1,7 +1,7 @@
 name: SandBox
 env:
   ARTIFACT_02: dataPatch.R.tgz
-  UNIPROT_CACHE_DIR: G.D.CACHE
+  ARTIFACT_03: renderWebPage.R.tgz
 
 on:
   # This is an experimental workflow that is manually triggered
@@ -14,12 +14,18 @@ jobs:
     
     steps:
       - name: "env dump"
-        run: env | sort
-    
+        continue-on-error: true
+        run: |
+          env | sort
+          echo ".... CPU DETAILS ........................."
+          sudo lscpu
+          sudo grep -E '^(processor|.+ id| cores|model|vendor|$|bugs|cpu|.+ size)' /proc/cpuinfo
+          echo ".... OTHER SYSTEM DETAILS ........................."
+          uname -a
 
   # experimental job to practice GHA features
-  dataPatch:
-    name: Collect missing data
+  render:
+    name: Render web representation of current dataset
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -37,29 +43,27 @@ jobs:
         curl "https://api.github.com/repos/cycle20/scancer/actions/artifacts"
         bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
 
-    - name: "Drive task: download external UniProt cache stuff"
+    - name: "Extract ${{ env.ARTIFACT_02 }}"
       run: |
-        echo "Download cache stuff..."
-        bash src/google_download.bash "${{ secrets.UNIPROT_PRE_CACHED }}" u.tgz
         echo "md5sum of cache file"
-        md5sum u.tgz
-
-    - name: tarball verbosed extraction of downloaded cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
-      run: |
-        mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
-        tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
-        
+        md5sum ${{ env.ARTIFACT_02 }}
         mkdir -p OUTPUT
         tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
 
-    - name: Snoop
+    - name: "Setup R dependencies"
       run: |
-        pwd
-        ls -ldt *
-        find ~ -maxdepth 2 -type d
+        sudo bash src/gh_action__setup_and_install.bash
 
-    - name: Merge UniProt cache into restored OUTPUT directory
+    - name: Exec page rendering (renderWebPage.R)
       run: |
-        UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
-        GH_CACHE="OUTPUT/DATAPATH_CACHE"
-        bash -x src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"
+        Rscript R/renderWebPage.R
+        ls -lt OUTPUT/*.html
+
+    - name: "Wrap pages into '${{ env.ARTIFACT_03 }}'"
+      run: tar --directory=OUTPUT -cvzf "${{ env.ARTIFACT_03 }}" index.target.*.html
+
+    - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: "${{ env.ARTIFACT_03 }}"
+        path: "${{ env.ARTIFACT_03 }}"
