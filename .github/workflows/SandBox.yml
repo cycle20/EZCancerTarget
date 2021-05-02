@@ -22,6 +22,7 @@ jobs:
           sudo grep -E '^(processor|.+ id| cores|model|vendor|$|bugs|cpu|.+ size)' /proc/cpuinfo
           echo ".... OTHER SYSTEM DETAILS ........................."
           uname -a
+          grep -E '^(processor|.+ id| cores|model|vendor|$|bugs|cpu|.+ size)' /proc/cpuinfo
 
   # experimental job to practice GHA features
   render:
