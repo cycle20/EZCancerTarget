@@ -18,17 +18,28 @@ jobs:
         with:
           ref: main
 
-      - name: TREE of main
+      - name: get artifact "${{ env.ARTIFACT_03 }}"
         run: |
           git status
-          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
+          bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
           echo git status .................... 
           git status; tree
           echo GITCONF
           cat .git/config
           echo GITIGNORE
           cat .gitignore
+          echo CURRENT DIR
+          pwd
+          ls -l
+
+      - name: gh-pages checkout
+        run: |
+          git branch -a
+          echo GIT DIR
+          ls -l .git
           git checkout gh-pages
+          tree -d
+          ls -l *.html
           LETS_DO_AN_ERROR ":)"
 
       # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
