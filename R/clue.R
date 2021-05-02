@@ -11,6 +11,7 @@ library(assertthat)
 library(data.table)
 library(dplyr)
 library(glue)
+library(googlesheets4)
 library(httr)
 library(jsonlite)
 library(readr)
@@ -23,6 +24,7 @@ USER_KEY <- Sys.getenv("CLUE_USER_KEY")
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
 TARGET.INPUT <- "INPUT/target_list.tsv"
+TARGET.LIST.ID <- Sys.getenv("TARGET_LIST_ID")
 API_BASE <- "https://api.clue.io/api/"
 VERBOSE <- NULL
 ## for verbosed httr requests use the following:
@@ -31,6 +33,8 @@ OUTPUT <- "OUTPUT"
 CLUE.TSV <- glue::glue("{OUTPUT}/clue.tsv")
 CLUE.COLLAPSED.TSV <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
 PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
+## pert API call result with each columns
+PERTS_WIDE.TSV <- glue::glue("{OUTPUT}/perts_wide.tsv")
 
 # TODO: do we need information from these endpoints as well?
 # - rep_fda_product
@@ -45,14 +49,27 @@ PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
 #'
 #' @return
 main <- function() {
-  message(glue::glue("reading data from {TARGET.INPUT}..."))
-  targetList <- readr::read_tsv(TARGET.INPUT) %>%
-    pull(target)
-  message(glue::glue("reading from {TARGET.INPUT} done"))
+  ## read input list of targets
+  if (TARGET.LIST.ID != character(1)) {
+    message(glue::glue("reading data from spreadsheet..."))
+    googlesheets4::gs4_deauth()
+    targetList <- googlesheets4::read_sheet(TARGET.LIST.ID)
+    message(glue::glue("reading data from spreadsheet done"))
+  } else {
+    message(glue::glue("reading data from {TARGET.INPUT}..."))
+    targetList <- readr::read_tsv(TARGET.INPUT)
+    message(glue::glue("reading from {TARGET.INPUT} done"))
+  }
+  targetList <- targetList %>% pull(target)
+  print(glue::glue("Input list: {targetList}"))
+
+  # prepare output directory
+  dir.create(OUTPUT, recursive = TRUE, showWarnings = FALSE)
 
   message("downloading data from clue.io...")
   result <- download(targetList)
   message("download finished")
+
   # export result as TSV
   data.table::fwrite(result, CLUE.TSV, sep = "\t")
   message(glue::glue("{CLUE.TSV} created"))
@@ -244,7 +261,8 @@ download <- function(...) {
         pert_url = null.to.na(pert_url),
         moa = null.to.na(moa)
       )
-    data.table::fwrite(p, "full_perts.tsv", sep = "\t")
+    data.table::fwrite(p, file = PERTS_WIDE.TSV, sep = "\t")
+    message(glue::glue("{PERTS_WIDE.TSV} created"))
 
     pertsData <- pertsData %>%
         rowwise() %>%
@@ -253,7 +271,7 @@ download <- function(...) {
         select(target, pert_iname, pubchem_cid) %>%
         arrange(target, pert_iname)
 
-    data.table::fwrite(pertsData, file = PERTS.TSV, sep = "\t", )
+    data.table::fwrite(pertsData, file = PERTS.TSV, sep = "\t")
     message(glue::glue("{PERTS.TSV} created"))
     return(invisible(NULL))
   }
