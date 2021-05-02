@@ -60,7 +60,7 @@ jobs:
         ls -lt OUTPUT/*.html
 
     - name: "Wrap pages into '${{ env.ARTIFACT_03 }}'"
-      run: tar --directory=OUTPUT -cvzf "${{ env.ARTIFACT_03 }}" index.target.*.html
+      run: tar --directory=OUTPUT -cvzf "${{ env.ARTIFACT_03 }}" $(ls OUTPUT/index.target.*.html)
 
     - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
       uses: actions/upload-artifact@v2.2.3
