@@ -102,31 +102,31 @@ jobs:
           tree PREV_RESULT
           mv PREV_RESULT/OUTPUT OUTPUT
 
-    - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
-      run: |
-        curl "https://api.github.com/repos/cycle20/scancer/actions/artifacts"
-        bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
+      - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
+        run: |
+          curl "https://api.github.com/repos/cycle20/scancer/actions/artifacts"
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
 
-    - name: "Drive task: download external UniProt cache stuff"
-      run: |
-        echo "Download cache stuff..."
-        bash src/google_download.bash "${{ secrets.UNIPROT_PRE_CACHED }}" u.tgz
-        echo "md5sum of cache file"
-        md5sum u.tgz
+      - name: "Drive task: download external UniProt cache stuff"
+        run: |
+          echo "Download cache stuff..."
+          bash src/google_download.bash "${{ secrets.UNIPROT_PRE_CACHED }}" u.tgz
+          echo "md5sum of cache file"
+          md5sum u.tgz
 
-    - name: tarball verbosed extraction of downloaded cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
-      run: |
-        mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
-        tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
-        
-        mkdir -p OUTPUT
-        tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
+      - name: tarball verbosed extraction of downloaded cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
+        run: |
+          mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
+          tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
 
-    - name: Merge UniProt cache into restored OUTPUT directory
-      run: |
-        UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
-        GH_CACHE="OUTPUT/DATAPATH_CACHE"
-        bash -x src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"
+          mkdir -p OUTPUT
+          tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
+
+      - name: Merge UniProt cache into restored OUTPUT directory
+        run: |
+          UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
+          GH_CACHE="OUTPUT/DATAPATH_CACHE"
+          bash -x src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"
 
 
 
