@@ -67,3 +67,4 @@ jobs:
       with:
         name: "${{ env.ARTIFACT_03 }}"
         path: "${{ env.ARTIFACT_03 }}"
+        retention-days: 5
