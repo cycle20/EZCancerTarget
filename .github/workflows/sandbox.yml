@@ -20,18 +20,15 @@ jobs:
 
       - name: TREE of main
         run: |
-          tree
           git status
-
-      - name: Checkout "gh-pages"
-        uses: actions/checkout@v2.3.4
-        with:
-          ref: gh-pages
-
-      - name: TREE of gh-pages
-        run: |
-          tree
-          git status
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
+          echo git status .................... 
+          git status; tree
+          echo GITCONF
+          cat .git/config
+          echo GITIGNORE
+          cat .gitignore
+          git checkout gh-pages
           LETS_DO_AN_ERROR ":)"
 
       # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
