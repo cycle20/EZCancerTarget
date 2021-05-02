@@ -13,12 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
       - name: "env dump"
         continue-on-error: true
         run: |
           env | sort
           echo ".... CPU DETAILS ........................."
           sudo lscpu
+          echo "FROM: /proc/cpuinfo"
           sudo grep -E '^(processor|.+ id| cores|model|vendor|$|bugs|cpu|.+ size)' /proc/cpuinfo
           echo ".... OTHER SYSTEM DETAILS ........................."
           uname -a
@@ -33,9 +35,6 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-    # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
-    - name: "env dump"
-      run: env | sort
 
     - uses: actions/checkout@v2
 

@@ -107,7 +107,6 @@ jobs:
       - name: "Cache: try to get the most recent '${{ env.ARTIFACT_02 }}' artifact"
         continue-on-error: true
         run: |
-          curl "https://api.github.com/repos/cycle20/scancer/actions/artifacts"
           bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
 
       # Cache restore 02/b: UniProt cache (it is needed for correct subcellular images)
@@ -159,3 +158,48 @@ jobs:
         with:
           name: "${{ env.ARTIFACT_02 }}"
           path: "${{ env.ARTIFACT_02 }}"
+
+
+  # experimental job to practice GHA features
+  render:
+    name: Render web representation of current dataset
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    needs: [dataPatch]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+      - uses: actions/checkout@v2
+  
+      - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
+        run: |
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
+  
+      - name: "Extract ${{ env.ARTIFACT_02 }}"
+        run: |
+          echo "md5sum of cache file"
+          md5sum ${{ env.ARTIFACT_02 }}
+          mkdir -p OUTPUT
+          tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
+  
+      - name: "Setup R dependencies"
+        run: |
+          sudo bash src/gh_action__setup_and_install.bash
+  
+      - name: Exec page rendering (renderWebPage.R)
+        run: |
+          Rscript R/renderWebPage.R
+          ls -lt OUTPUT/*.html
+  
+      - name: "Wrap pages into '${{ env.ARTIFACT_03 }}'"
+        run: |
+          tar --directory=OUTPUT -cvzf "${{ env.ARTIFACT_03 }}" \
+            index.target.with.data.html index.target.no_data.html
+  
+      - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: "${{ env.ARTIFACT_03 }}"
+          path: "${{ env.ARTIFACT_03 }}"
+          retention-days: 5
