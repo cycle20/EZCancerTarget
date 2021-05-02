@@ -97,17 +97,20 @@ jobs:
       - uses: actions/checkout@v2
 
       # Cache restore 01
-      - name: "Restore cache 01: get ${{ env.ARTIFACT_01 }}"
+      - name: "Restore 'cache' of ${{ env.ARTIFACT_01 }}"
         run: |
           bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
           tree PREV_RESULT
           mv PREV_RESULT/OUTPUT OUTPUT
 
-      - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
+      # Cache restore 02 (it is optional in case of dataPatch)
+      - name: "Cache: try to get the most recent '${{ env.ARTIFACT_02 }}' artifact"
+        continue-on-error: true
         run: |
           curl "https://api.github.com/repos/cycle20/scancer/actions/artifacts"
           bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
 
+      # Cache restore 02/b: UniProt cache (it is needed for correct subcellular images)
       - name: "Drive task: download external UniProt cache stuff"
         run: |
           echo "Download cache stuff..."
@@ -115,7 +118,7 @@ jobs:
           echo "md5sum of cache file"
           md5sum u.tgz
 
-      - name: tarball verbosed extraction of downloaded cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
+      - name: tarball verbosed extraction of UniProt cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
         run: |
           mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
           tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
