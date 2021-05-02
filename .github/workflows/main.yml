@@ -22,6 +22,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
+  # JOB: CLUE
   clue:
     name: "Download perturbagens from clue.io (R/clue.R)"
     runs-on: ubuntu-latest
@@ -78,6 +79,11 @@ jobs:
       - run: md5sum "${{ env.ARTIFACT_01 }}"
 
 
+
+
+
+
+  # JOB: DATAPATCH
   # Supply missing data fields in dataset resulted by R/clue.R
   dataPatch:
     name: "Collect missing data (R/dataPatch.R)"
@@ -96,19 +102,41 @@ jobs:
           tree PREV_RESULT
           mv PREV_RESULT/OUTPUT OUTPUT
 
-      # Cache restore 02
-      - name: "Restore cache 02: get ${{ env.ARTIFACT_02 }}"
-        run: |
-          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
-          tree -d PREV_RESULT
-          mkdir -p OUTPUT
-          mv PREV_RESULT/* OUTPUT
+    - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
+      run: |
+        curl "https://api.github.com/repos/cycle20/scancer/actions/artifacts"
+        bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
 
-      #
+    - name: "Drive task: download external UniProt cache stuff"
+      run: |
+        echo "Download cache stuff..."
+        bash src/google_download.bash "${{ secrets.UNIPROT_PRE_CACHED }}" u.tgz
+        echo "md5sum of cache file"
+        md5sum u.tgz
+
+    - name: tarball verbosed extraction of downloaded cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
+      run: |
+        mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
+        tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
+        
+        mkdir -p OUTPUT
+        tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
+
+    - name: Merge UniProt cache into restored OUTPUT directory
+      run: |
+        UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
+        GH_CACHE="OUTPUT/DATAPATH_CACHE"
+        bash -x src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"
+
+
+
+
       # Install dependencies
-      #
       - name: "Install dependencies: R pkgs from added PPA and CRAN"
         run: sudo bash src/gh_action__setup_and_install.bash
+
+
+
 
       # Exec dataPatch.R
       # TODO: this can be a long process: downloads in parallel jobs is a potential improvement
