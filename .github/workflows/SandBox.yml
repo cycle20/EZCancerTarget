@@ -1,8 +1,7 @@
 name: SandBox
 env:
-  ARTIFACT_01: clue.R.tar
-  ARTIFACT_02: dataPatch.R.tar
-  ARTIFACT_03: renderWebPage.R.tar
+  ARTIFACT_02: dataPatch.R.tgz
+  ARTIFACT_03: renderWebPage.R.tgz
 
 on:
   # This is an experimental workflow that is manually triggered
@@ -14,67 +13,60 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
       - name: "env dump"
-        run: env | sort
-    
+        continue-on-error: true
+        run: |
+          env | sort
+          echo ".... CPU DETAILS ........................."
+          sudo lscpu
+          echo "FROM: /proc/cpuinfo"
+          sudo grep -E '^(processor|.+ id| cores|model|vendor|$|bugs|cpu|.+ size)' /proc/cpuinfo
+          echo ".... OTHER SYSTEM DETAILS ........................."
+          uname -a
+          grep -E '^(processor|.+ id| cores|model|vendor|$|bugs|cpu|.+ size)' /proc/cpuinfo
 
   # experimental job to practice GHA features
-  dataPatch:
-    name: Collect missing data
+  render:
+    name: Render web representation of current dataset
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-    # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
-    - name: "env dump"
-      run: env | sort
 
     - uses: actions/checkout@v2
 
-    - name: Get most recent "${{ env.ARTIFACT_01 }}" artifact
-      run: bash -x src/get_artifact.bash "${{ env.ARTIFACT_01 }}"
-
-    - name: "Drive task: download external UniProt cach stuff"
+    - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
       run: |
-        echo "Download cache stuff..."
-        bash src/google_download.bash "${{ secrets.UNIPROT_PRE_CACHED }}" u.tgz
+        curl "https://api.github.com/repos/cycle20/scancer/actions/artifacts"
+        bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
+
+    - name: "Extract ${{ env.ARTIFACT_02 }}"
+      run: |
         echo "md5sum of cache file"
-        md5sum u.tgz
+        md5sum ${{ env.ARTIFACT_02 }}
+        mkdir -p OUTPUT
+        tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
 
-    - name: tarball verbosed extraction of downloaded cache stuff
+    - name: "Setup R dependencies"
       run: |
-        mkdir -p G.D.CACHE
-        tar --directory=G.D.CACHE -xvzf u.tgz
-        ls -lt G.D.CACHE
-        function dump_unport_lines() { awk -F'\t' '/uniprot\/P/ { print $1, $2; }' $1 | sort; }
-        dump_unport_lines G.D.CACHE/UniProt_CacheLines.tsv
+        sudo bash src/gh_action__setup_and_install.bash
 
-
-    - name: Snoop
+    - name: Exec page rendering (renderWebPage.R)
       run: |
-        pwd
-        ls -ldt *
-        find ~ -maxdepth 2 -type d
-      
-    - run: echo hello > arti.txt
-    
-    - uses: actions/upload-artifact@v2
-      with:
-        name: my-artifact
-        path: arti.txt
-        retention-days: 1
+        Rscript R/renderWebPage.R
+        ls -lt OUTPUT/*.html
 
-    - uses: actions/upload-artifact@v2
-      with:
-        name: up
-        path: u.tgz
-        retention-days: 1
+    - name: "Wrap pages into '${{ env.ARTIFACT_03 }}'"
+      run: |
+        tar --directory=OUTPUT -cvzf "${{ env.ARTIFACT_03 }}" \
+          index.target.with.data.html index.target.no_data.html
 
-    - run: rm arti.txt
-    
-    - run: ls -ldt *.txt
-      continue-on-error: true
-      
-    - run: echo DONE
+    - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: "${{ env.ARTIFACT_03 }}"
+        path: "${{ env.ARTIFACT_03 }}"
+        retention-days: 5
