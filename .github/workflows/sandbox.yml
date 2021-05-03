@@ -42,6 +42,8 @@ jobs:
           git clone https://github.com/cycle20/scancer.git
           cd scancer; pwd; tree
           git checkout gh-pages
+          git branch -a
+          git log --online -10
           # auth
           echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
           echo cat..........
@@ -60,7 +62,9 @@ jobs:
           echo g-add................................
           git add index.target.with.data.html
           git commit -m "Test push from workflow"
-          git push origin gh-pages2
+          echo g-status....................
+          git status
+          git push origin gh-pages:gh-pages2
           LETS_DO_AN_ERROR ":)"
 
       # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
