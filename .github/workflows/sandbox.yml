@@ -39,6 +39,7 @@ jobs:
           pwd
           tree -d
           mkdir -p ../TEST; cd ../TEST; pwd; tree -d
+          git clone https://github.com/cycle20/scancer.git
           # auth
           echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
           # clone by GH CLI
