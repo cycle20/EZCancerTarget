@@ -13,18 +13,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: gh-pages checkout
-        run: |
-          git clone https://github.com/cycle20/scancer.git \
-            && cd scancer
-          git checkout gh-pages
-          git branch -a
-          git log --oneline -10
+      - uses: actions/checkout@v2
+        with:
+          ref: gh-pages
 
       - name: get artifact "${{ env.ARTIFACT_03 }}"
         run: |
+          tree -d
           # get the script file
-          cd scancer
+          pwd
+          cd scancer || echo just skip change dir
           git checkout origin/main -- src/get_artifact.bash
           bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
           # drop the script file (from the index as well)
