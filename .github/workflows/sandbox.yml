@@ -40,8 +40,8 @@ jobs:
           #git checkout gh-pages
           git branch -l --remotes
           tree -d
-          /usr/bin/git -c protocol.version=2 fetch -\
-            -no-tags --prune --progress --no-recurse-submodules --depth=1 \
+          /usr/bin/git -c protocol.version=2 fetch \
+            --no-tags --prune --progress --no-recurse-submodules --depth=1 \
             origin +refs/heads/gh-pages*:refs/remotes/origin/gh-pages* \
             +refs/tags/gh-pages*:refs/tags/gh-pages*
 
