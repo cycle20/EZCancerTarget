@@ -43,7 +43,7 @@ jobs:
           git config  --local user.email "46718432+cycle20@users.noreply.github.com"
           git config  --local user.name cycle20
 
-          mv PREV_RESULT/OUTPUT/index.target.with.data.html .
+          mv PREV_RESULT/index.target.with.data.html .
           git add index.target.with.data.html
           git commit -m "Test push from workflow"
 
