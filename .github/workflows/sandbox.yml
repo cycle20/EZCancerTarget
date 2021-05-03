@@ -22,12 +22,11 @@ jobs:
         run: |
           tree -d
           # get the script file
-          pwd
-          cd scancer || echo just skip change dir
-          git checkout origin/main -- src/get_artifact.bash
-          bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
+          curl -o get_artifact.bash  https://raw.githubusercontent.com/cycle20/scancer/main/src/get_artifact.bash
+          # git checkout origin/main -- src/get_artifact.bash
+          bash get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
           # drop the script file (from the index as well)
-          git rm -f src/get_artifact.bash
+          rm get_artifact.bash
           tree -d
 
       - name: gh-pages "deploy"
@@ -36,8 +35,6 @@ jobs:
           # echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
           # echo cat..........
           # cat .git/config
-
-          cd scancer
 
           git config  --local user.email "46718432+cycle20@users.noreply.github.com"
           git config  --local user.name cycle20
