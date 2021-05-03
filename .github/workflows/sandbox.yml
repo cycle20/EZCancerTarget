@@ -43,7 +43,7 @@ jobs:
           cd scancer; pwd; tree
           git checkout gh-pages
           git branch -a
-          git log --online -10
+          git log --oneline -10
           # auth
           echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
           echo cat..........
