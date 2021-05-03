@@ -44,11 +44,20 @@ jobs:
           git checkout gh-pages
           # auth
           echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
-          # clone by GH CLI
-          # gh repo clone cycle20/scancer
+          echo cat..........
+          cat .git/config
 
+          git config  --local user.email "46718432+cycle20@users.noreply.github.com"
+          git config  --local user.name cycle20
+
+          echo "config values....................."
+          git config --list
+
+          echo "update HTML.........................."
           echo "<!-- MINOR UPDATE -->" >> index.target.with.data.html
+          echo g-status....................
           git status
+          echo g-add................................
           git add index.target.with.data.html
           git commit -m "Test push from workflow"
           git push origin gh-pages2
