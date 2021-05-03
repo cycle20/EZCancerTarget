@@ -20,40 +20,25 @@ jobs:
 
       - name: get artifact "${{ env.ARTIFACT_03 }}"
         run: |
-          tree .git/refs
-          git fetch --all
-          tree .git/refs
-          cat .git/config
-
-          git status
           bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
-          echo git status .................... 
-          git status; tree
-          echo GITCONF
-          cat .git/config
-          echo GITIGNORE
-          cat .gitignore
-          echo CURRENT DIR
-          pwd
-          ls -l
 
       - name: gh-pages checkout
         run: |
-          git branch -a
-          echo GIT DIR
-          ls -l .git
-          #git checkout gh-pages
-          tree -d
-          /usr/bin/git -c protocol.version=2 fetch \
-            --no-tags --prune --progress --no-recurse-submodules --depth=1 \
-            origin +refs/heads/gh-pages*:refs/remotes/origin/gh-pages* \
-            +refs/tags/gh-pages*:refs/tags/gh-pages*
+          cat .git/config
+          git fetch --all
+          cat .git/config
           git checkout gh-pages
+
           echo "REMOTE..."
           git branch -l --remotes
           echo "ALL"
           git branch -a
           ls -l *.html
+
+          echo "<!-- MINOR UPDATE -->" >> index.target.with.data.html
+          git add index.target.with.data.html
+          git commit -m "Test push from workflow"
+          git push origin gh-pages2
           LETS_DO_AN_ERROR ":)"
 
       # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
