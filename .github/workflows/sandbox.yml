@@ -37,7 +37,8 @@ jobs:
           git branch -a
           echo GIT DIR
           ls -l .git
-          git checkout gh-pages
+          #git checkout gh-pages
+          git branch -l --remotes
           tree -d
           ls -l *.html
           LETS_DO_AN_ERROR ":)"
