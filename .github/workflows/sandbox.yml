@@ -24,6 +24,7 @@ jobs:
       - name: get artifact "${{ env.ARTIFACT_03 }}"
         run: |
           # get the script file
+          cd scancer
           git checkout origin/main -- src/get_artifact.bash
           bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
           # drop the script file (from the index as well)
