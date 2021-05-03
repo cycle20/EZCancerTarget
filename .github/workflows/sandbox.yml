@@ -13,10 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: get artifact "${{ env.ARTIFACT_03 }}"
-        run: |
-          bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
-
       - name: gh-pages checkout
         run: |
           git clone https://github.com/cycle20/scancer.git \
@@ -25,6 +21,17 @@ jobs:
           git branch -a
           git log --oneline -10
 
+      - name: get artifact "${{ env.ARTIFACT_03 }}"
+        run: |
+          # get the script file
+          git checkout origin/main -- src/get_artifact.bash
+          bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
+          # drop the script file (from the index as well)
+          git rm -f src/get_artifact.bash
+          tree -d
+
+      - name: gh-pages "deploy"
+        run: |
           # auth
           # echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
           # echo cat..........
@@ -33,14 +40,15 @@ jobs:
           git config  --local user.email "46718432+cycle20@users.noreply.github.com"
           git config  --local user.name cycle20
 
-          echo "<!-- MINOR UPDATE -->" >> index.target.with.data.html
-
+          mv PREV_RESULT/OUTPUT/index.target.with.data.html .
           git add index.target.with.data.html
           git commit -m "Test push from workflow"
 
           echo git push........................
-          git push --verbose "https://${{ secrets.GH_PAGES_PAT }}@github.com/cycle20/scancer.git" gh-pages:gh-pages3
+          git push "https://${{ secrets.GH_PAGES_PAT }}@github.com/cycle20/scancer.git" \
+            gh-pages:gh-pages2
           git pull
+          git log -1
           git status
 
       # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
