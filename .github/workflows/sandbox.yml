@@ -13,27 +13,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout "main"
-        uses: actions/checkout@v2.3.4
-        with:
-          ref: main
-
-      - name: get artifact "${{ env.ARTIFACT_03 }}"
-        run: |
-          bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
+            #      - name: Checkout "main"
+            #        uses: actions/checkout@v2.3.4
+            #        with:
+            #          ref: main
+            #
+            #      - name: get artifact "${{ env.ARTIFACT_03 }}"
+            #        run: |
+            #          bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
 
       - name: gh-pages checkout
         run: |
-          cat .git/config
-          git fetch --all
-          cat .git/config
-          git checkout gh-pages
 
-          echo "REMOTE..."
-          git branch -l --remotes
-          echo "ALL"
-          git branch -a
-          ls -l *.html
+                #          cat .git/config
+                #          git fetch --all
+                #          cat .git/config
+                #          git checkout gh-pages
+                #
+                #          echo "REMOTE..."
+                #          git branch -l --remotes
+                #          echo "ALL"
+                #          git branch -a
+                #          ls -l *.html
+          git clone https://github.com/cycle20/scancer.git
+          mkdir -p ../TEST; cd ../TEST
+          gh repo clone cycle20/scancer
+          echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
 
           echo "<!-- MINOR UPDATE -->" >> index.target.with.data.html
           git add index.target.with.data.html
