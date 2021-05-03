@@ -38,14 +38,16 @@ jobs:
           echo GIT DIR
           ls -l .git
           #git checkout gh-pages
-          git branch -l --remotes
           tree -d
           /usr/bin/git -c protocol.version=2 fetch \
             --no-tags --prune --progress --no-recurse-submodules --depth=1 \
             origin +refs/heads/gh-pages*:refs/remotes/origin/gh-pages* \
             +refs/tags/gh-pages*:refs/tags/gh-pages*
-
+          git checkout gh-pages
+          echo "REMOTE..."
           git branch -l --remotes
+          echo "ALL"
+          git branch -a
           ls -l *.html
           LETS_DO_AN_ERROR ":)"
 
