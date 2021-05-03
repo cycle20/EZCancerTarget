@@ -22,19 +22,19 @@ jobs:
             #        run: |
             #          bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
 
+          #          cat .git/config
+          #          git fetch --all
+          #          cat .git/config
+          #          git checkout gh-pages
+          #
+          #          echo "REMOTE..."
+          #          git branch -l --remotes
+          #          echo "ALL"
+          #          git branch -a
+          #          ls -l *.html
+
       - name: gh-pages checkout
         run: |
-
-                #          cat .git/config
-                #          git fetch --all
-                #          cat .git/config
-                #          git checkout gh-pages
-                #
-                #          echo "REMOTE..."
-                #          git branch -l --remotes
-                #          echo "ALL"
-                #          git branch -a
-                #          ls -l *.html
           git clone https://github.com/cycle20/scancer.git
           mkdir -p ../TEST; cd ../TEST
           gh repo clone cycle20/scancer
