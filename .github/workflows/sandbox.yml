@@ -20,6 +20,9 @@ jobs:
 
       - name: get artifact "${{ env.ARTIFACT_03 }}"
         run: |
+          git checkout -b gh-pages orgin/gh-pages
+
+
           git status
           bash src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
           echo git status .................... 
