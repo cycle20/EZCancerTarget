@@ -39,11 +39,12 @@ jobs:
           pwd
           tree -d
           mkdir -p ../TEST; cd ../TEST; pwd; tree -d
+          gh repo clone --help
           git clone https://github.com/cycle20/scancer.git
           # auth
           echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
           # clone by GH CLI
-          gh repo clone cycle20/scancer
+          # gh repo clone cycle20/scancer
 
           echo "<!-- MINOR UPDATE -->" >> index.target.with.data.html
           git add index.target.with.data.html
