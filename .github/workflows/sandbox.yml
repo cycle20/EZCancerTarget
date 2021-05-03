@@ -57,15 +57,19 @@ jobs:
 
           echo "update HTML.........................."
           echo "<!-- MINOR UPDATE -->" >> index.target.with.data.html
-          echo g-status....................
-          git status
+          echo git diff
+          git diff
           echo g-add................................
           git add index.target.with.data.html
           git commit -m "Test push from workflow"
           echo g-status....................
           git status
-          git push origin gh-pages:gh-pages2
-          LETS_DO_AN_ERROR ":)"
+          echo git push........................
+          git push -u origin gh-pages:gh-pages2
+          echo git pull....................
+          git pull
+          echo g-status....................
+          git status
 
       # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
       - name: "env dump"
@@ -81,6 +85,8 @@ jobs:
           uname -a
           grep -E '^(processor|.+ id| cores|model|vendor|$|bugs|cpu|.+ size)' /proc/cpuinfo
           JUST_SKIP_THIS
+
+          LETS_DO_AN_ERROR ":)"
 
   # experimental job to practice GHA features
   render:
