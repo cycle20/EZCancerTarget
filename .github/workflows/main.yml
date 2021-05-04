@@ -210,7 +210,7 @@ jobs:
 
 
   deployPages:
-    name: Commit new pages from artifact ${{ env.ARTIFACT_03}}
+    name: Commit new pages from artifact of render job
     runs-on: ubuntu-latest
 
     steps:
