@@ -13,84 +13,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout "main"
-        uses: actions/checkout@v2.3.4
-        with:
-          ref: main
 
-      - name: TREE of main
-        run: |
-          tree
-          git status
-
-      - name: Checkout "gh-pages"
-        uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
         with:
           ref: gh-pages
 
-      - name: TREE of gh-pages
+      - name: get artifact "${{ env.ARTIFACT_03 }}"
         run: |
-          tree
+          tree -d
+          # get the script file
+          curl -o get_artifact.bash  https://raw.githubusercontent.com/cycle20/scancer/main/src/get_artifact.bash
+          # git checkout origin/main -- src/get_artifact.bash
+          bash get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_03 }}"
+          # drop the script file (from the index as well)
+          rm get_artifact.bash
+          tree -d
+
+      - name: gh-pages "deploy"
+        run: |
+          # auth
+          # echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
+          # echo cat..........
+          # cat .git/config
+
+          git config  --local user.email "46718432+cycle20@users.noreply.github.com"
+          git config  --local user.name cycle20
+
+          mv PREV_RESULT/index.target.with.data.html .
+          git add index.target.with.data.html
+          git commit -m "Test push from workflow"
+
+          echo git push........................
+          git push "https://${{ secrets.GH_PAGES_PAT }}@github.com/cycle20/scancer.git" \
+            gh-pages:gh-pages2
+          git pull
+          git log -1
           git status
-          LETS_DO_AN_ERROR ":)"
 
       # https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
       - name: "env dump"
-        continue-on-error: true
         run: |
-          cat <<<JUST_SKIP_THIS > /dev/null
           env | sort
-          echo ".... CPU DETAILS ........................."
-          sudo lscpu
-          echo "FROM: /proc/cpuinfo"
-          sudo grep -E '^(processor|.+ id| cores|model|vendor|$|bugs|cpu|.+ size)' /proc/cpuinfo
-          echo ".... OTHER SYSTEM DETAILS ........................."
-          uname -a
-          grep -E '^(processor|.+ id| cores|model|vendor|$|bugs|cpu|.+ size)' /proc/cpuinfo
-          JUST_SKIP_THIS
-
-  # experimental job to practice GHA features
-  render:
-    name: Render web representation of current dataset
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    needs: [checkout]
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-
-
-    - uses: actions/checkout@v2
-
-    - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
-      run: |
-        curl "https://api.github.com/repos/cycle20/scancer/actions/artifacts"
-        bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
-
-    - name: "Extract ${{ env.ARTIFACT_02 }}"
-      run: |
-        echo "md5sum of cache file"
-        md5sum ${{ env.ARTIFACT_02 }}
-        mkdir -p OUTPUT
-        tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
-
-    - name: "Setup R dependencies"
-      run: |
-        sudo bash src/gh_action__setup_and_install.bash
-
-    - name: Exec page rendering (renderWebPage.R)
-      run: |
-        Rscript R/renderWebPage.R
-        ls -lt OUTPUT/*.html
-
-    - name: "Wrap pages into '${{ env.ARTIFACT_03 }}'"
-      run: |
-        tar --directory=OUTPUT -cvzf "${{ env.ARTIFACT_03 }}" \
-          index.target.with.data.html index.target.no_data.html
-
-    - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
-      uses: actions/upload-artifact@v2.2.3
-      with:
-        name: "${{ env.ARTIFACT_03 }}"
-        path: "${{ env.ARTIFACT_03 }}"
-        retention-days: 5
