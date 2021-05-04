@@ -209,7 +209,6 @@ jobs:
 
 
 
-jobs:
   deployPages:
     name: Commit new pages from artifact ${{ env.ARTIFACT_03}}
     runs-on: ubuntu-latest
