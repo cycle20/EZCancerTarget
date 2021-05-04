@@ -96,6 +96,10 @@ jobs:
       # Repository checkout
       - uses: actions/checkout@v2
 
+      - name: Environment
+        run: env | sort -u
+
+
       # Cache restore 01
       - name: "Restore 'cache' of ${{ env.ARTIFACT_01 }}"
         run: |
@@ -172,6 +176,10 @@ jobs:
 
       - uses: actions/checkout@v2
   
+      - name: Environment
+        run: env | sort -u
+
+
       - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
         run: |
           bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
@@ -212,13 +220,16 @@ jobs:
   deployPages:
     name: Commit new pages from artifact of render job
     runs-on: ubuntu-latest
-    needs: [dataPatch]
+    needs: [render]
 
     steps:
 
       - uses: actions/checkout@v2
         with:
           ref: gh-pages
+
+      - name: Environment
+        run: env | sort -u
 
       - name: get artifact "${{ env.ARTIFACT_03 }}"
         run: |
@@ -240,7 +251,6 @@ jobs:
           git add index.target.with.data.html
           git commit -m "Test push from workflow"
 
-          echo git push........................
           git push "https://${{ secrets.GH_PAGES_PAT }}@github.com/cycle20/scancer.git" \
             gh-pages:gh-pages2
           git log -1
