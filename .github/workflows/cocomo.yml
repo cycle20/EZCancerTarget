@@ -18,5 +18,9 @@ jobs:
         id: scc
         run: |
           sudo snap install scc
-          find  R src web -name "*.bash" -o -name "*.R" -o -name "*.md" -o -name "*.html" \
-            xargs scc
+          find  R src web \
+            -name "*.bash" \
+            -o -name "*.R" \
+            -o -name "*.md" \
+            -o -name "*.html" \
+            | xargs scc
