@@ -13,8 +13,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Get the lines of code.
         id: scc
-        uses: iryanbell/scc-docker-action@v1.0.2
-        with:
-          args: ${{ env.GITHUB_WORKSPACE }} -i R,html,sql,bash,yml,md,txt
+        run: |
+          sudo snap install scc
+          find  R src web -name "*.bash" -o -name "*.R" -o -name "*.md" -o -name "*.html" \
+            xargs scc
