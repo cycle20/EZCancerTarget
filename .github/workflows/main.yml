@@ -254,6 +254,6 @@ jobs:
           git commit -m "Test push from workflow"
 
           git push "https://${{ secrets.GH_PAGES_PAT }}@github.com/cycle20/scancer.git" \
-            gh-pages:gh-pages2
+            gh-pages:gh-pages
           git log -1
           git status
