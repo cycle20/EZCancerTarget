@@ -35,7 +35,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Download recent "${{ env.ARTIFACT_01 }}"
-        run: bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
+        run: |
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
+          rm "${{ env.ARTIFACT_01 }}"
         continue-on-error: true
 
       #
@@ -252,7 +254,6 @@ jobs:
           git commit -m "Test push from workflow"
 
           git push "https://${{ secrets.GH_PAGES_PAT }}@github.com/cycle20/scancer.git" \
-            gh-pages
+            gh-pages:gh-pages
           git log -1
           git status
-

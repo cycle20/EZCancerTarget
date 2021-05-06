@@ -53,7 +53,8 @@ main <- function() {
   if (TARGET.LIST.ID != character(1)) {
     message(glue::glue("reading data from spreadsheet..."))
     googlesheets4::gs4_deauth()
-    targetList <- googlesheets4::read_sheet(TARGET.LIST.ID)
+    targetList <- googlesheets4::read_sheet(TARGET.LIST.ID) %>%
+      dplyr::filter(!is.na(target))
     message(glue::glue("reading data from spreadsheet done"))
   } else {
     message(glue::glue("reading data from {TARGET.INPUT}..."))
