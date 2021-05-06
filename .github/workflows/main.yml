@@ -35,7 +35,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Download recent "${{ env.ARTIFACT_01 }}"
-        run: bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
+        run: |
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
+          rm "${{ env.ARTIFACT_01 }}"
         continue-on-error: true
 
       #
