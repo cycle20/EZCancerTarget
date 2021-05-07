@@ -65,6 +65,7 @@ jobs:
         run: Rscript R/clue.R
         env:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
+          SERVICE_TOKEN_JSON: ${{ secret.CLUE_GS4_SERVICE_TOKEN_JSON }}
       
       # Wrap OUTPUT directory
       - name: Create archive file for "caching"

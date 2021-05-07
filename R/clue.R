@@ -25,6 +25,7 @@ USER_KEY <- Sys.getenv("CLUE_USER_KEY")
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
 TARGET.INPUT <- "INPUT/target_list.tsv"
 TARGET.LIST.ID <- Sys.getenv("TARGET_LIST_ID")
+SERVICE_TOKEN_JSON_VAR_NAME <- "SERVICE_TOKEN_JSON"
 API_BASE <- "https://api.clue.io/api/"
 VERBOSE <- NULL
 ## for verbosed httr requests use the following:
@@ -52,13 +53,18 @@ main <- function() {
   ## read input list of targets
   if (TARGET.LIST.ID != character(1)) {
     message(glue::glue("reading data from spreadsheet..."))
-    googlesheets4::gs4_deauth()
-    targetList <- googlesheets4::read_sheet(TARGET.LIST.ID) %>%
+
+    targetList <- readGoogleSpreadSheet(
+        SERVICE_TOKEN_JSON_VAR_NAME, TARGET.LIST.ID
+      ) %>% select(target, NE, UNIPROT_KB_ID) %>%
       dplyr::filter(!is.na(target))
+
     message(glue::glue("reading data from spreadsheet done"))
   } else {
     message(glue::glue("reading data from {TARGET.INPUT}..."))
+
     targetList <- readr::read_tsv(TARGET.INPUT)
+
     message(glue::glue("reading from {TARGET.INPUT} done"))
   }
   targetList <- targetList %>% pull(target)
@@ -80,6 +86,25 @@ main <- function() {
   data.table::fwrite(resultCollapsed, CLUE.COLLAPSED.TSV, sep = "\t")
   message(glue::glue("{CLUE.COLLAPSED.TSV} created"))
 }
+
+
+#' Read Google SpreadSheet
+#'
+#' @param authTokenEnvName OS environment variable containing JSON token
+#' @param driveFileId unique
+#'
+#' @return spreadsheet first sheet as tibble
+readGoogleSpreadSheet <- function(authTokenEnvName, driveFileId) {
+  jsonString <- Sys.getenv(authTokenEnvName)
+
+  googlesheets4::gs4_auth(
+    path = jsonString,
+    scopes = "https://www.googleapis.com/auth/spreadsheets.readonly"
+  )
+
+  googlesheets4::read_sheet(driveFileId)
+}
+
 
 #' Get drug-targets information from clue.io
 #'
