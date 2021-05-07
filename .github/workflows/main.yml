@@ -253,7 +253,12 @@ jobs:
 
           mv PREV_RESULT/index.target.with.data.html .
           git add index.target.with.data.html
-          git commit -m "Test push from workflow"
+          RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          git commit -F <(\
+            printf "Pushed by workflow: %s, run number: %d\n\n$RUN_URL" \
+              "$GITHUB_WORKFLOW" \
+              "$GITHUB_RUN_NUMBER" \
+          )
 
           git push "https://${{ secrets.GH_PAGES_PAT }}@github.com/cycle20/scancer.git" \
             gh-pages:gh-pages
