@@ -109,7 +109,7 @@ jobs:
         run: |
           bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
           ls -lt PREV_RESULT
-          mv PREV_RESULT/* OUTPUT
+          mv PREV_RESULT OUTPUT
 
       # Cache restore of pervious (it is optional in case of dataPatch)
       - name: "Cache: try to get the most recent '${{ env.ARTIFACT_02 }}' artifact"
