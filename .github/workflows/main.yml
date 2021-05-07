@@ -66,6 +66,7 @@ jobs:
         env:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
           SERVICE_TOKEN_JSON: ${{ secrets.CLUE_GS4_SERVICE_TOKEN_JSON }}
+          TARGET_LIST_ID: ${{ secrets.TARGET_LIST_ID }}
       
       # Wrap OUTPUT directory
       - name: Create archive file for "caching"
