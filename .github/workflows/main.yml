@@ -37,7 +37,7 @@ jobs:
       - name: Download recent "${{ env.ARTIFACT_01 }}"
         run: |
           bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
-          rm "${{ env.ARTIFACT_01 }}"
+          rm "${{ env.ARTIFACT_01 }}" # TODO: should be controlled by workflow parameter
         continue-on-error: true
 
       #
@@ -65,6 +65,8 @@ jobs:
         run: Rscript R/clue.R
         env:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
+          SERVICE_TOKEN_JSON: ${{ secrets.CLUE_GS4_SERVICE_TOKEN_JSON }}
+          TARGET_LIST_ID: ${{ secrets.TARGET_LIST_ID }}
       
       # Wrap OUTPUT directory
       - name: Create archive file for "caching"
@@ -78,6 +80,7 @@ jobs:
         with:
           name: "${{ env.ARTIFACT_01 }}"
           path: "${{ env.ARTIFACT_01 }}"
+          retention-days: 1
 
       - run: md5sum "${{ env.ARTIFACT_01 }}"
 
@@ -102,14 +105,14 @@ jobs:
         run: env | sort -u
 
 
-      # Cache restore 01
+      # Cache restore: artifact of "clue" job
       - name: "Restore 'cache' of ${{ env.ARTIFACT_01 }}"
         run: |
           bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
-          tree PREV_RESULT
-          mv PREV_RESULT/OUTPUT OUTPUT
+          ls -lt PREV_RESULT
+          mv PREV_RESULT OUTPUT
 
-      # Cache restore 02 (it is optional in case of dataPatch)
+      # Cache restore of pervious (it is optional in case of dataPatch)
       - name: "Cache: try to get the most recent '${{ env.ARTIFACT_02 }}' artifact"
         continue-on-error: true
         run: |
@@ -251,7 +254,12 @@ jobs:
 
           mv PREV_RESULT/index.target.with.data.html .
           git add index.target.with.data.html
-          git commit -m "Test push from workflow"
+          RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          git commit -F <(\
+            printf "Pushed by workflow: %s, run number: %d\n\n$RUN_URL" \
+              "$GITHUB_WORKFLOW" \
+              "$GITHUB_RUN_NUMBER" \
+          )
 
           git push "https://${{ secrets.GH_PAGES_PAT }}@github.com/cycle20/scancer.git" \
             gh-pages:gh-pages
