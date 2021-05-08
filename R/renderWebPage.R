@@ -137,7 +137,7 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
   template <- readr::read_file(WEB_TEMPLATE)
 
   targets <- collection
-  creationTime <- Sys.time()
+  creationTime <- format(Sys.time(), usetz = TRUE)
   message(glue("rendering web page, template is '{WEB_TEMPLATE}'"))
   renderResult <- whisker::whisker.render(template, debug = TRUE)
   readr::write_file(renderResult, file = outputHTML)
