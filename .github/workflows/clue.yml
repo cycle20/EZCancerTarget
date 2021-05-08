@@ -80,4 +80,4 @@ jobs:
 
       - run: |
           md5sum "${{ env.ARTIFACT_01 }}"
-          bash -x src/trigger_workflow.bash main dataPatch "${{ secrets.GITHUB_TOKEN }}"
+          bash -x src/trigger_workflow.bash main dataPatch "${{ secrets.GH_PAGES_PAT }}"
