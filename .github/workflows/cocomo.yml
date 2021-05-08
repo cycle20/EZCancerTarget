@@ -1,5 +1,6 @@
 name: cocomo
 on:
+
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -7,7 +8,7 @@ on:
 jobs:
   scc_job:
     runs-on: ubuntu-latest
-    name: A job to count the lines of code.
+    name: COCOMO by scc
     steps:
       - name: Checkout
         uses: actions/checkout@v2

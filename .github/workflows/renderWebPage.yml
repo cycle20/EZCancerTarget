@@ -1,0 +1,67 @@
+#
+# renderWebPage.yml: workflow of "render" job
+#
+
+name: renderWebPage
+env:
+  ARTIFACT_01: clue.R.tgz
+  ARTIFACT_02: dataPatch.R.tgz
+  ARTIFACT_03: renderWebPage.R.tgz
+  UNIPROT_CACHE_DIR: G.D.CACHE
+
+on:
+
+  workflow_dispatch:
+
+jobs:
+
+  render:
+    name: Render web representation of current dataset
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - name: Environment
+        run: env | sort -u
+
+
+      - name: Get most recent "${{ env.ARTIFACT_02 }}" artifact
+        run: |
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
+
+      - name: "Extract ${{ env.ARTIFACT_02 }}"
+        run: |
+          echo "md5sum of cache file"
+          md5sum ${{ env.ARTIFACT_02 }}
+          mkdir -p OUTPUT
+          tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
+
+      - name: "Setup R dependencies"
+        run: |
+          sudo bash src/gh_action__setup_and_install.bash
+
+      - name: Exec page rendering (renderWebPage.R)
+        run: |
+          Rscript R/renderWebPage.R
+          ls -lt OUTPUT/*.html
+
+      - name: "Wrap pages into '${{ env.ARTIFACT_03 }}'"
+        run: |
+          tar --directory=OUTPUT -cvzf "${{ env.ARTIFACT_03 }}" \
+            index.target.with.data.html index.target.no_data.html
+
+      - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: "${{ env.ARTIFACT_03 }}"
+          path: "${{ env.ARTIFACT_03 }}"
+          retention-days: 5
+
+      - name: Checksum of artifact
+        run: md5sum "${{ env.ARTIFACT_03 }}"
+
+      - name: Trigger "deployPages"
+        run: bash -x src/trigger_workflow.bash \
+          main deployPages "${{ secrets.GH_PAGES_PAT }}"

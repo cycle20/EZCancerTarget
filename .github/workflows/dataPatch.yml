@@ -10,9 +10,6 @@ env:
   UNIPROT_CACHE_DIR: G.D.CACHE
 
 on:
-  pull_request:
-    branches: [ main ]
-
   workflow_dispatch:
 
 jobs:
@@ -93,3 +90,10 @@ jobs:
         with:
           name: "${{ env.ARTIFACT_02 }}"
           path: "${{ env.ARTIFACT_02 }}"
+
+      - name: Checksum of artifact
+        run: md5sum "${{ env.ARTIFACT_02 }}"
+
+      - name: Trigger "renderWebPage"
+        run: bash -x src/trigger_workflow.bash \
+          main renderWebPage "${{ secrets.GH_PAGES_PAT }}"
