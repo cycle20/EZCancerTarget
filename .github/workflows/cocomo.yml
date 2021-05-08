@@ -2,14 +2,12 @@ name: cocomo
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ sandbox ]
   workflow_dispatch:
 
 jobs:
   scc_job:
     runs-on: ubuntu-latest
-    name: A job to count the lines of code.
+    name: COCOMO by scc
     steps:
       - name: Checkout
         uses: actions/checkout@v2
