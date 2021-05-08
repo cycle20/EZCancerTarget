@@ -78,4 +78,6 @@ jobs:
           path: "${{ env.ARTIFACT_01 }}"
           retention-days: 1
 
-      - run: md5sum "${{ env.ARTIFACT_01 }}"
+      - run: |
+          md5sum "${{ env.ARTIFACT_01 }}"
+          bash src/trigger_workflow.bash "$GITHUB_REF" dataPatch "${{ secrets.GITHUB_TOKEN }}"

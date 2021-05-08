@@ -1,0 +1,95 @@
+#
+# dataPatch.yml: workflow of "dataPatch" job
+#
+
+name: dataPatch
+env:
+  ARTIFACT_01: clue.R.tgz
+  ARTIFACT_02: dataPatch.R.tgz
+  ARTIFACT_03: renderWebPage.R.tgz
+  UNIPROT_CACHE_DIR: G.D.CACHE
+
+on:
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+
+  # Supply missing data fields in dataset resulted by R/clue.R
+  dataPatch:
+    name: "Collect missing data (R/dataPatch.R)"
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Repository checkout
+      - uses: actions/checkout@v2
+
+      - name: Environment
+        run: env | sort -u
+
+
+      # Cache restore: artifact of "clue" job
+      - name: "Restore 'cache' of ${{ env.ARTIFACT_01 }}"
+        run: |
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
+          ls -lt PREV_RESULT
+          mv PREV_RESULT OUTPUT
+
+      # Cache restore of pervious (it is optional in case of dataPatch)
+      - name: "Cache: try to get the most recent '${{ env.ARTIFACT_02 }}' artifact"
+        continue-on-error: true
+        run: |
+          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_02 }}"
+
+      # Cache restore 02/b: UniProt cache (it is needed for correct subcellular images)
+      - name: "Drive task: download external UniProt cache stuff"
+        run: |
+          echo "Download cache stuff..."
+          bash src/google_download.bash "${{ secrets.UNIPROT_PRE_CACHED }}" u.tgz
+          echo "md5sum of cache file"
+          md5sum u.tgz
+
+      - name: tarball verbosed extraction of UniProt cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
+        run: |
+          mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
+          tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
+
+          mkdir -p OUTPUT
+          tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
+
+      - name: Merge UniProt cache into restored OUTPUT directory
+        run: |
+          UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
+          GH_CACHE="OUTPUT/DATAPATH_CACHE"
+          bash -x src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"
+
+
+
+
+      # Install dependencies
+      - name: "Install dependencies: R pkgs from added PPA and CRAN"
+        run: sudo bash src/gh_action__setup_and_install.bash
+
+
+
+
+      # Exec dataPatch.R
+      # TODO: this can be a long process: downloads in parallel jobs is a potential improvement
+      - name: R/dataPatch.R
+        run: Rscript R/dataPatch.R
+
+      # Wrap OUTPUT into tar package
+      - name: Prepare archive file for upload
+        run: |
+          bash src/wrap_directory.bash "${{ env.ARTIFACT_02 }}" OUTPUT
+          md5sum "${{ env.ARTIFACT_02 }}"
+
+      # Caching
+      - name: Upload result
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: "${{ env.ARTIFACT_02 }}"
+          path: "${{ env.ARTIFACT_02 }}"
