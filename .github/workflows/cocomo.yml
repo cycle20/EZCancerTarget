@@ -1,9 +1,7 @@
 name: cocomo
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ sandbox ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
