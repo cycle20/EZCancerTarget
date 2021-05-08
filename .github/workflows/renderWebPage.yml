@@ -10,8 +10,6 @@ env:
   UNIPROT_CACHE_DIR: G.D.CACHE
 
 on:
-  pull_request:
-    branches: [ main ]
 
   workflow_dispatch:
 
