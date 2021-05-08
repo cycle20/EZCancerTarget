@@ -24,10 +24,8 @@ jobs:
     name: "Download perturbagens from clue.io (R/clue.R)"
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
       - name: Download recent "${{ env.ARTIFACT_01 }}"
@@ -37,7 +35,7 @@ jobs:
         continue-on-error: true
 
       #
-      # This step inspired by this comment: https://github.com/actions/toolkit/issues/299#issuecomment-574918750
+      # This step is inspired by a comment: https://github.com/actions/toolkit/issues/299#issuecomment-574918750
       #
       # Is there a cached content?
       # If yes, then clue.io is not needed.
@@ -78,6 +76,11 @@ jobs:
           path: "${{ env.ARTIFACT_01 }}"
           retention-days: 1
 
-      - run: |
-          md5sum "${{ env.ARTIFACT_01 }}"
-          bash -x src/trigger_workflow.bash main dataPatch "${{ secrets.GH_PAGES_PAT }}"
+      - name: Checksum of artifact
+        if: steps.cache_exists.outputs.cache_check != 'yes'
+        run: md5sum "${{ env.ARTIFACT_01 }}"
+
+      - name: Trigger "dataPatch"
+        if: steps.cache_exists.outputs.cache_check != 'yes'
+        run: bash -x src/trigger_workflow.bash \
+          main dataPatch "${{ secrets.GH_PAGES_PAT }}"
