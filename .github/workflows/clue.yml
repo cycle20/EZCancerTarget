@@ -79,9 +79,6 @@ jobs:
           mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
           tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
 
-          mkdir -p OUTPUT
-          tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
-
       - name: Merge UniProt cache into restored OUTPUT directory
         run: |
           UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
