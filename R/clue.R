@@ -68,14 +68,14 @@ main <- function() {
 
     message(glue::glue("reading from {TARGET.INPUT} done"))
   }
-  targetList <- targetList %>% pull(target)
-  print(glue::glue("Input list: {targetList}"))
+  targetListVector <- targetList %>% pull(target)
+  print(glue::glue("Input list: {targetListVector}"))
 
   # prepare output directory
   dir.create(OUTPUT, recursive = TRUE, showWarnings = FALSE)
 
   message("downloading data from clue.io...")
-  result <- download(targetList)
+  result <- download(targetListVector)
   message("download finished")
 
 
