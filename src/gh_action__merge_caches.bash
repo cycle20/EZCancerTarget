@@ -15,19 +15,32 @@ GH_CACHE_DIR="$2"
 UNI_CACHE_FILE="$UNI_CACHE_DIR/UniProt_CacheLines.tsv"
 GH_CACHE_FILE="$GH_CACHE_DIR/cache.tsv"
 
+# exclude UniProt XML lines
+function excludeUniProtXMLs() {
+  CACHE_FILE="$1"
+  [ -z "$CACHE_FILE" ] && {
+    echo "cache file does not exist: $CACHE_FILE"
+    exit 1
+  }
+
+  grep -E -v \
+    'https://www.uniprot.org/uniprot/[A-Z0-9]{6,10}\.xml\s' \
+    "$CACHE_FILE"
+}
+
+mkdir -p "$GH_CACHE_DIR"
+
 if [ -f "$GH_CACHE_FILE" ]; then
-  # exclude UniProt HTML lines
   echo "Merge cache files"
   {
-    grep -E -v 'https://www.uniprot.org/uniprot/[A-Z0-9]{6,10}\.xml\s' "$GH_CACHE_FILE"
+    excludeUniProtXMLs "$GH_CACHE_FILE"
     grep -E '\.html\s' "$UNI_CACHE_FILE"
   } > new_cache.tsv
   cp new_cache.tsv "$GH_CACHE_FILE"
   tail -30 "$GH_CACHE_FILE"
 else
   # just set it as starter cache file
-  mkdir -p "$GH_CACHE_DIR"
-  mv -v "$UNI_CACHE_FILE" "$GH_CACHE_FILE"
+  excludeUniProtXMLs "$UNI_CACHE_FILE" > "$GH_CACHE_FILE"
   head -30 "$GH_CACHE_FILE"
 fi
 
