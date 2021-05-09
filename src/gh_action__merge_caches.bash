@@ -19,7 +19,7 @@ if [ -f "$GH_CACHE_FILE" ]; then
   # exclude UniProt HTML lines
   echo "Merge cache files"
   {
-    grep -E -v 'https://www.uniprot.org/uniprot/[A-Z0-9]{6,10}\s' "$GH_CACHE_FILE"
+    grep -E -v 'https://www.uniprot.org/uniprot/[A-Z0-9]{6,10}\.xml\s' "$GH_CACHE_FILE"
     grep -E '\.html\s' "$UNI_CACHE_FILE"
   } > new_cache.tsv
   cp new_cache.tsv "$GH_CACHE_FILE"
