@@ -1,5 +1,5 @@
 #
-# clue.yml: workflow of "clue" job
+# clue.yml: simplified workflow
 #
 
 name: clue
@@ -26,25 +26,11 @@ jobs:
 
     steps:
 
+
+# clue ########################################################
+
+
       - uses: actions/checkout@v2
-
-      - name: Download recent "${{ env.ARTIFACT_01 }}"
-        run: |
-          bash -x src/get_artifact.bash "${{ secrets.GITHUB_TOKEN }}" "${{ env.ARTIFACT_01 }}"
-          rm "${{ env.ARTIFACT_01 }}" # TODO: should be controlled by workflow parameter
-        continue-on-error: true
-
-      #
-      # This step is inspired by a comment: https://github.com/actions/toolkit/issues/299#issuecomment-574918750
-      #
-      # Is there a cached content?
-      # If yes, then clue.io is not needed.
-      - name: Previous result exists
-        id: cache_exists
-        run: |
-          if [ -f "${{ env.ARTIFACT_01 }}" ]; then
-            echo ::set-output name=cache_check::yes
-          fi
 
       #
       # Dependencies
@@ -55,7 +41,6 @@ jobs:
 
       # Exec clue.R
       - name: R/clue.R
-        if: steps.cache_exists.outputs.cache_check != 'yes'
         run: Rscript R/clue.R
         env:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
@@ -64,12 +49,10 @@ jobs:
       
       # Wrap OUTPUT directory
       - name: Create archive file for "caching"
-        if: steps.cache_exists.outputs.cache_check != 'yes'
         run: bash src/wrap_directory.bash "${{ env.ARTIFACT_01 }}" OUTPUT
 
       # Caching
       - name: Upload result artifact as a cache custom cache solution
-        if: steps.cache_exists.outputs.cache_check != 'yes'
         uses: actions/upload-artifact@v2.2.3
         with:
           name: "${{ env.ARTIFACT_01 }}"
@@ -77,10 +60,103 @@ jobs:
           retention-days: 1
 
       - name: Checksum of artifact
-        if: steps.cache_exists.outputs.cache_check != 'yes'
         run: md5sum "${{ env.ARTIFACT_01 }}"
 
-      - name: Trigger "dataPatch"
-        if: steps.cache_exists.outputs.cache_check != 'yes'
-        run: bash -x src/trigger_workflow.bash \
-          main dataPatch "${{ secrets.GH_PAGES_PAT }}"
+
+# dataPatch ###################################################
+
+
+      # UniProt "cache" (it is needed for correct subcellular images)
+      - name: "Drive task: download external UniProt cache stuff"
+        run: |
+          echo "Download cache stuff..."
+          bash src/google_download.bash "${{ secrets.UNIPROT_PRE_CACHED }}" u.tgz
+          echo "md5sum of cache file"
+          md5sum u.tgz
+
+      - name: tarball verbosed extraction of UniProt cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
+        run: |
+          mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
+          tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
+
+          mkdir -p OUTPUT
+          tar --directory=OUTPUT -xzf ${{ env.ARTIFACT_02 }}
+
+      - name: Merge UniProt cache into restored OUTPUT directory
+        run: |
+          UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
+          GH_CACHE="OUTPUT/DATAPATH_CACHE"
+          bash -x src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"
+
+
+      # Exec dataPatch.R
+      # TODO: this can be a long process: downloads in parallel jobs is a potential improvement
+      - name: R/dataPatch.R
+        run: Rscript R/dataPatch.R
+
+      # Wrap OUTPUT into tar package
+      - name: Prepare archive file for upload
+        run: |
+          bash src/wrap_directory.bash "${{ env.ARTIFACT_02 }}" OUTPUT
+          md5sum "${{ env.ARTIFACT_02 }}"
+
+      # Caching
+      - name: Upload result
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: "${{ env.ARTIFACT_02 }}"
+          path: "${{ env.ARTIFACT_02 }}"
+
+      - name: Checksum of artifact
+        run: md5sum "${{ env.ARTIFACT_02 }}"
+
+
+# render  #####################################################
+
+
+      - name: Exec page rendering (renderWebPage.R)
+        run: |
+          Rscript R/renderWebPage.R
+          ls -lt OUTPUT/*.html
+
+      - name: "Wrap pages into '${{ env.ARTIFACT_03 }}'"
+        run: |
+          tar --directory=OUTPUT -cvzf "${{ env.ARTIFACT_03 }}" \
+            index.target.with.data.html index.target.no_data.html
+
+      - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: "${{ env.ARTIFACT_03 }}"
+          path: "${{ env.ARTIFACT_03 }}"
+          retention-days: 5
+
+      - name: Checksum of artifact
+        run: md5sum "${{ env.ARTIFACT_03 }}"
+
+      - uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+
+
+# deploy ######################################################
+
+
+      - name: gh-pages "deploy"
+        run: |
+          git config  --local user.email "46718432+cycle20@users.noreply.github.com"
+          git config  --local user.name cycle20
+
+          mv PREV_RESULT/index.target.with.data.html .
+          git add index.target.with.data.html
+          RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          git commit -F <(\
+            printf "Pushed by workflow: %s, run number: %d\n\n$RUN_URL" \
+              "$GITHUB_WORKFLOW" \
+              "$GITHUB_RUN_NUMBER" \
+          )
+
+          git push "https://${{ secrets.GH_PAGES_PAT }}@github.com/cycle20/scancer.git" \
+            gh-pages:gh-pages
+          git log -1
+          git status
