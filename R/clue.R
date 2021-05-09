@@ -36,6 +36,7 @@ CLUE.COLLAPSED.TSV <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
 PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
 ## pert API call result with each columns
 PERTS_WIDE.TSV <- glue::glue("{OUTPUT}/perts_wide.tsv")
+TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
 
 # TODO: do we need information from these endpoints as well?
 # - rep_fda_product
@@ -77,6 +78,9 @@ main <- function() {
   result <- download(targetList)
   message("download finished")
 
+
+  # create output files ---------------------------------------------------
+
   # export result as TSV
   data.table::fwrite(result, CLUE.TSV, sep = "\t")
   message(glue::glue("{CLUE.TSV} created"))
@@ -85,6 +89,8 @@ main <- function() {
   ## export collapsed table as TSV
   data.table::fwrite(resultCollapsed, CLUE.COLLAPSED.TSV, sep = "\t")
   message(glue::glue("{CLUE.COLLAPSED.TSV} created"))
+
+  saveRDS(targetList, TARGET_LIST.RDS)
 }
 
 

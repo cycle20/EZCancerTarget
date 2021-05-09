@@ -24,10 +24,11 @@ SLEEP_TIME <- 35 # wait between two HTTP request in seconds
 INGREDIENT_FILTER <- FALSE # Is FDA Label API request strict or not?
 OUTPUT <- "OUTPUT"
 CACHE <- glue::glue("{OUTPUT}/DATAPATH_CACHE")
-TARGET.INPUT <- "INPUT/target_list.tsv"
 CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
 # CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.tsv")
 CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
+TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
+
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 
 TOOL.NAME <- "https://github.com/cycle20/scancer/"
@@ -77,8 +78,8 @@ PUBCHEM.URL.TEMPLATE <- "https://pubchem.ncbi.nlm.nih.gov/compound/{id.or.name}"
 #'
 #' @return Patched data.frame
 main <- function() {
-  ## read curated input names
-  targetList <- readr::read_tsv(TARGET.INPUT) %>%
+  ## read curated input used by clue.R
+  targetList <- readRDS(TARGET_LIST.RDS) %>%
     mutate(HUGO = target)
 
   result <- readr::read_tsv(CLUE.INPUT) %>%
@@ -97,8 +98,6 @@ main <- function() {
   ## save tibble as RDS since write_tsv is not an obvious way
   print(result)
   saveRDS(result, file = CLUE.PATCHED.OUTPUT)
-  # TODO: readr::write_tsv(result, file = CLUE.PATCHED.OUTPUT)
-  # TODO: or JSON format might be a portable solution
 
   # TODO: should be another logic: checkDataCoverage(result)
 
