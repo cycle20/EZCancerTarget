@@ -144,7 +144,7 @@ jobs:
           ref: gh-pages
 
       - name: Restore OUTPUT directory
-        run: mv .. OUTPUT
+        run: mv ../OUTPUT .
 
       - name: gh-pages "deploy"
         run: |
