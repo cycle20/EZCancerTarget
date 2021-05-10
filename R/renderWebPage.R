@@ -20,6 +20,7 @@ OUTPUT <- "OUTPUT"
 WEB_OUT <- glue::glue("{OUTPUT}/index.target.with.data.html")
 WEB_OUT_NODATA <- glue::glue("{OUTPUT}/index.target.no_data.html")
 TARGET.INPUT <- "INPUT/target_list.tsv"
+TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
 # CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
 PATCHED.CLUE.INPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
