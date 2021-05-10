@@ -36,11 +36,8 @@ main <- function() {
     mutate(HUGO = target)
 
   ## read input data prepared by dataPatch.R
-  patchedData <- if (endsWith(PATCHED.CLUE.INPUT, ".rds")) {
-    readRDS(PATCHED.CLUE.INPUT)
-  } else {
-    readr::read_tsv(PATCHED.CLUE.INPUT)
-  }
+  patchedData <- readRDS(PATCHED.CLUE.INPUT)
+
   patchedData <- targetList %>%
     left_join(patchedData) %>%
     rowwise() %>%

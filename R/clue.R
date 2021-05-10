@@ -36,6 +36,7 @@ CLUE.COLLAPSED.TSV <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
 PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
 ## pert API call result with each columns
 PERTS_WIDE.TSV <- glue::glue("{OUTPUT}/perts_wide.tsv")
+TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
 
 # TODO: do we need information from these endpoints as well?
 # - rep_fda_product
@@ -67,15 +68,18 @@ main <- function() {
 
     message(glue::glue("reading from {TARGET.INPUT} done"))
   }
-  targetList <- targetList %>% pull(target)
-  print(glue::glue("Input list: {targetList}"))
+  targetListVector <- targetList %>% pull(target)
+  print(glue::glue("Input list: {targetListVector}"))
 
   # prepare output directory
   dir.create(OUTPUT, recursive = TRUE, showWarnings = FALSE)
 
   message("downloading data from clue.io...")
-  result <- download(targetList)
+  result <- download(targetListVector)
   message("download finished")
+
+
+  # create output files ---------------------------------------------------
 
   # export result as TSV
   data.table::fwrite(result, CLUE.TSV, sep = "\t")
@@ -85,6 +89,8 @@ main <- function() {
   ## export collapsed table as TSV
   data.table::fwrite(resultCollapsed, CLUE.COLLAPSED.TSV, sep = "\t")
   message(glue::glue("{CLUE.COLLAPSED.TSV} created"))
+
+  saveRDS(targetList, TARGET_LIST.RDS)
 }
 
 
