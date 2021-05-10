@@ -32,7 +32,7 @@ CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 #' @return
 main <- function() {
   ## read curated input names
-  targetList <- readr::read_tsv(TARGET.INPUT) %>%
+  targetList <- readRDS(TARGET_LIST.RDS) %>%
     mutate(HUGO = target)
 
   ## read input data prepared by dataPatch.R
