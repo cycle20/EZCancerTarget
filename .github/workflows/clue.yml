@@ -136,9 +136,15 @@ jobs:
 # deploy ######################################################
 
 
+      - name: Save OUTPUT directory
+        run: mv OUTPUT ..
+
       - uses: actions/checkout@v2
         with:
           ref: gh-pages
+
+      - name: Restore OUTPUT directory
+        run: mv .. OUTPUT
 
       - name: gh-pages "deploy"
         run: |
