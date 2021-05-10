@@ -9,7 +9,7 @@ env:
   ARTIFACT_03: renderWebPage.R.tgz
   UNIPROT_CACHE_DIR: G.D.CACHE
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   pull_request:
     branches: [ main ]
@@ -36,7 +36,6 @@ jobs:
       # Dependencies
       #
       - name: "Dependencies: R pkgs from added PPA and CRAN"
-        if: steps.cache_exists.outputs.cache_check != 'yes'
         run: sudo bash src/gh_action__setup_and_install.bash
 
       # Exec clue.R
@@ -46,7 +45,7 @@ jobs:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
           SERVICE_TOKEN_JSON: ${{ secrets.CLUE_GS4_SERVICE_TOKEN_JSON }}
           TARGET_LIST_ID: ${{ secrets.TARGET_LIST_ID }}
-      
+
       # Wrap OUTPUT directory
       - name: Create archive file for "caching"
         run: bash src/wrap_directory.bash "${{ env.ARTIFACT_01 }}" OUTPUT
@@ -83,7 +82,7 @@ jobs:
         run: |
           UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
           GH_CACHE="OUTPUT/DATAPATH_CACHE"
-          bash -x src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"
+          bash src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"
 
 
       # Exec dataPatch.R
@@ -94,6 +93,8 @@ jobs:
       # Wrap OUTPUT into tar package
       - name: Prepare archive file for upload
         run: |
+          md5sum OUTPUT/clue_patched.rds
+          bash src/
           bash src/wrap_directory.bash "${{ env.ARTIFACT_02 }}" OUTPUT
           md5sum "${{ env.ARTIFACT_02 }}"
 
@@ -115,6 +116,7 @@ jobs:
         run: |
           Rscript R/renderWebPage.R
           ls -lt OUTPUT/*.html
+          tree -d ..
 
       - name: "Wrap pages into '${{ env.ARTIFACT_03 }}'"
         run: |
@@ -131,20 +133,26 @@ jobs:
       - name: Checksum of artifact
         run: md5sum "${{ env.ARTIFACT_03 }}"
 
-      - uses: actions/checkout@v2
-        with:
-          ref: gh-pages
-
 
 # deploy ######################################################
 
+
+      - uses: actions/checkout@v2
+        with:
+          ref: gh-pages
 
       - name: gh-pages "deploy"
         run: |
           git config  --local user.email "46718432+cycle20@users.noreply.github.com"
           git config  --local user.name cycle20
 
-          mv PREV_RESULT/index.target.with.data.html .
+          md5sum OUTPUT/clue_patched.rds
+
+          mv OUTPUT/index.target.with.data.html . || {
+            tree -d ..
+            ls -lt
+            exit 1
+          }
           git add index.target.with.data.html
           RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           git commit -F <(\
