@@ -80,8 +80,7 @@ PUBCHEM.URL.TEMPLATE <- "https://pubchem.ncbi.nlm.nih.gov/compound/{id.or.name}"
 main <- function() {
   ## read curated input used by clue.R
   targetList <- readRDS(TARGET_LIST.RDS) %>%
-    mutate(HUGO = target) %>%
-    filter(HUGO == "CTSS")
+    mutate(HUGO = target)
 
   clueTable <- readRDS(CLUE.INPUT) %>%
     ## NOTE: this filter drops some not well-curated compounds
@@ -119,16 +118,16 @@ patch <- function(clueTable) {
   }
 
   ## FDA searches
-  # clueTable <- fdaLabel(clueTable)
-  # ## PubMed searches
-  # clueTable <- pubMed(clueTable)
+  clueTable <- fdaLabel(clueTable)
+  ## PubMed searches
+  clueTable <- pubMed(clueTable)
   ## EMA searches
   clueTable <- ema(clueTable)
   ## Append UniProt details
-  # clueTable <- xmlUniProt(clueTable)
+  clueTable <- xmlUniProt(clueTable)
 
   ## Adjustment of data of columns and HTML fragments
-  # clueTable <- consolidateColumns(clueTable)
+  clueTable <- consolidateColumns(clueTable)
 
   ## TODO: chEbml data...
 
