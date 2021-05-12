@@ -1,4 +1,44 @@
 //
+// customizedNetworkScript.js:
+//
+// THIS SCRIPT IS A MODIFICATION OF
+// http://string-db.org/javascript/combined_embedded_network_v2.0.2.js
+//
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//
+//
+// API DOC
+// https://string-db.org/cgi/help.pl?subpage=api%23embedding-the-interactive-network
+//
+//
+// LICENSE
+// https://creativecommons.org/licenses/by/4.0/
+//
+// All data and download files in STRING are freely available under a 'Creative Commons BY 4.0' license.
+// When using the data, please provide appropriate credit - and inform users of any changes or additions
+// that you might have made to the data.
+//
+//
+//
+// REFERENCES
+//
+// Szklarczyk D, Gable AL, Lyon D, Junge A, Wyder S, Huerta-Cepas J, Simonovic M, Doncheva NT,
+// Morris JH, Bork P, Jensen LJ, von Mering C.
+// STRING v11: protein-protein association networks with increased coverage,
+// supporting functional discovery in genome-wide experimental datasets.
+// Nucleic Acids Res. 2019 Jan; 47:D607-613.
+// https://pubmed.ncbi.nlm.nih.gov/30476243/
+//
+// https://string-db.org/cgi/about?footer_active_subpage=references
+//
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+//
 // function for_each_node()
 //
 // this is a small utility function, to replace Javascript's "forEach" funcionality in the case of static node lists.
@@ -212,6 +252,9 @@ function getSTRING(id) {
     params = {
         'species': '9606',
         'identifiers': [id],
+        'required_score': '900',
+        'network_type': 'physical',
+        'network_flavor': 'confidence',
         'block_structure_pics_in_bubbles': 1
     };
     root_url = "https://string-db.org";
