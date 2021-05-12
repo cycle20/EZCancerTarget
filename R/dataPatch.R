@@ -80,20 +80,22 @@ PUBCHEM.URL.TEMPLATE <- "https://pubchem.ncbi.nlm.nih.gov/compound/{id.or.name}"
 main <- function() {
   ## read curated input used by clue.R
   targetList <- readRDS(TARGET_LIST.RDS) %>%
-    mutate(HUGO = target)
+    mutate(HUGO = target) %>%
+    filter(HUGO == "CTSS")
 
-  result <- readRDS(CLUE.INPUT) %>%
+  clueTable <- readRDS(CLUE.INPUT) %>%
     ## NOTE: this filter drops some not well-curated compounds
     filter(!is.na(source))
 
-  checkDataCoverage(result)
+  checkDataCoverage(clueTable)
 
-  result <- targetList %>%
-    left_join(result) %>%
+  clueTable <- targetList %>%
+    left_join(clueTable) %>%
     rowwise() %>%
-    mutate(has_data = (!is.na(pert_iname) && !is.na(UNIPROT_KB_ID)))
+    mutate(has_data = (!is.na(pert_iname) && !is.na(UNIPROT_KB_ID))) %>%
+    filter(has_data == TRUE)
 
-  result <- patch(result)
+  result <- patch(clueTable)
 
   ## save tibble as RDS since write_tsv is not an obvious way
   print(result)
@@ -112,17 +114,21 @@ main <- function() {
 #' @return Invisible NULL
 patch <- function(clueTable) {
 
+  if (nrow(clueTable) == 0) {
+    stop("There are no rows in the input table")
+  }
+
   ## FDA searches
-  clueTable <- fdaLabel(clueTable)
-  ## PubMed searches
-  clueTable <- pubMed(clueTable)
+  # clueTable <- fdaLabel(clueTable)
+  # ## PubMed searches
+  # clueTable <- pubMed(clueTable)
   ## EMA searches
   clueTable <- ema(clueTable)
   ## Append UniProt details
-  clueTable <- xmlUniProt(clueTable)
+  # clueTable <- xmlUniProt(clueTable)
 
   ## Adjustment of data of columns and HTML fragments
-  clueTable <- consolidateColumns(clueTable)
+  # clueTable <- consolidateColumns(clueTable)
 
   ## TODO: chEbml data...
 
@@ -474,6 +480,8 @@ ema <- function(clueTable) {
   ## Get results of query on EMA search page
   ## Does not harvest each drug link so pageNumber is not in use currently.
   emaSearch <- function(compound, pageNumber = 0) {
+    assertthat::assert_that(!is.na(compound))
+
     if(hasName(emaSearchLocalCache, compound)) {
       pdfURL <- emaSearchLocalCache[[compound]]
       print(glue::glue("EMA LCACHE: compound: {compound}: {pdfURL}"))
@@ -507,17 +515,20 @@ ema <- function(clueTable) {
     ## get public summary PDF link ----------------------------------------
     xpath <- paste0(
       "string(//*/a[",
-      "contains(@href, 'summary-public_en')",
-      " or contains(@href, 'documents/product-information/')",
-      " or contains(@href, 'refusal-public-assessment-report')",
-      " or (",
-        "contains(@href, 'documents/public-statement')",
-        " and contains(@href, 'non-renewal')",
-        " and contains(@href, 'authorisation')",
-        " and contains(@href, '.pdf')",
-      ")]/@href)"
+      "contains(@href, '.pdf') and (",
+        "contains(@href, 'summary-public_en')",
+        " or contains(@href, 'documents/product-information/')",
+        " or contains(@href, 'refusal-public-assessment-report')",
+        " or contains(@href, 'public-assessment-report')",
+        " or (",
+          "contains(@href, 'documents/public-statement')",
+          " and contains(@href, 'non-renewal')",
+          " and contains(@href, 'authorisation')))",
+      "]/@href)"
     )
     pdfURL <- rvest::html_element(firstDrugPage$document, xpath = xpath)
+    assertthat::assert_that(pdfURL != "")
+    assertthat::assert_that(!is.na(pdfURL) && !is.null(pdfURL))
 
     ## PDF URL verification -----------------------------------------------
     if (!firstDrugPage$fromCache) {
@@ -529,7 +540,7 @@ ema <- function(clueTable) {
     ## HEAD request and assert
     print(glue::glue("Check URL (HEAD request): {pdfURL}"))
     sCode <- httr::HEAD(pdfURL)$status_code
-    print(sCode)
+    print(c("Check HEAD HTTP status code: ", sCode))
     if (sCode == 404) { ## NOTE: this case needs a better handler
       print("ERROR 404: PAGE NOT FOUND")
     } else {
