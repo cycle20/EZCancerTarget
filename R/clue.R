@@ -31,7 +31,7 @@ VERBOSE <- NULL
 ## for verbosed httr requests use the following:
 ## VERBOSE <- verbose()
 OUTPUT <- "OUTPUT"
-CLUE.TSV <- glue::glue("{OUTPUT}/clue.tsv")
+CLUE.RDS <- glue::glue("{OUTPUT}/clue.rds")
 CLUE.COLLAPSED.TSV <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
 PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
 ## pert API call result with each columns
@@ -81,9 +81,9 @@ main <- function() {
 
   # create output files ---------------------------------------------------
 
-  # export result as TSV
-  data.table::fwrite(result, CLUE.TSV, sep = "\t")
-  message(glue::glue("{CLUE.TSV} created"))
+  # export result as RDS
+  saveRDS(result, CLUE.RDS)
+  message(glue::glue("{CLUE.RDS} created"))
 
   resultCollapsed <- collapseResult(result)
   ## export collapsed table as TSV
@@ -135,6 +135,33 @@ rep_drug_targets <- function(...) {
   return(getJSONContentAsDataFrame(result))
 }
 
+
+#' Get sample information from clue.io
+#'
+#' @param ... list of official HUGO gene symbols
+#'
+#' @return data.frame with "broad_id", "catalog_no",
+#' "expected_mass", "id", "InChIKey", "pert_id", "pert_iname", "pubchem_cid",
+#' "purity", "qc_filename", "qc_ID", "qc_result", "sample_ID", "smiles",
+#' "vendor" and "vendor_name" columns.
+rep_samples <- function(...) {
+  apiFunction <- "rep_samples"
+
+  filterParams <- list(
+    where = list(
+      pert_iname = list(inq = c(...))
+    )
+  )
+  filterParams <- jsonlite::toJSON(filterParams)
+
+  ## concatenate URL with parameters
+  requestUrl <- glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  result <- getWithUserKey(requestUrl)
+
+  return(getJSONContentAsDataFrame(result))
+}
+
+
 #' MoAs from clue.io
 #'
 #' Client side of rep_drug_moas API endpoint.
@@ -158,6 +185,7 @@ rep_drug_moas <- function(...) {
 
   return(getJSONContentAsDataFrame(result))
 }
+
 
 #' Drug-disease/indication from clue.io
 #'
@@ -183,6 +211,7 @@ rep_drug_indications <- function(...) {
   return(getJSONContentAsDataFrame(result))
 }
 
+
 #' Get drug information from clue.io
 #'
 #' Client side of rep_drugs API endpoint.
@@ -206,6 +235,7 @@ rep_drugs <- function(...) {
 
   return(getJSONContentAsDataFrame(result))
 }
+
 
 #' Get perturbation data from clue.io.
 #'
@@ -252,6 +282,7 @@ perts <- function(...) {
   return(responseFrame)
 }
 
+
 #' GET request
 #'
 #' @param requestUrl
@@ -262,6 +293,7 @@ getWithUserKey <- function(requestUrl) {
     config = add_headers(user_key = USER_KEY), VERBOSE)
   return(result)
 }
+
 
 #' Convert HTTP response body to data.frame
 #'
@@ -275,6 +307,7 @@ getJSONContentAsDataFrame <- function(httrResponse) {
   list <- fromJSON(txt)
   return(as.data.frame(list))
 }
+
 
 #' Download data from endpoints.
 #'
@@ -321,7 +354,10 @@ download <- function(...) {
   pertsSaveAndExport(perts)
   # Renaming to avoid conflict with moa from repDrugMoAs
   perts <- perts %>%
-    rename(moa_from_perts = moa)
+    rename(
+      moa_from_perts = moa,
+      pubchem_cid_from_perts = pubchem_cid
+    )
     # TODO: alt_name excluded since its complicated list values with NULLs
     # select(-c(alt_name))
 
@@ -334,13 +370,24 @@ download <- function(...) {
     rename(indication_source = source) %>%
     select(-c(id))
   repDrugs <- rep_drugs(repDrugTargets$pert_iname) %>%
+    mutate(rep_drugs.pert_iname = pert_iname) %>%
     select(-c(id))
+  repSamples <- rep_samples(repDrugTargets$pert_iname) %>%
+    # In this case "pert_id" the join key to "pert" dataset
+    select(pert_iname, pert_id, InChIKey, pubchem_cid, broad_id) %>%
+    rename(
+      # rep_samples.pert_iname = pert_iname,
+      rep_samples.pert_id = pert_id,
+      # rep_samples.pubchem_cid = pubchem_cid,
+      rep_samples.InChIKey = InChIKey
+    )
 
   ## joining tables
   result <- repDrugTargets %>%
     left_join(repDrugs) %>%
     left_join(repDrugMoAs) %>%
     left_join(repDrugIndications) %>%
+    left_join(repSamples) %>%
     left_join(perts) %>%
     arrange(HUGO) %>%
     mutate(
@@ -357,9 +404,11 @@ download <- function(...) {
     select(
       HUGO,
       pert_iname,
-      moa,
-      final_status,
       pubchem_cid,
+      synonyms,
+      moa,
+      moa_from_perts,
+      final_status,
       chembl_id,
       source,
       ttd_id,
@@ -372,16 +421,19 @@ download <- function(...) {
       indication_source,
       alt_name,
       pert_id, # BRD-...
+      rep_samples.pert_id,
       inchi_key,
+      rep_samples.InChIKey,
       pert_url,
       pcl_membership,
 
       ## exclude some optional columns
-      -c(synonyms, in_cmap, iuphar_id, animal_only)
+      -c(in_cmap, iuphar_id, animal_only)
     )
 
   return(result)
 }
+
 
 #' Collapse table from clue
 #'
@@ -409,6 +461,7 @@ collapseResult <- function(result) {
       chembl_id = paste(unique(chembl_id, collapse = "|"))) %>%
     distinct()
 }
+
 
 ## just call the main
 main()

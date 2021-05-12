@@ -24,7 +24,7 @@ SLEEP_TIME <- 35 # wait between two HTTP request in seconds
 INGREDIENT_FILTER <- FALSE # Is FDA Label API request strict or not?
 OUTPUT <- "OUTPUT"
 CACHE <- glue::glue("{OUTPUT}/DATAPATH_CACHE")
-CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
+CLUE.INPUT <- glue::glue("{OUTPUT}/clue.rds")
 # CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.tsv")
 CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
 TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
@@ -82,7 +82,7 @@ main <- function() {
   targetList <- readRDS(TARGET_LIST.RDS) %>%
     mutate(HUGO = target)
 
-  result <- readr::read_tsv(CLUE.INPUT) %>%
+  result <- readRDS(CLUE.INPUT) %>%
     ## NOTE: this filter drops some not well-curated compounds
     filter(!is.na(source))
 
