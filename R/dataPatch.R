@@ -522,7 +522,10 @@ ema <- function(clueTable) {
         " or (",
           "contains(@href, 'documents/public-statement')",
           " and contains(@href, 'non-renewal')",
-          " and contains(@href, 'authorisation')))",
+          " and contains(@href, 'authorisation')",
+        ") ",
+        # probably this is the least restrictive URL filter
+        " or contains(@href, 'documents'))",
       "]/@href)"
     )
     pdfURL <- rvest::html_element(firstDrugPage$document, xpath = xpath)
