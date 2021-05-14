@@ -79,7 +79,7 @@ jobs:
 
         run: |
           echo "Downloading dataPatch cache stuff..."
-          curl -o "$ARTIFACT_02" "$DATAPATCH_DIRVE_URL&alt=media" \
+          curl -o "$ARTIFACT_02" "${{ env.DATAPATCH_DIRVE_URL }}&alt=media" \
             && {
                 echo "md5sum of cache file"
                 md5sum "$ARTIFACT_02"
