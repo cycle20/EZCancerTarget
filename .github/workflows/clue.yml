@@ -21,7 +21,7 @@ jobs:
 
   # JOB: CLUE
   clue:
-    name: "Download perturbagens from clue.io (R/clue.R)"
+    name: "Collect, transform, represent target dataset"
     runs-on: ubuntu-latest
 
     steps:
@@ -74,14 +74,13 @@ jobs:
           md5sum u.tgz
 
       - name: "Drive task: download 'external' dataPatch cache stuff"
-        env:
-          DATAPATCH_DRIVE_URL: "https://www.googleapis.com/drive/v3/files/${{ secrets.DATAPATCH_DRIVE_ID }}?key=${{ secrets.DATAPATCH_API_KEY }}"
-
         run: |
-          echo "Downloading dataPatch cache stuff..."
-          echo $DATAPATCH_DRIVE_URL
-          D="https://www.googleapis.com/drive/v3/files/${{ secrets.DATAPATCH_DRIVE_ID }}?key=${{ secrets.DATAPATCH_API_KEY }}"
-          curl -o "$ARTIFACT_02" "${D}&alt=media" \
+          URL="https://www.googleapis.com/drive/v3/files/%s?key=%s&alt=media"
+          URL="$(
+            printf $URL ${{ secrets.DATAPATCH_DRIVE_ID }} \
+              ${{ secrets.DATAPATCH_API_KEY }}
+          )"
+          curl -o "$ARTIFACT_02" "${URL}&alt=media" \
             && {
                 echo "md5sum of cache file"
                 md5sum "$ARTIFACT_02"
