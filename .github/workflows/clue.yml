@@ -85,7 +85,7 @@ jobs:
             && {
                 echo "md5sum of cache file"
                 md5sum "$ARTIFACT_02"
-                tar -xzf "$ARTIFACT_02"
+                tar --keep-newer-files -xzf "$ARTIFACT_02"
               } \
             || {
               echo "WARNING: external dataPatch not accessible"
