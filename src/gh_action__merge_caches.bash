@@ -46,4 +46,4 @@ fi
 
 # move HTML files into actual cache directory
 mv -v -t "$GH_CACHE_DIR" $UNI_CACHE_DIR/*.html
-tree "$GH_CACHE_DIR"
+ls -lt "$GH_CACHE_DIR" | tail -20

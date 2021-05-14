@@ -68,10 +68,28 @@ jobs:
       # UniProt "cache" (it is needed for correct subcellular images)
       - name: "Drive task: download external UniProt cache stuff"
         run: |
-          echo "Download cache stuff..."
+          echo "Downloading cache stuff..."
           bash src/google_download.bash "${{ secrets.UNIPROT_PRE_CACHED }}" u.tgz
           echo "md5sum of cache file"
           md5sum u.tgz
+
+      - name: "Drive task: download 'external' dataPatch cache stuff"
+        env:
+          DATAPATCH_DRIVE_URL: "https://www.googleapis.com/drive/v3/files/${{ secrets.DATAPATCH_DRIVE_ID }}?key=${{ secrets.DATAPATCH_API_KEY }}"
+
+        run: |
+          echo "Downloading dataPatch cache stuff..."
+          curl -o "$ARTIFACT_02" "$DATAPATCH_DIRVE_URL&alt=media" \
+            && {
+                echo "md5sum of cache file"
+                md5sum "$ARTIFACT_02"
+                tar -xzf "$ARTIFACT_02"
+              } \
+            || {
+              echo "WARNING: external dataPatch not accessible"
+              echo "WARNING: prepare for a long time running"
+              echo "WARNING: job will be cancelled after 6 hours"
+            } > /dev/stderr
 
       - name: tarball verbosed extraction of UniProt cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
         run: |
