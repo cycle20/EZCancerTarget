@@ -17,9 +17,10 @@ jobs:
         id: scc
         run: |
           sudo snap install scc
-          find  R src web \
+          find R src web .github/workflows \
             -name "*.bash" \
             -o -name "*.R" \
             -o -name "*.md" \
             -o -name "*.html" \
+            -o -name "*.yml" \
             | xargs scc

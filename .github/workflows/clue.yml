@@ -74,6 +74,7 @@ jobs:
           md5sum u.tgz
 
       - name: "Drive task: download 'external' dataPatch cache stuff"
+        continue-on-error: true
         run: |
           URL="https://www.googleapis.com/drive/v3/files/%s?key=%s&alt=media"
           URL="$(
@@ -90,6 +91,7 @@ jobs:
               echo "WARNING: external dataPatch not accessible"
               echo "WARNING: prepare for a long time running"
               echo "WARNING: job will be cancelled after 6 hours"
+              exit 1
             } > /dev/stderr
 
       - name: tarball verbosed extraction of UniProt cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
@@ -122,6 +124,7 @@ jobs:
         with:
           name: "${{ env.ARTIFACT_02 }}"
           path: "${{ env.ARTIFACT_02 }}"
+          retention-days: 10
 
       - name: Checksum of artifact
         run: md5sum "${{ env.ARTIFACT_02 }}"
@@ -136,26 +139,11 @@ jobs:
           ls -lt OUTPUT/*.html
           tree -d ..
 
-      - name: "Wrap pages into '${{ env.ARTIFACT_03 }}'"
-        run: |
-          tar --directory=OUTPUT -cvzf "${{ env.ARTIFACT_03 }}" \
-            index.target.with.data.html index.target.no_data.html
-
-      - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
-        uses: actions/upload-artifact@v2.2.3
-        with:
-          name: "${{ env.ARTIFACT_03 }}"
-          path: "${{ env.ARTIFACT_03 }}"
-          retention-days: 5
-
-      - name: Checksum of artifact
-        run: md5sum "${{ env.ARTIFACT_03 }}"
-
 
 # deploy ######################################################
 
 
-      - name: Save OUTPUT directory
+      - name: Save OUTPUT directory before clobbering checkout
         run: mv OUTPUT ..
 
       - uses: actions/checkout@v2
@@ -189,3 +177,18 @@ jobs:
             gh-pages:gh-pages
           git log -1
           git status
+
+      - name: "Wrap web artifacts into '${{ env.ARTIFACT_03 }}'"
+        run: |
+          tar -cvzf "${{ env.ARTIFACT_03 }}" \
+            index.target.with.data.html js/*
+
+      - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: "${{ env.ARTIFACT_03 }}"
+          path: "${{ env.ARTIFACT_03 }}"
+          retention-days: 5
+
+      - name: Checksum of artifact
+        run: md5sum "${{ env.ARTIFACT_03 }}"
