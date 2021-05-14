@@ -79,7 +79,9 @@ jobs:
 
         run: |
           echo "Downloading dataPatch cache stuff..."
-          curl -o "$ARTIFACT_02" "${{ env.DATAPATCH_DIRVE_URL }}&alt=media" \
+          echo $DATAPATCH_DRIVE_URL
+          D="https://www.googleapis.com/drive/v3/files/${{ secrets.DATAPATCH_DRIVE_ID }}?key=${{ secrets.DATAPATCH_API_KEY }}"
+          curl -o "$ARTIFACT_02" "${D}&alt=media" \
             && {
                 echo "md5sum of cache file"
                 md5sum "$ARTIFACT_02"
