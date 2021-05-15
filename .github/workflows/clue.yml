@@ -38,6 +38,10 @@ jobs:
       - name: "Dependencies: R pkgs from added PPA and CRAN"
         run: sudo bash src/gh_action__setup_and_install.bash
 
+      # Get system/session information
+      - name: Collect session and system information
+        run: Rscript R/collectSessionInfo.R
+
       # Exec clue.R
       - name: R/clue.R
         run: Rscript R/clue.R
