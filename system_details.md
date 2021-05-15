@@ -1,4 +1,4 @@
-Based on [clue run # 40](https://github.com/cycle20/scancer/actions/runs/845052578)
+Based on [clue run # 40](https://github.com/cycle20/scancer/actions/runs/845052578) - output of ```sessionInfo()```:
 
 ```r
 R version 4.0.5 (2021-03-31)
