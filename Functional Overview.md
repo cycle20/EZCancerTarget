@@ -1,6 +1,8 @@
 ### Quick Overview of Functionality
 
 ```
+    =============== INITIAL STAGE: CLUE.IO SEARCH ========================= 
+
                            +---------------+
                            | Input table   |
                            +-------o-------+
@@ -9,23 +11,24 @@
                                    v
                           +-----------------+
                           | clue.io search  |
-                          +-----------------+
+                          +--------o--------+
                                    |
                                    |
-                             result table
+                           ( result table )
                                    |
                                    |
                                    v
 
     ==================== NEXT STAGE: "DATAPATCH" ========================= 
 
-                                   |
+                                   |    "This stage provides additional details
+                                   |     from other sources to result of clue."
                                    |
                                    v
 
-             +---------------------o
+             +---------------------+
              |
-             |   [additional details from other sources to result of clue]
+             |
              |
              v
     +------------------+       +---------------+       +------------+
@@ -45,7 +48,14 @@
 
     ==================== FINAL STAGE: "RENDER" ===========================
 
+                                   |
+                          ( extended dataset )
+                                   |
+                                   v
 
+           +------------------------------------------------+
+           | * Generate HTML page from the extended dataset |
+           | * Deploy it as GitHub Page                     |
+           +------------------------------------------------+
 
 ```
-
