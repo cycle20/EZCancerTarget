@@ -1,6 +1,6 @@
 ### project scancer
 
-###### Results
+##### Results
 
 * [targets with data: the most recent version](https://cycle20.github.io/scancer/index.target.with.data.html)
 * [targets with data: baseline version](https://cycle20.github.io/scancer/baseline/index.target.with.data.html)
@@ -8,15 +8,18 @@
 
 ----
 
-###### Resources
+##### Overview from software perspective
 
-- [Chembl Web Services](https://chembl.gitbook.io/chembl-interface-documentation/web-services)
+* [Functional Overview](https://cycle20.github.io/scancer/Functional%20Overview)
+* [Software Versions and Runtime Environment](https://cycle20.github.io/scancer/Software%20Versions%20and%20Runtime%20Environment)
+
+----
+
+##### Resources
+
 - [CLUE.IO](https://clue.io/repurposing-app)
-- [ClinicalTrials](https://clinicaltrials.gov/)
-- [DrugBank](https://www.drugbank.ca/) - ONLY VERIFICATION, not as datasource
 - [EMA](https://www.ema.europa.eu/)
 - [FDA Label](https://nctr-crs.fda.gov/fdalabel/ui/search)
 - [PubChem](https://pubchem.ncbi.nlm.nih.gov/)
-- [PubMed/PMC](https://pubmed.ncbi.nlm.nih.gov/)
-- NOT IN USE // [TargetValidation](https://www.targetvalidation.org/)
+- [PubMed](https://pubmed.ncbi.nlm.nih.gov/)
 - [UniProt](https://www.uniprot.org/)
