@@ -1,61 +1,51 @@
 ### Quick Overview of Functionality
 
 ```
-    =============== INITIAL STAGE: CLUE.IO SEARCH ========================= 
+=============== INITIAL STAGE: CLUE.IO SEARCH =================
 
-                           +---------------+
-                           | Input table   |
-                           +-------o-------+
-                                   |
-                                   |
-                                   v
-                          +-----------------+
-                          | clue.io search  |
-                          +--------o--------+
-                                   |
-                                   |
-                           ( result table )
-                                   |
-                                   |
-                                   v
+                       +---------------+
+                       | Input table   |
+                       +-------o-------+
+                               |
+                               |
+                               v
+                      +-----------------+
+                      | clue.io search  |
+                      +--------o--------+
+                               |
+                               |
+                       ( result table )
+                               |
+                               |
+                               v
 
-    ==================== NEXT STAGE: "DATAPATCH" ========================= 
+==================== NEXT STAGE: "DATAPATCH" ==================
 
-                                   |    "This stage provides additional details
-                                   |     from other sources to result of clue."
-                                   |
-                                   v
+"Additional details based on the
+ result of the clue.io search."
 
-             +---------------------+
-             |
-             |
-             |
-             v
-    +------------------+       +---------------+       +------------+
-    | FDA Label search |  -->  | PubMed search |  -->  | EMA search |
-    +------------------+       +---------------+       +------o-----+
-                                                              |
-                                                              |
-             +------------------------------------------------+
-             |
-             |
-             v
-    +----------------+
-    | UniProt search | ------------+  
-    +----------------+             |
-                                   |
-                                   v
+                               |
+                               |
+         +--------------+------+------+------------+
+         |              |             |            |
+         v              v             v            v
+   +-----------+   +--------+    +--------+   +---------+
+   | FDA Label |   | PubMed |    |  EMA   |   | UniProt |
+   |  search   |   | search |    | search |   | search  |
+   +-----o-----+   +----o---+    +----o---+   +----o----+
+         |              |             |            |
+         +--------------+------+------+------------+
+                               |
+                               |
+                               v
 
-    ==================== FINAL STAGE: "RENDER" ===========================
+==================== FINAL STAGE: "RENDER" ====================
 
-                                   |
-                          ( extended dataset )
-                                   |
-                                   v
-
-           +------------------------------------------------+
-           | * Generate HTML page from the extended dataset |
-           | * Deploy it as GitHub Page                     |
-           +------------------------------------------------+
-
+                               |          ( extended dataset )
+                               |
+                               v
+      +------------------------------------------------+
+      | * Generate HTML page from the extended dataset |
+      | * Deploy it as GitHub Page                     |
+      +------------------------------------------------+
 ```
