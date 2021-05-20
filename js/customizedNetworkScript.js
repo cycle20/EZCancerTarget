@@ -254,7 +254,7 @@ function getSTRING(id) {
         'identifiers': [id],
         'required_score': '900',
         'network_type': 'physical',
-        'network_flavor': 'confidence',
+        'network_flavor': 'evidence',
         'block_structure_pics_in_bubbles': 1
     };
     root_url = "https://string-db.org";
