@@ -157,38 +157,37 @@
                 </div>
 
                 <div class="accordion-item">
-                  <h2 class="accordion-header" id="localization-data-{{target}}">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-localization-{{target}}" aria-expanded="false" aria-controls="collapse-string-{{target}}">
-                      {{target}} :: Subcellular Location
-                    </button>
-                  </h2>
-                  <div id="collapse-localization-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
-                    <div class="accordion-body">
-                      <h6>Subcellular Location <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#subcellular_location" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
-
-                      <div class="col-sm">{{{uniProtSubCell}}}</div>
-
-                    </div>{{! END OF Subcellular Location accordion-body }}
-
-                  </div>
-                </div>
-
-
-                <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-{{target}}">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-{{target}}" aria-expanded="false" aria-controls="collapse-string-{{target}}">
-                      {{target}} :: Molecular Functions
+                      {{target}} :: Molecular Functions / Subcellular Locations
                     </button>
                   </h2>
                   <div id="collapse-molecular-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
-                      <h6>Molecular Functions <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#function" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
 
-                      <div class="text-muted">From <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#function" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></div>
-                      <div class="molecular-function">
-                        {{{uniProtMolecular}}}
+                      <div class="row">
+
+                      <div class="col molecular-function">
+                        <h6>Molecular Functions <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#function" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
+                        <ul>
+                          {{#uniProtMolecular}}
+                          <li><a href="https://www.ebi.ac.uk/QuickGO/term/{{GOId}}" target="_blank">{{molecularFunction}}</a></li>
+                          {{/uniProtMolecular}}
+                        </ul>
                       </div>
-                    </div>{{! END OF Molecular Functions accordion-body }}
+
+                      <div class="col col-sm">
+                        <h6>Subcellular Locations <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#subcellular_location" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
+                        <ul>
+                          {{#uniProtSubCell}}
+                          <li><a href="https://www.ebi.ac.uk/QuickGO/term/{{GOId}}" target="_blank">{{subCellLocation}}</a></li>
+                          {{/uniProtSubCell}}
+                        </ul>
+                      </div>
+
+                      </div>{{! END OF "row"}}
+
+                    </div>{{! END OF Molecular Functions/Subcellular location accordion-body }}
 
                   </div>
                 </div>

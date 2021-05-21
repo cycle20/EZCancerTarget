@@ -94,8 +94,8 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
 
     ## unwrap UniProt details
     stringID <- uniProtData[[UNIPROT_KB_ID]]$STRING
-    uniProtSubCellular <- uniProtData[[UNIPROT_KB_ID]]$subCellularHTML
-    uniProtMolecular <- uniProtData[[UNIPROT_KB_ID]]$molecularFunctionHTML
+    uniProtSubCellular <- uniProtSubCellular(uniProtData[[UNIPROT_KB_ID]])
+    uniProtMolecular <- uniProtMolecularFunction(uniProtData[[UNIPROT_KB_ID]])
     ## create an iterable list of list of "pathwayID" and "pathwayName" pairs
     reactomePathways <- uniProtData[[UNIPROT_KB_ID]]$Reactome %>%
       whisker::iteratelist(name = "pathwayID", value = "pathwayName")
@@ -273,6 +273,28 @@ pubChemHTML <- function(pert_iname, pubChemId) {
   return(
     paste(aHref(link = url, titleText = label), collapse = "<br/>")
   )
+}
+
+
+#' Create sub-cellular list for iteration
+#'
+#' @param uniProtDataItem
+#'
+#' @return List of GOId-subCellLocation pairs.
+uniProtSubCellular <- function(uniProtDataItem) {
+  uniProtDataItem$subCellularLocation %>%
+    whisker::iteratelist(name = "GOId", value = "subCellLocation")
+}
+
+
+#' Create list of molecular functions for iteration
+#'
+#' @param uniProtDataItem
+#'
+#' @return List of GOId-molecularFunction pairs.
+uniProtMolecularFunction <- function(uniProtDataItem) {
+  uniProtDataItem$molecularFunction %>%
+    whisker::iteratelist(name = "GOId", value = "molecularFunction")
 }
 
 

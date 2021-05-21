@@ -20,7 +20,7 @@ options(width = 160)
 ##
 ## Settings of global variables -------------------------------------------
 ##
-SLEEP_TIME <- 35 # wait between two HTTP request in seconds
+SLEEP_TIME <- 30 # wait between two HTTP request in seconds
 INGREDIENT_FILTER <- FALSE # Is FDA Label API request strict or not?
 OUTPUT <- "OUTPUT"
 CACHE <- glue::glue("{OUTPUT}/DATAPATH_CACHE")
@@ -829,43 +829,88 @@ pubChem <- function(id.or.name) {
 #'
 #' @return data.frame patched by UniProt details.
 xmlUniProt <- function(clueTable) {
+
+  ## change SLEEP_TIME locally since no restrictive robots.txt found
+  ## (5 secs is still very friendly)
+  SLEEP_TIME <- 5
+
+  ## if previous request found a cached item,
+  ## we can increase the request rate a bit.
+  SLEEP_TIME_ON_CACHE_HIT <- 2
+
+  #' Determine "type" GO term
+  #'
+  #' @param termValue GO value of a term
+  #'
+  #' @return "type" of the term: "molecularFunction" or "subCellularLocation"
+  GOTermType <- function(termValue) {
+    type <- if (startsWith(termValue, "F:")) {
+      "molecularFunction"
+    } else if (startsWith(termValue, "C:")) {
+      "subCellularLocation"
+    } else {
+      stop(paste0("Unexpected term prefix: ", termValue))
+    }
+    return(type)
+  }
+
   #' Internal helper function
   #'
-  #' @param xmlResult
+  #' @param xmlResult UniProt data as XML
   #'
-  #' @return
+  #' @return Extracted and selected data items.
   unwrapXMLData <- function(xmlResult) {
     root <- xml2::xml_root(result$document)
 
     ## STRING and GO ids
     ## NOTE: dbReference vs dbreference ???
     xpath <- paste0(
-      "//dbreference[@type='GO']", ## GO functional ("F:") references
+
+      ## GO functional ("F:") references
+      "//dbreference[@type='GO']",
         "//property[@type='term'][starts-with(@value, 'F:')]",
         "/parent::node()", ## select parent node of this GO property
+
+      ## GO cellular components ("C:") references
+      " | //dbreference[@type='GO']",
+        "//property[@type='term'][starts-with(@value, 'C:')]",
+        "/parent::node()", ## select parent node of this GO property
+
       ## STRING and Reactome references
       " | //dbreference[@type='STRING' or @type='Reactome']"
     )
     dbReferences <- xml2::xml_find_all(x = root, xpath = xpath)
 
     ## iterate on DB references
-    resultList <- list(GO.TERMS = list(), Reactome = list())
+    resultList <- list(
+      molecularFunction = NULL,
+      subCellularLocation = NULL,
+      Reactome = list()
+    )
     for (dbref in dbReferences) {
       type <- xml_attr(dbref, "type")
-      id <- xml_attr(dbref, "id")
+      referenceId <- xml_attr(dbref, "id")
       if (type == "STRING") {
         ## TODO: if there are multiple ids, the last one "wins"
-        resultList[["STRING"]] <- id
+        resultList[["STRING"]] <- referenceId
       } else if (type == "Reactome") {
         pathway <-
           xml2::xml_find_first(dbref, ".//property[@type='pathway name']") %>%
           xml2::xml_attr(attr = "value")
-        resultList$Reactome[[id]] <- pathway
+        resultList$Reactome[[referenceId]] <- pathway
       } else if (type == "GO") {
-        term <-
+        ## get value of the term
+        termValue <-
           xml2::xml_find_first(dbref, ".//property[@type='term']") %>%
           xml2::xml_attr(attr = "value")
-        resultList$GO.TERMS[[id]] <- term
+
+        ## select item name by value prefix
+        termType <- GOTermType(termValue)
+        ## create a new named element (as a vector)
+        newItem <- c(substring(termValue, 3))
+        names(newItem) <- referenceId
+        ## append to the vector (to collect values for the same GO "type")
+        resultList[[termType]] <- c(resultList[[termType]], newItem)
       }
     }
     return(resultList)
@@ -886,21 +931,12 @@ xmlUniProt <- function(clueTable) {
   scrapeFromCache <- TRUE
   for (id in uniProtIdList) {
     ## Note: "id" referenced by the glue template below
-    sleepTime <- ifelse(scrapeFromCache, 2, SLEEP_TIME)
+    sleepTime <- ifelse(scrapeFromCache, SLEEP_TIME_ON_CACHE_HIT, SLEEP_TIME)
     ## load XML "page"
     result <- getPageCached(
       glue::glue(UNIPROT.XML.TEMPL), sleepTime
     )
     filteredXMLData[[id]] <- unwrapXMLData(result)
-
-    ## scrape the subcell. image
-    sleepTime <- ifelse(result$fromCache, 2, SLEEP_TIME)
-    ## load HTML page
-    scrapeResult <- scrapeUniProtSnippets(id, sleepTime)
-    scrapeFromCache <- scrapeResult$fromCache
-    filteredXMLData[[id]]$subCellularHTML <- scrapeResult$htmlSnippet
-    filteredXMLData[[id]]$molecularFunctionHTML <-
-      scrapeResult$molecularFunction
   }
 
   ## update the input table and return the result -------------------------
