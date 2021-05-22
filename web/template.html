@@ -54,7 +54,7 @@
           <div class="list-group" id="list-tab" role="tablist">
 {{#targets}}
 {{#target}}
-            <a class="list-group-item list-group-item-action {{NE}}" id="list-{{.}}-list" data-bs-toggle="list" href="#list-{{.}}" role="tab" aria-controls="profile">{{target}} <sup>[{{NE}}]</sup></a>
+            <a class="list-group-item list-group-item-action {{groupLabel}}" id="list-{{.}}-list" data-bs-toggle="list" href="#list-{{.}}" role="tab" aria-controls="profile">{{target}} <sup>[{{groupLabel}}]</sup></a>
 {{/target}}
 {{/targets}}
           </div>
@@ -144,7 +144,7 @@
                   <div id="collapse-string-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
                       <h6>10 best STRING interaction</h6>
-                      PARAMTERS:
+                      PARAMETERS:
                       <ul>
                       <li>the style of edges in the network: <strong>evidence</strong>;</li>
                       <li>network type: <strong>physical</strong>;</li>

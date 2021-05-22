@@ -79,8 +79,7 @@ PUBCHEM.URL.TEMPLATE <- "https://pubchem.ncbi.nlm.nih.gov/compound/{id.or.name}"
 #' @return Patched data.frame
 main <- function() {
   ## read curated input used by clue.R
-  targetList <- readRDS(TARGET_LIST.RDS) %>%
-    mutate(HUGO = target)
+  targetList <- readRDS(TARGET_LIST.RDS)
 
   clueTable <- readRDS(CLUE.INPUT) %>%
     ## NOTE: this filter drops some not well-curated compounds

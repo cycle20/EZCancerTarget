@@ -57,18 +57,21 @@ main <- function() {
 
     targetList <- readGoogleSpreadSheet(
         SERVICE_TOKEN_JSON_VAR_NAME, TARGET.LIST.ID
-      ) %>% select(target, NE, UNIPROT_KB_ID) %>%
-      dplyr::filter(!is.na(target))
-
+      )
     message(glue::glue("reading data from spreadsheet done"))
   } else {
     message(glue::glue("reading data from {TARGET.INPUT}..."))
 
     targetList <- readr::read_tsv(TARGET.INPUT)
-
     message(glue::glue("reading from {TARGET.INPUT} done"))
   }
-  targetListVector <- targetList %>% pull(target)
+
+  targetList <- targetList %>%
+    rename(HUGO = 1, Label = 2, UNIPROT_KB_ID = 3) %>%
+    select(HUGO, Label, UNIPROT_KB_ID) %>%
+    dplyr::filter(!is.na(HUGO))
+
+  targetListVector <- targetList %>% pull(HUGO)
   print(glue::glue("Input list: {targetListVector}"))
 
   # prepare output directory

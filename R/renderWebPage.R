@@ -33,8 +33,7 @@ CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
 #' @return
 main <- function() {
   ## read curated input names
-  targetList <- readRDS(TARGET_LIST.RDS) %>%
-    mutate(HUGO = target)
+  targetList <- readRDS(TARGET_LIST.RDS)
 
   ## read input data prepared by dataPatch.R
   patchedData <- readRDS(PATCHED.CLUE.INPUT)
@@ -46,11 +45,11 @@ main <- function() {
 
   resultHasData <- patchedData %>%
     filter(has_data == TRUE) %>%
-    arrange(NE, HUGO)
+    arrange(Label, HUGO)
 
   resultHasNoData <- patchedData %>%
     filter(has_data == FALSE) %>%
-    arrange(NE, HUGO)
+    arrange(Label, HUGO)
 
   renderWebPage(
     resultHasData, title = "Has CLUE.IO Entries", outputHTML = WEB_OUT
@@ -82,7 +81,7 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
       filter(HUGO == groupName)
 
     hasData <- geneGroup$has_data[1]
-    NE <- geneGroup$NE[1]
+    label <- geneGroup$Label[1]
     UNIPROT_KB_ID <- geneGroup$UNIPROT_KB_ID[1]
 
     # TODO: Old solution was: geneGroup$protein_external_id[1]
@@ -106,8 +105,8 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
     # finalStatus <- geneGroup$final_status[1]
 
     grouppedByPerts <- geneGroup %>%
-      # select(-c(HUGO, target, protein_external_id, has_data)) %>%
-      select(-c(HUGO, target, has_data)) %>%
+      # select(-c(HUGO, protein_external_id, has_data)) %>%
+      select(-c(HUGO, has_data)) %>%
       group_by(pert_iname) %>%
       group_split()
 
@@ -118,7 +117,7 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
       target = groupName,
       stringID = stringID,
       data = grouppedByPerts,
-      NE = NE,
+      groupLabel = label,
       UNIPROT_KB_ID = UNIPROT_KB_ID,
       hasData = tolower(hasData),
       uniProtSubCell = uniProtSubCellular,
