@@ -54,15 +54,15 @@ main <- function() {
   ## read input list of targets
   if (TARGET.LIST.ID != character(1)) {
     message(glue::glue("reading data from spreadsheet..."))
-
     targetList <- readGoogleSpreadSheet(
         SERVICE_TOKEN_JSON_VAR_NAME, TARGET.LIST.ID
       )
+
     message(glue::glue("reading data from spreadsheet done"))
   } else {
     message(glue::glue("reading data from {TARGET.INPUT}..."))
-
     targetList <- readr::read_tsv(TARGET.INPUT)
+
     message(glue::glue("reading from {TARGET.INPUT} done"))
   }
 

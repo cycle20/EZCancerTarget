@@ -20,7 +20,7 @@ options(width = 160)
 ##
 ## Settings of global variables -------------------------------------------
 ##
-SLEEP_TIME <- 30 # wait between two HTTP request in seconds
+SLEEP_TIME <- 30 # waiting time between two HTTP requests in seconds
 INGREDIENT_FILTER <- FALSE # Is FDA Label API request strict or not?
 OUTPUT <- "OUTPUT"
 CACHE <- glue::glue("{OUTPUT}/DATAPATH_CACHE")
@@ -243,7 +243,7 @@ checkDataCoverage <- function(clueTable) {
 #' @return data.frame updated based on column-wide decisions.
 consolidateColumns <- function(clueTable) {
   ##
-  ## TODO: Where should be construct the HTML code?
+  ## TODO: Where should be constructed the HTML code?
   ##       Template file would be the best place.
   ##
 
@@ -255,13 +255,16 @@ consolidateColumns <- function(clueTable) {
   }
   ## FUNC: returns an HTML string of PubMed links
   pubMedLinks <- function(PMIDs, compound) {
+
     title <- "<strong>From PubMed:</strong>"
-    if(!is.list(PMIDs) || length(PMIDs) == 0) {
+    if(all(is.na(PMIDs))) {
       searchLinkHTML <- aHref(link = glue::glue(PUBMED.SEARCH),
         titleText = "No search result"
       )
       return(paste(c(title, searchLinkHTML), collapse = "<br class='cl'/>"))
     } else {
+      assertthat::assert_that(is.vector(PMIDs))
+
       htmlLinks <- paste(sapply(PMIDs, pubMedLink), collapse = "<br class='cl'/>")
       return(paste(c(title, htmlLinks), collapse = "<br class='cl2'/>"))
     }
@@ -302,10 +305,10 @@ consolidateColumns <- function(clueTable) {
 
       ## glue variable accessed from dplyr environment: "setId"
       ## TODO: https://nctr-crs.fda.gov/fdalabel...spl-doc?hl=PATTERN_TO_HIGHLIGHT
-      labelURLTemplate =
+      labelURLTemplate <-
         "https://nctr-crs.fda.gov/fdalabel/services/spl/set-ids/{setId}/spl-doc"
       ## glue variable accessed from dplyr environment: "productNames"
-      anchorTemplate = '<a href="{labelURL}" target="_blank">{productNames}</a>'
+      anchorTemplate <- '<a href="{labelURL}" target="_blank">{productNames}</a>'
 
       ## concatenate labels as HTML URL list
       htmlOfURLs <- fdaLabelDetails$productsTable %>%
@@ -337,7 +340,6 @@ consolidateColumns <- function(clueTable) {
       "<div class='clue'><strong>CLUE.IO</strong><br/>",
       "{statusSourceHTML(status_source, pert_iname)}</div>"
     )) %>%
-    mutate() %>%
     mutate(
       status_source = paste(c(emaLinks, clueSource), collapse = "<br class='mut'/>")
     )
@@ -425,31 +427,32 @@ chemblXML <- function(chemblId) {
 pubMed <- function(clueTable) {
   assertthat::assert_that(tibble::is_tibble(clueTable))
 
-  ## TODO: CLUE.IO bug: Desidustat (for EGLN2): Pre-clinical
-  ##       But it has Clinical Trial hits on PubMed
-
   ## pubMed search request and extract results
   pubMedSearch <- function(compound, final_status) {
 
-    # ## if this harvest probable will be an "extra" effort and
-    # ## will produce some optional details.
-    # extraPubMed <- if_else(
-    #   is.na(final_status) || final_status != "Preclinical",
-    #   TRUE,
-    #   FALSE
-    # )
-
     ## download page or read it from cache
     searchURL <- glue::glue(PUBMED.SEARCH)
+
     result <- getPageCached(searchURL, sleepTime = SLEEP_TIME)
 
-    ## get article <a> elements (top3, if there are more)
-    articleLinks <- result$document %>%
-      rvest::html_elements(xpath = PUBMED.RESULT.XPATH)
-    ## get article identifiers
-    articleIds <- rvest::html_attr(articleLinks, name = "data-article-id")
+    ## XPath expression to access ID list embedded into HTML code
+    xpath <- paste0(
+      'string(/html/head/meta[@name = "log_displayeduids"]/@content)'
+    )
+    ## get article IDs: single string separated by "," and
+    ## split the ID list
+    articleIds <- result$document %>%
+      rvest::html_element(xpath = xpath) %>%
+      stringr::str_split(pattern = ",") %>%
+      unlist() %>%
+      # limited to top 3 hits
+      head(3)
 
-    return(as.list(articleIds))
+    articleIds <- if_else(articleIds[1] == "",
+      list(NA), list(articleIds)) %>%
+      unlist()
+
+    return(articleIds)
   }
 
   clueTable <- clueTable %>%
@@ -493,9 +496,9 @@ ema <- function(clueTable) {
     ## get search result --------------------------------------------------
     emaResult <- getPageCached(glue::glue(EMA.URL.TEMPLATE))
     xpath = "string(//*/a[contains(@href, '/en/medicines/human/EPAR')]/@href)"
-    firstDurgPath <- rvest::html_element(emaResult$document, xpath = xpath)
+    firstDrugPath <- rvest::html_element(emaResult$document, xpath = xpath)
     ## If not hit at all
-    if (firstDurgPath == "") {
+    if (firstDrugPath == "") {
       warning(
         glue::glue("NO DRUG FOUND :: COMPUND: {compound} ", EMA.URL.TEMPLATE),
         immediate. = TRUE
@@ -506,7 +509,7 @@ ema <- function(clueTable) {
 
     ## "most" relevant drug -----------------------------------------------
     firstDrugPage <- getPageCached(
-      glue::glue("https://www.ema.europa.eu{firstDurgPath}"),
+      glue::glue("https://www.ema.europa.eu{firstDrugPath}"),
       sleepTime = ifelse(emaResult$fromCache, 1, SLEEP_TIME)
     )
 
@@ -943,90 +946,6 @@ xmlUniProt <- function(clueTable) {
     rowwise() %>%
     mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
   return(clueTable)
-}
-
-
-#' Scrape UniProt webpage
-#'
-#' @param id an UniProt ID
-#'
-#' @return Visualization of the subcellular location of the protein.
-scrapeUniProtSnippets <- function(id, sleepTime) {
-  ## empty id is not accepted
-  # assertthat::assert_that(
-  #   !(is.null(id) || is.na(id) || stringr::str_length(id) == 0)
-  # )
-  print(glue::glue("scraping: UniProt {id}"))
-  if (is.null(id) || is.na(id) || stringr::str_length(id) == 0) {
-    warning(
-      glue::glue("UniProt id of is missing: '{id}'"),
-      immediate. = TRUE
-    )
-    return(lits(
-      htmlSnippet = "",
-      fromCache = TRUE
-    ))
-  }
-
-  ## cached download of HTML page
-  url <- glue::glue(UNIPROT.HTML.TEMPL)
-  page <- getPageCached(url, sleepTime = sleepTime)
-
-  ## pick the jensenlab-style image ---------------------------------------
-  subCellImgPath <- paste0(
-    "//div[@id = 'subcellular_location']",
-      "/div[starts-with(@id, 'subcell-image-')]"
-  )
-  subCellNode <- page$document %>%
-    rvest::html_element(xpath = subCellImgPath)
-
-  htmlSnippet <- if (xml2::xml_length(subCellNode) > 0) {
-    ## select unneeded children, then remove them
-    subCellNode %>%
-      xml_find_all(xpath = "./*[position() > 2]") %>%
-      xml_remove()
-
-    toString(subCellNode)
-  } else {
-    warning(
-      glue::glue("{id}: Subcellular figure not found"), immediate. = TRUE
-    )
-    glue::glue("<div>Subcellular figure not found</div>")
-  }
-
-
-  # hasSubCellFigure <- subcellular_location %>%
-  #   xml2::xml_find_all(".//sib-swissbiopics-sl") %>%
-  #   length()
-  # htmlSnippet <- if (hasSubCellFigure > 0) {
-  #   toString(subcellular_location)
-  # } else {
-  #   warning(
-  #     glue::glue("{id}: Subcellular figure not found"), immediate. = TRUE
-  #   )
-  #   glue::glue("<div>Subcellular figure not found</div>")
-  # }
-
-  ## pick GO Molecular functions ------------------------------------------
-  molecularFunction <- page$document %>% rvest::html_elements(
-    xpath = '//div[@id="function"]//ul[contains(@class, "molecular_function")]'
-  )
-  molecularFunction <- if (length(molecularFunction) == 1) {
-    node <- molecularFunction[[1]]
-    toString(node)
-  } else {
-    warning(
-      glue::glue("{id}: GO Molecular function not found"), immediate. = TRUE
-    )
-    glue::glue("<div>GO Molecular function not found</div>")
-  }
-
-
-  return(list(
-    htmlSnippet = htmlSnippet,
-    molecularFunction = molecularFunction,
-    fromCache = page$fromCache
-  ))
 }
 
 
