@@ -42,8 +42,7 @@
   </head>
   <body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
-    {{!<script type="text/javascript" src="http://string-db.org/javascript/combined_embedded_network_v2.0.2.js"></script>}}
-    <script type="text/javascript" src="./js/customizedNetworkScript.js"></script>
+    <script type="text/javascript" src="./js/scancer.js"></script>
 
     <div class="container">
 
@@ -143,14 +142,16 @@
                   </h2>
                   <div id="collapse-string-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
-                      <h6>10 best STRING interaction</h6>
-                      PARAMETERS:
+                      <h6>Maximum 10 best STRING interactions</h6>
+                      <em>NETWORK PARAMETERS:</em>
                       <ul>
                       <li>the style of edges in the network: <strong>evidence</strong>;</li>
                       <li>network type: <strong>physical</strong>;</li>
                       <li>threshold of significance to include an interaction, a number between 0 and 1000: <strong>900</strong></li>
                       </ul>
-                      <div id="{{stringID}}"></div>
+                      <div id="{{stringID}}">
+                        {{! SVG network image added by getSTRING function dynamically on open }}
+                      </div>
                     </div>{{! END OF STRING accordion-body }}
 
                   </div>
