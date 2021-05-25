@@ -69,47 +69,6 @@ jobs:
 # dataPatch ###################################################
 
 
-      # UniProt "cache" (it is needed for correct subcellular images)
-      - name: "Drive task: download external UniProt cache stuff"
-        run: |
-          echo "Downloading cache stuff..."
-          bash src/google_download.bash "${{ secrets.UNIPROT_PRE_CACHED }}" u.tgz
-          echo "md5sum of cache file"
-          md5sum u.tgz
-
-      - name: "Drive task: download 'external' dataPatch cache stuff"
-        continue-on-error: true
-        run: |
-          URL="https://www.googleapis.com/drive/v3/files/%s?key=%s&alt=media"
-          URL="$(
-            printf $URL ${{ secrets.DATAPATCH_DRIVE_ID }} \
-              ${{ secrets.DATAPATCH_API_KEY }}
-          )"
-          curl -o "$ARTIFACT_02" "${URL}&alt=media" \
-            && {
-                echo "md5sum of cache file"
-                md5sum "$ARTIFACT_02"
-                tar --keep-newer-files -xzf "$ARTIFACT_02"
-              } \
-            || {
-              echo "WARNING: external dataPatch not accessible"
-              echo "WARNING: prepare for a long time running"
-              echo "WARNING: job will be cancelled after 6 hours"
-              exit 1
-            } > /dev/stderr
-
-      - name: tarball verbosed extraction of UniProt cache stuffs into ${{ env.UNIPROT_CACHE_DIR }}
-        run: |
-          mkdir -p "${{ env.UNIPROT_CACHE_DIR }}"
-          tar --directory="${{ env.UNIPROT_CACHE_DIR }}" -xzf u.tgz
-
-      - name: Merge UniProt cache into restored OUTPUT directory
-        run: |
-          UNI_CACHE="${{ env.UNIPROT_CACHE_DIR }}"
-          GH_CACHE="OUTPUT/DATAPATH_CACHE"
-          bash src/gh_action__merge_caches.bash "$UNI_CACHE" "$GH_CACHE"
-
-
       # Exec dataPatch.R
       # TODO: this can be a long process: downloads in parallel jobs is a potential improvement
       - name: R/dataPatch.R
