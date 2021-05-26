@@ -393,13 +393,10 @@ statusSourceHTML <- function(statusSource, pert_iname) {
     # default URL text
     "Unexpected Source"
   } else {
-    ## plain text transformed to a tool-tipped entity
-    html <- glue::glue("<span data-bs-toggle=\"tooltip\" ",
-      "title=\"{statusSource}\" data-bs-placement=\"right\">",
-      "{statusSource}</span>")
+    ## plain text as is
+    html <- statusSource
     return(html)
   }
-  # TODO:
   htmlText <- paste0(htmlText, aHref(link = statusSource, titleText = label))
 
   return(htmlText)

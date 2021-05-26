@@ -158,7 +158,7 @@ multivaluedCellsToHTML <- function(dataList) {
   cellsToHTML <- function(dataframe) {
     # TODO: Does it eliminate duplications?
     ## collapsing moa
-    moa <- paste(unique(dataframe$moa), collapse = ", <br/>")
+    moa <- paste(unique(dataframe$moa), collapse = ", <br/><br/>")
 
     dataframe <- dataframe %>%
       # select(-c(moa, pubchem_cid, chembl_id)) %>%
@@ -203,6 +203,16 @@ multivaluedCellsToHTML <- function(dataList) {
 #' @return Character object containing a HTML code fragment with
 #' an "anchor" element.
 chemblHTML <- function(chemblId) {
+  ## used in case of non-numeric ChEMBL Id
+  unexpectedChemblId <- function(chemblId) {
+    return(
+      if_else(chemblId != "",
+        glue::glue("Unexpected ChEMBL value: '{chemblId}'"),
+        ""
+      )
+    )
+  }
+
   chemblId <- unique(chemblId)
   ## choose appropriate one
   HTMLtext <- dplyr::if_else(is.na(chemblId),
@@ -215,11 +225,7 @@ chemblHTML <- function(chemblId) {
         link <- glue::glue("{CHEMBL.URL.TEMPLATE}/{chemblId}")
         aHref(link = link, titleText = chemblId)
       },
-      ## FALSE branch
-      # warning(
-      #   glue::glue("Unexpected ChEMBL value: {chemblId}"), immediate. = TRUE
-      # )
-        glue::glue("Unexpected ChEMBL value: {chemblId}")
+      unexpectedChemblId(chemblId)
     ) # inner if_else
   ) # outer if_else
   return(if_else(is.na(HTMLtext),
