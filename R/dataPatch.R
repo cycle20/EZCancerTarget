@@ -53,7 +53,8 @@ UNIPROT.XML.TEMPL = "https://www.uniprot.org/uniprot/{id}.xml"
 EMA.URL.TEMPLATE <- paste0(
   "https://www.ema.europa.eu/en/medicines/",
   ## more specific: EPAR items only
-  "field_ema_web_categories%253Aname_field/Human/ema_group_types/ema_medicine",
+  "field_ema_web_categories%253Aname_field/Human/ema_group_types/ema_medicine/",
+  "field_ema_med_status/authorised-36",
   "?search_api_views_fulltext={compound}", ## compound is the variable part
   "&page={pageNumber}",
   "&sort=search_api_relevance",
@@ -473,6 +474,11 @@ pubMed <- function(clueTable) {
 #'
 #' @return data.frame patched by EMA links.
 ema <- function(clueTable) {
+
+  ## Decreased sleep time for EMA requests
+  ## (based on https://www.ema.europa.eu/robots.txt at 2021-05-30 21:05 GMT)
+  SLEEP_TIME <- 11
+
   emaSearchLocalCache <- list()
 
   ## Get results of query on EMA search page
@@ -492,12 +498,17 @@ ema <- function(clueTable) {
     print(glue::glue("EMA SEARCH: compound: {compound}"))
     ## get search result --------------------------------------------------
     emaResult <- getPageCached(glue::glue(EMA.URL.TEMPLATE))
-    xpath = "string(//*/a[contains(@href, '/en/medicines/human/EPAR')]/@href)"
+    xpath = paste0(
+     "string(//*/a[",
+       "contains(@href, '/en/medicines/human/EPAR')",
+       " and not(descendant::img/@alt = 'Additional monitoring')",
+     "]/@href)"
+    )
     firstDrugPath <- rvest::html_element(emaResult$document, xpath = xpath)
     ## If not hit at all
     if (firstDrugPath == "") {
       warning(
-        glue::glue("NO DRUG FOUND :: COMPUND: {compound} ", EMA.URL.TEMPLATE),
+        glue::glue("NO DRUG FOUND :: COMPOUND: {compound} ", EMA.URL.TEMPLATE),
         immediate. = TRUE
       )
       penv$emaSearchLocalCache[[compound]] <- NA
