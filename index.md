@@ -1,5 +1,14 @@
 ### project scancer
 
+[scancer - Target INPUT table](https://docs.google.com/spreadsheets/d/1oQtWxPJASB-WfwqnyBJr3woXmv03bu3iSzIrKyK2-t8/) - the easiest way to provide input dataset to ```scancer``` workflow and start it on GitHub.
+
+Its access requires
+* a Google account,
+* an editor permission,
+* cooperations with other users to avoid unintended changes of initial dataset.
+
+_NOTE:_ future improvements of this prototype can eliminate this inconvenience. Thank you for your patience.
+
 ##### Results
 
 * [targets with data: the most recent version](https://cycle20.github.io/scancer/index.target.with.data.html)
