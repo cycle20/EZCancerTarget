@@ -226,6 +226,22 @@ rep_drugs <- function(...) {
   apiFunction <- "rep_drugs"
 
   filterParams <- list(
+    # fields = list(
+    #   pert_iname = TRUE,
+    #   synonyms = TRUE,
+    #   final_status = TRUE,
+    #   status_source = TRUE,
+    #   orange_book = TRUE, # TODO: bug report to CLUE.IO: cannot be enforced to
+    #   drugbank_id = TRUE, #       include "orange_book" field(s), if it has no
+    #   chembl_id = TRUE,   #       values in the result set
+    #   iuphar_id = TRUE,
+    #   ttd_id = TRUE,
+    #   clinical_notes = TRUE,
+    #   id = TRUE,
+    #   cid = TRUE,
+    #   animal_only = TRUE,
+    #   in_cmap = TRUE
+    # ),
     where = list(
       pert_iname = list(inq = c(...))
     )
@@ -249,6 +265,26 @@ rep_drugs <- function(...) {
 #' @return data.frame of the details.
 #'         NOTE: Targets with no matches excluded from the result table.
 perts <- function(...) {
+
+  columnNames <- c(
+     #id,
+     # other fields?
+     "alt_name",
+     "pert_id",
+     "inchi_key",
+     "pert_url",
+     # pert_summary, # maybe "description" is enough
+     "pcl_membership",
+
+     "target",
+     "pert_iname",
+     "moa",
+     "description",
+     "status",
+     "pubchem_cid"
+  )
+
+
   apiFunction <- "perts"
   filterParams <- list(
     where = list(
@@ -262,26 +298,24 @@ perts <- function(...) {
 
   response <- getWithUserKey(requestUrl)
   responseFrame <- getJSONContentAsDataFrame(response)
+
+  ## if data.frame is empty, a temporary dummy item added
+  if (nrow(responseFrame) == 0) {
+    responseFrame$dummy_column <- NA
+  }
+  ## if the response does not contain each column,
+  ## it is augmented by NA vectors
+  missingColumns <- setdiff(columnNames, names(responseFrame))
+  if (length(missingColumns) > 0) {
+    responseFrame[, missingColumns] <- NA
+  }
+  ## drop dummy column
+  responseFrame$dummy_column <- NULL
+
   ## selection of relevant fields
   responseFrame <-
     responseFrame %>%
-    select(
-      #id,
-      # other fields?
-      alt_name,
-      pert_id,
-      inchi_key,
-      pert_url,
-      # pert_summary, # maybe "description" is enough
-      pcl_membership,
-
-      target,
-      pert_iname,
-      moa,
-      description,
-      status,
-      pubchem_cid
-    )
+    select(all_of(columnNames))
   return(responseFrame)
 }
 

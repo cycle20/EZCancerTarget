@@ -672,8 +672,8 @@ fdaLabel <- function(clueTable) {
     ## "empty" result
     emptyList <- list(pert_iname = NA, productsTable = NA)
 
-    ## cached download, uses custom function above
-    downloadResult <- getPageCached(
+    ## call cached download, uses custom download function (fdaDownload) above
+    downloadedResult <- getPageCached(
       glue::glue(url), ## replace pert_iname placeholder before pass it
       sleepTime = SLEEP_TIME,
       ## send and get HTTP request and result in a specialized manner
@@ -681,7 +681,7 @@ fdaLabel <- function(clueTable) {
     )
 
     ## parsing and "compressing" result set
-    parsedResult <- jsonlite::fromJSON(downloadResult$document)
+    parsedResult <- jsonlite::fromJSON(downloadedResult$document)
     if (parsedResult$totalResultsCount == 0) {
       print(glue::glue("fdaLabel :: {pert_iname} :: results not found"))
       return(emptyList) ## return "empty" list
@@ -704,11 +704,12 @@ fdaLabel <- function(clueTable) {
     ## FUNC: Shrink found labels selecting by
     ##       max. market date of each group
     ingredientsMatchLevel <- Vectorize(function(pert_iname, ingrList) {
-      ## to uppercase and split the list
+      ## to uppercase and split the list of ingredients name
       ingrList <- ingrList %>%
         stringr::str_to_upper() %>%
         stringr::str_split(string = ., pattern = "; *")
       ingrList <- ingrList[[1]]
+      ## to uppercase the pert. name
       pert_iname <- stringr::str_to_upper(pert_iname)
 
       matchLevel <- if (pert_iname %in% ingrList) {
@@ -739,6 +740,12 @@ fdaLabel <- function(clueTable) {
       mutate(ingrLength = ingrLength(actIngrUniis)) %>%
       filter(matchLevel < 5) %>%
       group_by(matchLevel, ingrLength)
+
+    if ((products %>% nrow()) == 0) {
+      print(glue::glue("{pert_iname} :: matching ingredients not found"))
+      print(glue::glue("{pert_iname} :: NOTE: there might be special matching"))
+      return(emptyList) ## return "empty" list
+    }
 
     ## probably "best" matches"
     ## TODO: needs more work: since it picks from each matchLevel,
