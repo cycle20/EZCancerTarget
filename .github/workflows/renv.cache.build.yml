@@ -1,0 +1,42 @@
+#
+# renv.cache.build.yml: build renv cache in GitHub environment
+#
+
+name: renv cache build
+env:
+  ARTIFACT_01: clue.R.tgz
+  ARTIFACT_02: dataPatch.R.tgz
+  ARTIFACT_03: renderWebPage.R.tgz
+
+# Controls when the action will run.
+on:
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+
+  # JOB: CLUE
+  clue:
+    name: "Collect, transform, represent target dataset"
+    runs-on: ubuntu-latest
+
+    steps:
+
+
+# clue ########################################################
+
+
+      - uses: actions/checkout@v2
+      - uses: r-lib/actions/setup-r@v2
+      - uses: r-lib/actions/setup-renv@v2
+
+      #
+      # docker container
+      #
+      #- name: rocker/tidyverse:4.1.2
+      - name: R test
+        run: R --version
+
