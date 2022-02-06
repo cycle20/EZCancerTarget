@@ -22,12 +22,9 @@ jobs:
   # JOB: CLUE
   clue:
     name: "Collect, transform, represent target dataset"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
-
-
-# clue ########################################################
 
 
       - uses: actions/checkout@v2
@@ -35,8 +32,18 @@ jobs:
       #
       # Dependencies
       #
-      - name: "Dependencies: R pkgs from added PPA and CRAN"
-        run: sudo bash src/gh_action__setup_and_install.bash
+      # - name: "Dependencies: R pkgs from added PPA and CRAN"
+      #  run: sudo bash src/gh_action__setup_and_install.bash
+      - uses: r-lib/actions/setup-r@v2
+
+      - name: setup renv dependencies
+        run: sudo apt install libssl-dev libcurl4-openssl-dev libxml2-dev
+
+      - uses: r-lib/actions/setup-renv@v2
+
+
+# clue ########################################################
+
 
       # Get system/session information
       - name: Collect session and system information
