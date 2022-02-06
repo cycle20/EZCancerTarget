@@ -33,11 +33,12 @@ jobs:
       - name: setup renv dependencies
       - run: apt install libssl-dev libcurl4-openssl-dev libxml2-dev
 
+      - uses: r-lib/actions/setup-renv@v2
+
       #
       # docker container
       #
       #- name: rocker/tidyverse:4.1.2
       - name: R test
-      - uses: r-lib/actions/setup-renv@v2
         run: R --version
 
