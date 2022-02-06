@@ -16,15 +16,16 @@ on:
 
 jobs:
 
-  # JOB: CLUE
+  # JOB: RENV
   pre-cache:
     name: "Create/initialize re-usable R environment"
-    runs-on: ubuntu-latest
+    # strict runner specification
+    runs-on: ubuntu-20.04
 
     steps:
 
 
-# clue ########################################################
+# renv ########################################################
 
 
       - uses: actions/checkout@v2
@@ -36,9 +37,14 @@ jobs:
       - uses: r-lib/actions/setup-renv@v2
 
       #
-      # docker container
+      # Test R environment
       #
       #- name: rocker/tidyverse:4.1.2
       - name: R test
-        run: R --version
+        run: |
+          R --version
+          Rscript -e 'renv::diagnostics()'
+
+      - name: R session details
+        run: Rscript -e 'sessionInfo()'
 
