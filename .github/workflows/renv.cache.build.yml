@@ -4,9 +4,7 @@
 
 name: renv cache build
 env:
-  ARTIFACT_01: clue.R.tgz
-  ARTIFACT_02: dataPatch.R.tgz
-  ARTIFACT_03: renderWebPage.R.tgz
+  ARTIFACT_01: dummy.txt
 
 # Controls when the action will run.
 on:
@@ -19,8 +17,8 @@ on:
 jobs:
 
   # JOB: CLUE
-  clue:
-    name: "Collect, transform, represent target dataset"
+  pre-cache:
+    name: "Create/initialize re-usable R environment"
     runs-on: ubuntu-latest
 
     steps:
@@ -31,12 +29,15 @@ jobs:
 
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@v2
-      - uses: r-lib/actions/setup-renv@v2
+
+      - name: setup renv dependencies
+      - run: apt install libssl-dev libcurl4-openssl-dev libxml2-dev
 
       #
       # docker container
       #
       #- name: rocker/tidyverse:4.1.2
       - name: R test
+      - uses: r-lib/actions/setup-renv@v2
         run: R --version
 
