@@ -1,0 +1,23 @@
+Package: scancer
+Title: Harvest drug compound data
+Version: 1.0.0
+Description: Collect drug compound data based on editable target
+             table and scan various sources to augment dataset
+License: `use_gpl3_license()`
+Author: Csongor T.G., Zoltan Lohinai, David Dora
+Maintainer: Csongor T.G.
+Encoding: UTF-8
+Imports:
+  assertthat,
+  data.table,
+  dplyr,
+  glue,
+  googlesheets4,
+  httr,
+  jsonlite,
+  readr,
+  rvest,
+  stringr,
+  whisker,
+  xml2
+Suggests: tinytest
