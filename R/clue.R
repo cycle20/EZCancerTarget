@@ -23,7 +23,7 @@ library(whisker)
 USER_KEY <- Sys.getenv("CLUE_USER_KEY")
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
-TARGET.INPUT <- "INPUT/target_list.tsv"
+TARGET.INPUT <- "data/target_list.tsv"
 TARGET.LIST.ID <- Sys.getenv("TARGET_LIST_ID")
 SERVICE_TOKEN_JSON_VAR_NAME <- "SERVICE_TOKEN_JSON"
 API_BASE <- "https://api.clue.io/api/"
