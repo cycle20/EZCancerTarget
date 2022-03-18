@@ -859,12 +859,15 @@ xmlUniProt <- function(clueTable) {
   #'
   #' @param termValue GO value of a term
   #'
-  #' @return "type" of the term: "molecularFunction" or "subCellularLocation"
+  #' @return "type" of the term: "molecularFunction",
+  #'         "biologicalProcess" or "subCellularLocation"
   GOTermType <- function(termValue) {
     type <- if (startsWith(termValue, "F:")) {
       "molecularFunction"
     } else if (startsWith(termValue, "C:")) {
       "subCellularLocation"
+    } else if (startsWith(termValue, "P:")) {
+      "biologicalProcess"
     } else {
       stop(paste0("Unexpected term prefix: ", termValue))
     }
@@ -891,6 +894,11 @@ xmlUniProt <- function(clueTable) {
       ## GO cellular components ("C:") references
       " | //dbreference[@type='GO']",
         "//property[@type='term'][starts-with(@value, 'C:')]",
+        "/parent::node()", ## select parent node of this GO property
+
+      ## GO biological process ("P:") references
+      " | //dbreference[@type='GO']",
+        "//property[@type='term'][starts-with(@value, 'P:')]",
         "/parent::node()", ## select parent node of this GO property
 
       ## STRING, Reactome or KEGG references
