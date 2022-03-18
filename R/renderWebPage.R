@@ -93,6 +93,7 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
 
     ## unwrap UniProt details
     stringID <- uniProtData[[UNIPROT_KB_ID]]$STRING
+    keggID <- uniProtData[[UNIPROT_KB_ID]]$KEGG
     uniProtSubCellular <- uniProtSubCellular(uniProtData[[UNIPROT_KB_ID]])
     uniProtMolecular <- uniProtMolecularFunction(uniProtData[[UNIPROT_KB_ID]])
     ## create an iterable list of list of "pathwayID" and "pathwayName" pairs
@@ -116,6 +117,7 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
     collection <- c(collection, list(list(
       target = groupName,
       stringID = stringID,
+      keggID = keggID,
       data = grouppedByPerts,
       groupLabel = label,
       UNIPROT_KB_ID = UNIPROT_KB_ID,
