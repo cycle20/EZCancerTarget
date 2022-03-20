@@ -901,8 +901,8 @@ xmlUniProt <- function(clueTable) {
         "//property[@type='term'][starts-with(@value, 'P:')]",
         "/parent::node()", ## select parent node of this GO property
 
-      ## STRING and Reactome references
-      " | //dbreference[@type='STRING' or @type='Reactome']"
+      ## STRING, Reactome or KEGG references
+      " | //dbreference[@type='STRING' or @type='Reactome' or @type='KEGG']"
     )
     dbReferences <- xml2::xml_find_all(x = root, xpath = xpath)
 
@@ -918,6 +918,8 @@ xmlUniProt <- function(clueTable) {
       if (type == "STRING") {
         ## TODO: if there are multiple ids, the last one "wins"
         resultList[["STRING"]] <- referenceId
+      } else if (type == "KEGG") {
+        resultList[["KEGG"]] <- referenceId
       } else if (type == "Reactome") {
         pathway <-
           xml2::xml_find_first(dbref, ".//property[@type='pathway name']") %>%
