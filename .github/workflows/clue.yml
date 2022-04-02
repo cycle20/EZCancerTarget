@@ -147,8 +147,8 @@ jobs:
 
       - name: gh-pages "deploy"
         run: |
-          git config  --local user.email "46718432+cycle20@users.noreply.github.com"
-          git config  --local user.name cycle20
+          git config  --local user.email "scancer@action.nowhere"
+          git config  --local user.name "scancer github action"
 
           md5sum OUTPUT/clue_patched.rds
 
