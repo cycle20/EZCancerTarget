@@ -7,6 +7,9 @@
 ## This script reads it from CLUE_USER_KEY environment variable.
 ##
 
+## Usage: call the main() from command line:
+## R -e 'source("R/clue.R"); main()'
+
 library(assertthat)
 library(data.table)
 library(dplyr)
@@ -499,6 +502,3 @@ collapseResult <- function(result) {
     distinct()
 }
 
-
-## just call the main
-main()

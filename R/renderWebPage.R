@@ -2,6 +2,9 @@
 ## renderWebPage.R: Present data as webpage(s)
 ##
 
+## Usage: call the main() from command line:
+## R -e 'source("R/renderWebPage.R"); main()'
+
 
 library(assertthat)
 library(dplyr)
@@ -57,6 +60,8 @@ main <- function() {
   renderWebPage(
     resultHasNoData, title = "Not found on CLUE.IO", outputHTML = WEB_OUT_NODATA
   )
+
+  warnings()
 }
 
 
@@ -312,9 +317,3 @@ uniProtMolecularFunction <- function(uniProtDataItem) {
 aHref <- function(link, titleText) {
   return(glue::glue("<a href=\"{link}\" target=\"_blank\">{titleText}</a>"))
 }
-
-
-## just call the main
-main()
-
-warnings()

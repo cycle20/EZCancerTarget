@@ -51,7 +51,7 @@ jobs:
 
       # Exec clue.R
       - name: R/clue.R
-        run: Rscript R/clue.R
+        run: R -e 'source("R/clue.R"); main()'
         env:
           CLUE_USER_KEY: ${{ secrets.CLUE_USER_KEY }}
           SERVICE_TOKEN_JSON: ${{ secrets.CLUE_GS4_SERVICE_TOKEN_JSON }}
@@ -101,7 +101,7 @@ jobs:
       # Exec dataPatch.R
       # TODO: this can be a long process: downloads in parallel jobs is a potential improvement
       - name: R/dataPatch.R
-        run: Rscript R/dataPatch.R
+        run: R -e 'source("R/dataPatch.R"); main()'
 
       # Wrap OUTPUT into tar package
       - name: Prepare archive file for upload
@@ -127,7 +127,7 @@ jobs:
 
       - name: Exec page rendering (renderWebPage.R)
         run: |
-          Rscript R/renderWebPage.R
+          R -e 'source("R/renderWebPage.R"); main()'
           ls -lt OUTPUT/*.html
           tree -d ..
 
