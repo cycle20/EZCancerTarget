@@ -3,8 +3,7 @@ library(glue)
 library(readxl)
 library(tinytest)
 
-#setwd('../..')
-setwd('/scancer/')
+setwd('../..')
 source("R/dataPatch.R")
 
 
