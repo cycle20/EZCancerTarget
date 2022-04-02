@@ -2,6 +2,9 @@
 ## renderWebPage.R: Present data as webpage(s)
 ##
 
+## Usage: call the main() from command line:
+## R -e 'source("R/renderWebPage.R"); main()'
+
 
 library(assertthat)
 library(dplyr)
@@ -19,7 +22,7 @@ WEB_TEMPLATE <- "web/template.html"
 OUTPUT <- "OUTPUT"
 WEB_OUT <- glue::glue("{OUTPUT}/index.target.with.data.html")
 WEB_OUT_NODATA <- glue::glue("{OUTPUT}/index.target.no_data.html")
-TARGET.INPUT <- "INPUT/target_list.tsv"
+TARGET.INPUT <- "data/target_list.tsv"
 TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
 # CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
 PATCHED.CLUE.INPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
@@ -57,6 +60,8 @@ main <- function() {
   renderWebPage(
     resultHasNoData, title = "Not found on CLUE.IO", outputHTML = WEB_OUT_NODATA
   )
+
+  warnings()
 }
 
 
@@ -327,9 +332,3 @@ uniProtBiologicalProcess <- function(uniProtDataItem) {
 aHref <- function(link, titleText) {
   return(glue::glue("<a href=\"{link}\" target=\"_blank\">{titleText}</a>"))
 }
-
-
-## just call the main
-main()
-
-warnings()

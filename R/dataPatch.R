@@ -2,6 +2,9 @@
 ## dataPatch.R: supply missing data items for clue.io compounds -----------
 ##
 
+## Usage: call the main() from command line:
+## R -e 'source("R/dataPatch.R"); main()'
+
 ##
 ## Libraries --------------------------------------------------------------
 ##
@@ -102,6 +105,7 @@ main <- function() {
 
   # TODO: should be another logic: checkDataCoverage(result)
 
+  warnings()
   return(result)
 }
 
@@ -1083,7 +1087,3 @@ aHref <- function(link, titleText) {
   return(glue::glue('<a href="{link}" target="_blank">{titleText}</a>'))
 }
 
-
-## just call the main
-patchedTable <- main()
-warnings()
