@@ -98,8 +98,10 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
 
     ## unwrap UniProt details
     stringID <- uniProtData[[UNIPROT_KB_ID]]$STRING
+    keggID <- uniProtData[[UNIPROT_KB_ID]]$KEGG
     uniProtSubCellular <- uniProtSubCellular(uniProtData[[UNIPROT_KB_ID]])
     uniProtMolecular <- uniProtMolecularFunction(uniProtData[[UNIPROT_KB_ID]])
+    uniProtBiological <- uniProtBiologicalProcess(uniProtData[[UNIPROT_KB_ID]])
     ## create an iterable list of list of "pathwayID" and "pathwayName" pairs
     reactomePathways <- uniProtData[[UNIPROT_KB_ID]]$Reactome %>%
       whisker::iteratelist(name = "pathwayID", value = "pathwayName")
@@ -121,12 +123,14 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
     collection <- c(collection, list(list(
       target = groupName,
       stringID = stringID,
+      keggID = keggID,
       data = grouppedByPerts,
       groupLabel = label,
       UNIPROT_KB_ID = UNIPROT_KB_ID,
       hasData = tolower(hasData),
       uniProtSubCell = uniProtSubCellular,
       uniProtMolecular = uniProtMolecular,
+      uniProtBiological = uniProtBiological,
       reactomePathways = reactomePathways
     )))
 
@@ -305,6 +309,17 @@ uniProtSubCellular <- function(uniProtDataItem) {
 uniProtMolecularFunction <- function(uniProtDataItem) {
   uniProtDataItem$molecularFunction %>%
     whisker::iteratelist(name = "GOId", value = "molecularFunction")
+}
+
+
+#' Create list of biological processes for iteration
+#'
+#' @param uniProtDataItem
+#'
+#' @return List of GOId-biologicalProcess pairs.
+uniProtBiologicalProcess <- function(uniProtDataItem) {
+  uniProtDataItem$biologicalProcess %>%
+    whisker::iteratelist(name = "GOId", value = "biologicalProcess")
 }
 
 

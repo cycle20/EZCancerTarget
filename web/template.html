@@ -152,7 +152,7 @@
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-{{target}}">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-{{target}}" aria-expanded="false" aria-controls="collapse-string-{{target}}">
-                      {{target}} :: Molecular Functions / Subcellular Locations
+                      {{target}} :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
                   <div id="collapse-molecular-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
@@ -180,6 +180,17 @@
 
                       </div>{{! END OF "row"}}
 
+                      <div class="row">
+                      <div class="col col-sm">
+                        <h6>Biological Processes <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#function" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
+                        <ul>
+                          {{#uniProtBiological}}
+                          <li><a href="https://www.ebi.ac.uk/QuickGO/term/{{GOId}}" target="_blank">{{biologicalProcess}}</a></li>
+                          {{/uniProtBiological}}
+                        </ul>
+                      </div>
+                      </div>
+
                     </div>{{! END OF Molecular Functions/Subcellular location accordion-body }}
 
                   </div>
@@ -193,12 +204,15 @@
                   </h2>
                   <div id="collapse-pathways-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
+                      <h6><a href="https://www.genome.jp/dbget-bin/www_bget?{{keggID}}" target="_blank">KEGG {{keggID}}</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#section_x-ref_genome" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
+
                       <h6>Reactome Pathways <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#section_x-ref_pathway" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
 
                       {{#reactomePathways}}
                         <a href="https://reactome.org/PathwayBrowser/#{{pathwayID}}&FLG={{UNIPROT_KB_ID}}" target="_blank">{{pathwayID}}</a>,
                         {{pathwayName}}<br/>
                       {{/reactomePathways}}
+
                     </div>{{! END OF Pathways accordion-body }}
 
                   </div>

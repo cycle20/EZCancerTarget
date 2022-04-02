@@ -863,12 +863,15 @@ xmlUniProt <- function(clueTable) {
   #'
   #' @param termValue GO value of a term
   #'
-  #' @return "type" of the term: "molecularFunction" or "subCellularLocation"
+  #' @return "type" of the term: "molecularFunction",
+  #'         "biologicalProcess" or "subCellularLocation"
   GOTermType <- function(termValue) {
     type <- if (startsWith(termValue, "F:")) {
       "molecularFunction"
     } else if (startsWith(termValue, "C:")) {
       "subCellularLocation"
+    } else if (startsWith(termValue, "P:")) {
+      "biologicalProcess"
     } else {
       stop(paste0("Unexpected term prefix: ", termValue))
     }
@@ -897,8 +900,13 @@ xmlUniProt <- function(clueTable) {
         "//property[@type='term'][starts-with(@value, 'C:')]",
         "/parent::node()", ## select parent node of this GO property
 
-      ## STRING and Reactome references
-      " | //dbreference[@type='STRING' or @type='Reactome']"
+      ## GO biological process ("P:") references
+      " | //dbreference[@type='GO']",
+        "//property[@type='term'][starts-with(@value, 'P:')]",
+        "/parent::node()", ## select parent node of this GO property
+
+      ## STRING, Reactome or KEGG references
+      " | //dbreference[@type='STRING' or @type='Reactome' or @type='KEGG']"
     )
     dbReferences <- xml2::xml_find_all(x = root, xpath = xpath)
 
@@ -914,6 +922,8 @@ xmlUniProt <- function(clueTable) {
       if (type == "STRING") {
         ## TODO: if there are multiple ids, the last one "wins"
         resultList[["STRING"]] <- referenceId
+      } else if (type == "KEGG") {
+        resultList[["KEGG"]] <- referenceId
       } else if (type == "Reactome") {
         pathway <-
           xml2::xml_find_first(dbref, ".//property[@type='pathway name']") %>%
