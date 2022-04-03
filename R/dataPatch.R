@@ -575,6 +575,26 @@ ema <- function(clueTable) {
 }
 
 
+readReport <- function(fileName) {
+  getEMAFile(fileName)
+  report <- readxl::read_excel(fileName, skip = 7)
+  return(report)
+}
+
+getEMAFile <- function(file, quiet = FALSE) {
+  EMA_FILES_BASE_URL <- "https://www.ema.europa.eu/sites/default/files"
+  url <- glue::glue("{EMA_FILES_BASE_URL}/{file}")
+  if (!quiet) {
+    print(glue::glue("Downloading {url}"))
+  }
+  curl::curl_download(url = url, destfile = file, mode ="wb", quiet = quiet)
+}
+
+
+#############################################################
+
+
+
 fdaLabel <- function(clueTable) {
   ## url with "pert_iname" placeholder
   url = paste0("https://nctr-crs.fda.gov/fdalabel/services/spl/summaries",
@@ -782,33 +802,6 @@ fdaLabel <- function(clueTable) {
 
   return(clueTable)
 }
-
-#' #' Look up PubChem ID
-#' #'
-#' #' @param inChIKey International Chemical Identifier
-#' #'
-#' #' @return PubChem ID or NA
-#' pubChemId <- function(inchiKey) {
-#'   # other possible resolvers:
-#'   # https://en.wikipedia.org/wiki/International_Chemical_Identifier#InChI_resolvers
-#'
-#'   stop("Not implemented")
-#'
-#'   searchURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/TODO")
-#'   compoundURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
-#'
-#'   # # TODO: !!!!! pubChem
-#'   # # TODO: JavaScript issue: result page is dynamic
-#'   # pubChem <- function(compound, inChIKey) {
-#'   #   assertthat::assert_that(!is.na(compound))
-#'   #   # assertthat::assert_that(!is.na(inChIKey))
-#'   #   searchURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/#query={compound}")
-#'   #   #compoundURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
-#'   #   html <- rvest::read_html(searchURL)
-#'   #   return(html)
-#'   # }
-#'
-#' }
 
 
 #' PubChem Id
