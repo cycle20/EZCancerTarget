@@ -43,7 +43,7 @@ filtered <- report %>% dplyr::filter(
 expect_equal(target = 1, nrow(filtered))
 ## NOTE: extra coma at the end of name
 expect_equal(target = "Tookad", filtered$`Medicine name`[1])
-expect_equal(target = "Withdrawn", filtered$`Authorisation status`[1])
+expect_equal(target = "Authorised", filtered$`Authorisation status`[1])
 
 report <- readReport("Medicines_output_withdrawn_applications.xlsx")
 filtered <- report %>% dplyr::filter(
