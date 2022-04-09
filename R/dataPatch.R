@@ -568,8 +568,8 @@ ema <- function(clueTable) {
     return(pdfURL)
   }
   clueTable <- clueTable %>%
-    rowwise() %>%
-    mutate(emaLinks = list(emaSearch( pert_iname )))
+    dplyr::rowwise() %>%
+    dplyr::mutate(emaLinks = list(emaSearch( pert_iname )))
 
   return(clueTable)
 }
@@ -910,8 +910,8 @@ xmlUniProt <- function(clueTable) {
       Reactome = list()
     )
     for (dbref in dbReferences) {
-      type <- xml_attr(dbref, "type")
-      referenceId <- xml_attr(dbref, "id")
+      type <- xml2::xml_attr(dbref, "type")
+      referenceId <- xml2::xml_attr(dbref, "id")
       if (type == "STRING") {
         ## TODO: if there are multiple ids, the last one "wins"
         resultList[["STRING"]] <- referenceId
@@ -942,10 +942,10 @@ xmlUniProt <- function(clueTable) {
 
   ## xmlUniProt "body"-----------------------------------------------------
   uniProtIdList <- clueTable %>%
-    select(UNIPROT_KB_ID) %>%
-    distinct() %>%
-    filter(!is.na(UNIPROT_KB_ID)) %>%
-    pull(UNIPROT_KB_ID)
+    dplyr::select(UNIPROT_KB_ID) %>%
+    dplyr::distinct() %>%
+    dplyr::filter(!is.na(UNIPROT_KB_ID)) %>%
+    dplyr::pull(UNIPROT_KB_ID)
 
   ##
   ## iterate on UniProtKB Id list and -------------------------------------
@@ -965,8 +965,8 @@ xmlUniProt <- function(clueTable) {
 
   ## update the input table and return the result -------------------------
   clueTable <- clueTable %>%
-    rowwise() %>%
-    mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
+    dplyr::rowwise() %>%
+    dplyr::mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
   return(clueTable)
 }
 
@@ -982,6 +982,7 @@ xmlUniProt <- function(clueTable) {
 #' if content is not cached. Default value is 3.
 #'
 #' @return XML representation of the file content.
+#' @import dplyr
 getPageCached <- function(url, sleepTime = 3, downloadFunc = rvest::read_html) {
   cacheFile <- glue::glue(CACHE, "/cache.tsv")
   ## initialize tibble object

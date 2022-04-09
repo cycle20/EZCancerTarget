@@ -159,6 +159,7 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
 #'
 #' @return Pre-processed dataframes to be ready to show multiple values in
 #' sepecific HTML table cells.
+#' @import dplyr
 multivaluedCellsToHTML <- function(dataList) {
   assertthat::assert_that(is.list(dataList))
   assertthat::assert_that(length(dataList) > 0)

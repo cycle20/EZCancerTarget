@@ -3,12 +3,13 @@ Title: Harvest drug compound data
 Version: 1.0.0
 Description: Collect drug compound data based on editable target
              table and scan various sources to augment dataset
-License: `use_gpl3_license()`
+License: GPL-3 + file LICENSE
 Author: Csongor T.G., Zoltan Lohinai, David Dora
 Maintainer: Csongor T.G. <46718432+cycle20@users.noreply.github.com>
 Encoding: UTF-8
 Imports:
   assertthat,
+  curl,
   data.table,
   dplyr,
   glue,
@@ -16,8 +17,10 @@ Imports:
   httr,
   jsonlite,
   readr,
+  readxl,
   rvest,
   stringr,
+  tibble,
   whisker,
   xml2
 Suggests: tinytest

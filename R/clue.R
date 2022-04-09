@@ -135,7 +135,7 @@ rep_drug_targets <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue::glue("{API_BASE}{apiFunction}?filter={filterParams}")
   result <- getWithUserKey(requestUrl)
 
   return(getJSONContentAsDataFrame(result))
@@ -161,7 +161,7 @@ rep_samples <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue::glue("{API_BASE}{apiFunction}?filter={filterParams}")
   result <- getWithUserKey(requestUrl)
 
   return(getJSONContentAsDataFrame(result))
@@ -186,7 +186,7 @@ rep_drug_moas <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue::glue("{API_BASE}{apiFunction}?filter={filterParams}")
   result <- getWithUserKey(requestUrl)
 
   return(getJSONContentAsDataFrame(result))
@@ -200,6 +200,7 @@ rep_drug_moas <- function(...) {
 #' @param ... list of internal (clue.io) perturbation identifiers.
 #'
 #' @return data.frame of perturbagens with associated indications and diseases.
+#' @import dplyr
 rep_drug_indications <- function(...) {
   apiFunction <- "rep_drug_indications"
 
@@ -225,6 +226,7 @@ rep_drug_indications <- function(...) {
 #' @param ... list of internal (clue.io) perturbation identifiers.
 #'
 #' @return data.frame of the details.
+#' @import dplyr
 rep_drugs <- function(...) {
   apiFunction <- "rep_drugs"
 
@@ -267,6 +269,7 @@ rep_drugs <- function(...) {
 #'
 #' @return data.frame of the details.
 #'         NOTE: Targets with no matches excluded from the result table.
+#' @import dplyr
 perts <- function(...) {
 
   columnNames <- c(
@@ -297,7 +300,7 @@ perts <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue::glue("{API_BASE}{apiFunction}?filter={filterParams}")
 
   response <- getWithUserKey(requestUrl)
   responseFrame <- getJSONContentAsDataFrame(response)
@@ -357,6 +360,7 @@ getJSONContentAsDataFrame <- function(httrResponse) {
 #' @param ... list of HUGO names of genes.
 #'
 #' @return Final data.frame composed from multiple datasets.
+#' @import dplyr
 download <- function(...) {
   ## function to transform and save perts data
   pertsSaveAndExport <- function(pertsData) {
