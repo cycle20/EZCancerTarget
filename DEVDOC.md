@@ -7,3 +7,6 @@
 
 Run tests from command line:
 * ```Rscript -e 'tinytest::test_all()'```
+
+Run specific test file for example:
+* ```Rscript -e 'tinytest::run_test_file("inst/tinytest/test_scancer.R", verbose = 0)'```
