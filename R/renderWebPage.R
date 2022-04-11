@@ -61,6 +61,8 @@ main <- function() {
     resultHasNoData, title = "Not found on CLUE.IO", outputHTML = WEB_OUT_NODATA
   )
 
+  renderMolecularBackgroundSummary(patchedData)
+
   warnings()
 }
 
@@ -332,4 +334,25 @@ uniProtBiologicalProcess <- function(uniProtDataItem) {
 #' @return HTML "a" snippet that can be used in HTML document directly.
 aHref <- function(link, titleText) {
   return(glue::glue("<a href=\"{link}\" target=\"_blank\">{titleText}</a>"))
+}
+
+## Summary Tables ----
+
+renderMolecularBackgroundSummary <- function(cluePatched) {
+  cluePatched <- cluePatched %>%
+    dplyr::select(HUGO, UniProtData) %>%
+    dplyr::distinct() %>%
+    dplyr::arrange(HUGO)
+
+
+  cluePatched <- cluePatched %>% dplyr::mutate(
+    RP = length(UniProtData$Reactome),            # `Reactome pathways`
+    KP = 'TBD',                                   # `KEGG pathways`
+    SN = 'TBD',                                   # `STRING neighbores`
+    MF = length(UniProtData$molecularFunction),   # `Molecular Functions`
+    SL = length(UniProtData$subCellularLocation), # `Subcellular Locations`
+    BP = length(UniProtData$biologicalProcess)    # `Biological Processes`
+  )
+
+  print(cluePatched)
 }
