@@ -27,7 +27,8 @@ TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
 # CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
 PATCHED.CLUE.INPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
-
+MOLECULAR_CSV.OUTPUT <- glue::glue("{OUTPUT}/molecular_background.csv")
+COMPOUNDS_CSV.OUTPUT <- glue::glue("{OUTPUT}/compounds_summary.csv")
 
 #' Main function
 #'
@@ -62,6 +63,7 @@ main <- function() {
   )
 
   renderMolecularBackgroundSummary(patchedData)
+  renderCompoundsSummary(patchedData)
 
   warnings()
 }
@@ -354,5 +356,26 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
     BP = length(UniProtData$biologicalProcess)    # `Biological Processes`
   )
 
+  # print and save it as CSV
   print(cluePatched)
+  readr::write_csv(cluePatched, MOLECULAR_CSV.OUTPUT)
+}
+
+renderCompoundsSummary <- function(cluePatched) {
+  distinctCount <- function(vector) {
+    return(vector %>% unique() %>% length())
+  }
+
+  ## TODO: this group_by way must be corrected...
+  cluePatched <- cluePatched %>%
+  dplyr::group_by(HUGO) %>%
+  dplyr::summarise(
+    HUGO,
+    count = length(unique(pert_iname))
+  )
+#  dplyr::mutate(count = distinctCount(pert_iname))
+
+  # print and save it as CSV
+  print(cluePatched)
+  readr::write_csv(cluePatched, COMPOUNDS_CSV.OUTPUT)
 }
