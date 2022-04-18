@@ -349,8 +349,8 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
 
   cluePatched <- cluePatched %>% dplyr::mutate(
     RP = length(UniProtData$Reactome),            # `Reactome pathways`
-    KP = 'TBD',                                   # `KEGG pathways`
-    SN = 'TBD',                                   # `STRING neighbores`
+    KP = 'TBD',                                   # TODO: `KEGG pathways`
+    SN = 'TBD',                                   # TODO: `STRING neighbores`
     MF = length(UniProtData$molecularFunction),   # `Molecular Functions`
     SL = length(UniProtData$subCellularLocation), # `Subcellular Locations`
     BP = length(UniProtData$biologicalProcess)    # `Biological Processes`
@@ -362,18 +362,26 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
 }
 
 renderCompoundsSummary <- function(cluePatched) {
-  distinctCount <- function(vector) {
-    return(vector %>% unique() %>% length())
-  }
 
-  ## TODO: this group_by way must be corrected...
+  ## TODO: EMA counts must be added at least Launched values
   cluePatched <- cluePatched %>%
-  dplyr::group_by(HUGO) %>%
-  dplyr::summarise(
-    HUGO,
-    count = length(unique(pert_iname))
-  )
-#  dplyr::mutate(count = distinctCount(pert_iname))
+    dplyr::select(HUGO, pert_iname, final_status) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(
+      Preclinical = dplyr::if_else(final_status == 'Preclinical', 1, 0),
+      Phase1 = dplyr::if_else(final_status == 'Phase 1', 1, 0),
+      Phase2 = dplyr::if_else(final_status == 'Phase 2', 1, 0),
+      Phase3 = dplyr::if_else(final_status == 'Phase 3', 1, 0),
+      Launched = dplyr::if_else(final_status == 'Launched', 1, 0)
+    ) %>%
+    dplyr::group_by(HUGO) %>%
+    dplyr::summarise(
+      Preclinical = sum(Preclinical),
+      Phase1 = sum(Phase1),
+      Phase2 = sum(Phase2),
+      Phase3 = sum(Phase3),
+      Launched = sum(Launched)
+    )
 
   # print and save it as CSV
   print(cluePatched)
