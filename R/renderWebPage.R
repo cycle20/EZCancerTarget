@@ -365,14 +365,24 @@ renderCompoundsSummary <- function(cluePatched) {
 
   ## TODO: EMA counts must be added at least Launched values
   cluePatched <- cluePatched %>%
-    dplyr::select(HUGO, pert_iname, final_status) %>%
+    dplyr::select(
+      HUGO,
+      pert_iname,
+      final_status,
+      pubchem_cid,
+      chembl_id,
+      drugbank_id
+    ) %>%
     dplyr::distinct() %>%
     dplyr::mutate(
       Preclinical = dplyr::if_else(final_status == 'Preclinical', 1, 0),
       Phase1 = dplyr::if_else(final_status == 'Phase 1', 1, 0),
       Phase2 = dplyr::if_else(final_status == 'Phase 2', 1, 0),
       Phase3 = dplyr::if_else(final_status == 'Phase 3', 1, 0),
-      Launched = dplyr::if_else(final_status == 'Launched', 1, 0)
+      Launched = dplyr::if_else(final_status == 'Launched', 1, 0),
+      PubChem = dplyr::if_else(pubchem_cid != '', 1, 0),
+      ChEMBL = dplyr::if_else(chembl_id != '', 1, 0),
+      DrugBank = dplyr::if_else(drugbank_id != '', 1, 0)
     ) %>%
     dplyr::group_by(HUGO) %>%
     dplyr::summarise(
@@ -380,7 +390,11 @@ renderCompoundsSummary <- function(cluePatched) {
       Phase1 = sum(Phase1),
       Phase2 = sum(Phase2),
       Phase3 = sum(Phase3),
-      Launched = sum(Launched)
+      Launched = sum(Launched),
+      PubMed = 'TBD',
+      PubChem = sum(PubChem),
+      ChEMBL = sum(ChEMBL),
+      DrugBank = sum(DrugBank)
     )
 
   # print and save it as CSV
