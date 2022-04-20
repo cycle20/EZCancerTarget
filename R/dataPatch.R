@@ -408,19 +408,6 @@ statusSourceHTML <- function(statusSource, pert_iname) {
 }
 
 
-#' ChEMBL Id
-#'
-#' @param chemblId
-#'
-#' @return ChEMBL Id or NA
-chemblXML <- function(chemblId) {
-  ## TODO: chEmbl
-  ## https://www.ebi.ac.uk/chembl/api/data/target/search?q=ANXA3
-
-  stop("Not implemented")
-}
-
-
 #' Extract and supply PMIDs/links
 #'
 #' @param clueTable
@@ -801,39 +788,6 @@ fdaLabel <- function(clueTable) {
     mutate(fdaSearchResults = list(getFDALabelResults(pert_iname)))
 
   return(clueTable)
-}
-
-
-#' PubChem Id
-#'
-#' @param id.or.name
-#'
-#' @return PubChem cid/name or NA
-pubChem <- function(id.or.name) {
-  ## TODO: PubChem check/download
-
-  ##
-  ## TODO:
-  ##
-  ## to find description by name:
-  ## https://pubchem.ncbi.nlm.nih.gov/compound/nitroflurbiprofen
-  ##
-  ## Can be extracted:
-  ##
-  ## <meta name="pubchem_uid_type" content="CID">
-  ## <meta name="pubchem_uid_type_prefix" content="PubChem">
-  ## <meta name="pubchem_uid_name" content="compound">
-  ## <meta name="pubchem_uid_value" content="119387">
-  ##
-  ## <link rel="alternate" type="application/rdf+xml"
-  ##   title="CID:119387"
-  ##   href="https://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID119387">
-  ##
-
-  stop("Not implemented")
-
-  ##
-  url <- glue::glue(PUBCHEM.URL.TEMPLATE)
 }
 
 
