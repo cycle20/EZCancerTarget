@@ -414,10 +414,9 @@ statusSourceHTML <- function(statusSource, pert_iname) {
 #'
 #' @return
 pubMed <- function(clueTable) {
-  assertthat::assert_that(tibble::is_tibble(clueTable))
 
   ## pubMed search request and extract results
-  pubMedSearch <- function(compound, final_status) {
+  pubMedSearch <- function(compound) {
 
     ## download page or read it from cache
     searchURL <- glue::glue(PUBMED.SEARCH)
@@ -433,19 +432,23 @@ pubMed <- function(clueTable) {
     articleIds <- result$document %>%
       rvest::html_element(xpath = xpath) %>%
       stringr::str_split(pattern = ",") %>%
-      unlist() %>%
-      # limited to top 3 hits
-      head(3)
+      unlist()
 
     articleIds <- if_else(articleIds[1] == "",
-      list(NA), list(articleIds)) %>%
+      list(NULL), list(articleIds)) %>%
       unlist()
 
     return(articleIds)
   }
 
-  clueTable <- clueTable %>%
-    mutate(pubMedPreClinicalLinks = list(pubMedSearch(pert_iname, final_status)))
+  addPubMedData <- function(.data) {
+    .data <- .data %>%
+      mutate(pubMedPreClinicalLinks = list(pubMedSearch(pert_iname))) %>%
+      mutate(PubMedCounter = length(unlist(pubMedPreClinicalLinks)))
+    return(.data)
+  }
+
+  clueTable <- clueTable %>% addPubMedData()
 
   # TODO: PMC? And embargoed articles? https://www.ncbi.nlm.nih.gov/pmc
   # TODO: https://drugs.ncats.io/substances?facet=Pharmacology%2FInhibitor
@@ -542,12 +545,12 @@ ema <- function(clueTable) {
     }
     ## HEAD request and assert
     print(glue::glue("Check URL (HEAD request): {pdfURL}"))
-    sCode <- httr::HEAD(pdfURL)$status_code
-    print(c("Check HEAD HTTP status code: ", sCode))
-    if (sCode == 404) { ## NOTE: this case needs a better handler
+    statusCode <- httr::HEAD(pdfURL)$status_code
+    print(c("Check HEAD HTTP status code: ", statusCode))
+    if (statusCode == 404) { ## NOTE: this case needs a better handler
       print("ERROR 404: PAGE NOT FOUND")
     } else {
-      assertthat::assert_that(sCode %in% c(200, 301, 302))
+      assertthat::assert_that(statusCode %in% c(200, 301, 302))
     }
 
     ## return the public summary PDF link of the first hit from the search list

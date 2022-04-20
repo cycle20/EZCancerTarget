@@ -371,7 +371,8 @@ renderCompoundsSummary <- function(cluePatched) {
       final_status,
       pubchem_cid,
       chembl_id,
-      drugbank_id
+      drugbank_id,
+      PubMedCounter
     ) %>%
     dplyr::distinct() %>%
     dplyr::mutate(
@@ -391,7 +392,7 @@ renderCompoundsSummary <- function(cluePatched) {
       Phase2 = sum(Phase2),
       Phase3 = sum(Phase3),
       Launched = sum(Launched),
-      PubMed = 'TBD',
+      PubMed = sum(PubMedCounter),
       PubChem = sum(PubChem),
       ChEMBL = sum(ChEMBL),
       DrugBank = sum(DrugBank)
