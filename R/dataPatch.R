@@ -49,6 +49,8 @@ PUBMED.RESULT.XPATH <- paste0(
   '/html/body/main//section[@class="search-results-list"]',
   '//article[position() < 4]//a'
 )
+# maximum number of displayed PubMed links per compound
+PUBMED.DISPLAY.MAX_LINKS <- 3
 
 UNIPROT.HTML.TEMPL = "https://www.uniprot.org/uniprot/{id}"
 UNIPROT.XML.TEMPL = "https://www.uniprot.org/uniprot/{id}.xml"
@@ -132,8 +134,6 @@ patch <- function(clueTable) {
 
   ## Adjustment of data of columns and HTML fragments
   clueTable <- consolidateColumns(clueTable)
-
-  ## TODO: chEbml data...
 
   ## return updated tables
   return(clueTable)
@@ -266,12 +266,13 @@ consolidateColumns <- function(clueTable) {
       searchLinkHTML <- aHref(link = glue::glue(PUBMED.SEARCH),
         titleText = "No search result"
       )
-      return(paste(c(title, searchLinkHTML), collapse = "<br class='cl'/>"))
+      return(paste(c(title, searchLinkHTML), collapse = "<br />"))
     } else {
       assertthat::assert_that(is.vector(PMIDs))
 
-      htmlLinks <- paste(sapply(PMIDs, pubMedLink), collapse = "<br class='cl'/>")
-      return(paste(c(title, htmlLinks), collapse = "<br class='cl2'/>"))
+      PMIDs <- head(PMIDs, n = PUBMED.DISPLAY.MAX_LINKS)
+      htmlLinks <- paste(sapply(PMIDs, pubMedLink), collapse = "<br />")
+      return(paste(c(title, htmlLinks), collapse = "<br />"))
     }
   }
 
@@ -282,7 +283,7 @@ consolidateColumns <- function(clueTable) {
     } else {
       status_source <- paste(
         c(status_source, "<strong>From EMA:</strong>"),
-        collapse = "<br class='ael'/>"
+        collapse = "<br />"
       )
 
       status_source <- paste(
@@ -290,7 +291,7 @@ consolidateColumns <- function(clueTable) {
           status_source,
           sapply(emaLinks, function(link) aHref(link, "Found PDF"))
         ),
-        collapse = "<br class='ael2'/>"
+        collapse = "<br />"
       )
 
       return(status_source)
@@ -305,7 +306,7 @@ consolidateColumns <- function(clueTable) {
       ## old value + title of FDA "section":
       status_source <- paste(
         c(status_source, "<strong>FDA Labels:</strong>"),
-        collapse = "<br class='afl'/>"
+        collapse = "<br />"
       )
 
       ## glue variable accessed from dplyr environment: "setId"
@@ -324,9 +325,9 @@ consolidateColumns <- function(clueTable) {
         select(labelURL, htmlURL)
 
       resultHTML <- htmlOfURLs %>% pull(htmlURL)
-      resultHTML <- paste(resultHTML, collapse = "<br class='fld'/>")
+      resultHTML <- paste(resultHTML, collapse = "<br />")
 
-      status_source <- paste(c(status_source, resultHTML), collapse = "<br class='fld2'/>")
+      status_source <- paste(c(status_source, resultHTML), collapse = "<br />")
       return(status_source)
     }
   }
@@ -346,7 +347,7 @@ consolidateColumns <- function(clueTable) {
       "{statusSourceHTML(status_source, pert_iname)}</div>"
     )) %>%
     mutate(
-      status_source = paste(c(emaLinks, clueSource), collapse = "<br class='mut'/>")
+      status_source = paste(c(emaLinks, clueSource), collapse = "<br />")
     )
 
   return(clueTable)
