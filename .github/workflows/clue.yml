@@ -152,7 +152,8 @@ jobs:
 
           md5sum OUTPUT/clue_patched.rds
 
-          mv OUTPUT/index.target.with.data.html . || {
+          mv -t . OUTPUT/index.target.with.data.html \
+            OUTPUT/compounds_summary.csv OUTPUT/molecular_background.csv || {
             tree -d ..
             ls -lt
             exit 1
@@ -173,7 +174,9 @@ jobs:
       - name: "Wrap web artifacts into '${{ env.ARTIFACT_03 }}'"
         run: |
           tar -cvzf "${{ env.ARTIFACT_03 }}" \
-            index.target.with.data.html js/*
+            index.target.with.data.html js/* \
+            compounds_summary.csv \
+            molecular_background.csv
 
       - name: "Upload artifact '${{ env.ARTIFACT_03 }}'"
         uses: actions/upload-artifact@v2.2.3
