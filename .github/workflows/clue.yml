@@ -158,7 +158,9 @@ jobs:
             ls -lt
             exit 1
           }
-          git add index.target.with.data.html
+          git add index.target.with.data.html \
+            compounds_summary.csv \
+            molecular_background.csv
           RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           git commit -F <(\
             printf "Pushed by workflow: %s, run number: %d\n\n$RUN_URL" \
