@@ -347,13 +347,14 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
     dplyr::arrange(HUGO)
 
 
-  cluePatched <- cluePatched %>% dplyr::mutate(
-    RP = length(UniProtData$Reactome),            # `Reactome pathways`
-    KP = 'TBD',                                   # TODO: `KEGG pathways`
-    SN = 'TBD',                                   # TODO: `STRING neighbores`
-    MF = length(UniProtData$molecularFunction),   # `Molecular Functions`
-    SL = length(UniProtData$subCellularLocation), # `Subcellular Locations`
-    BP = length(UniProtData$biologicalProcess)    # `Biological Processes`
+  cluePatched <- cluePatched %>% dplyr::transmute(
+    HUGO                    = HUGO,
+    `Reactome pathways`     = length(UniProtData$Reactome),
+    `KEGG pathways`         = 'TBD', # TODO
+    `STRING neighboures`    = 'TBD', # TODO
+    `Molecular Functions`   = length(UniProtData$molecularFunction),
+    `Subcellular Locations` = length(UniProtData$subCellularLocation),
+    `Biological Processes`  = length(UniProtData$biologicalProcess)
   )
 
   # print and save it as CSV
@@ -377,13 +378,15 @@ renderCompoundsSummary <- function(cluePatched) {
     dplyr::distinct() %>%
     dplyr::mutate(
       Preclinical = dplyr::if_else(final_status == 'Preclinical', 1, 0),
-      Phase1 = dplyr::if_else(final_status == 'Phase 1', 1, 0),
-      Phase2 = dplyr::if_else(final_status == 'Phase 2', 1, 0),
-      Phase3 = dplyr::if_else(final_status == 'Phase 3', 1, 0),
-      Launched = dplyr::if_else(final_status == 'Launched', 1, 0),
-      PubChem = dplyr::if_else(pubchem_cid != '', 1, 0),
-      ChEMBL = dplyr::if_else(chembl_id != '', 1, 0),
-      DrugBank = dplyr::if_else(drugbank_id != '', 1, 0)
+      Phase1      = dplyr::if_else(final_status == 'Phase 1', 1, 0),
+      # TODO: Phase 1/Phase 2?
+      Phase2      = dplyr::if_else(final_status == 'Phase 2', 1, 0),
+      # TODO: Phase 2/Phase 3?
+      Phase3      = dplyr::if_else(final_status == 'Phase 3', 1, 0),
+      Launched    = dplyr::if_else(final_status == 'Launched', 1, 0),
+      PubChem     = dplyr::if_else(pubchem_cid != '', 1, 0),
+      ChEMBL      = dplyr::if_else(chembl_id != '', 1, 0),
+      DrugBank    = dplyr::if_else(drugbank_id != '', 1, 0)
     ) %>%
     dplyr::group_by(HUGO) %>%
     dplyr::summarise(
