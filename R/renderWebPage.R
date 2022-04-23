@@ -342,7 +342,7 @@ aHref <- function(link, titleText) {
 
 renderMolecularBackgroundSummary <- function(cluePatched) {
   cluePatched <- cluePatched %>%
-    dplyr::select(HUGO, UniProtData) %>%
+    dplyr::select(HUGO, UniProtData, NumberOfKEGGPathways) %>%
     dplyr::distinct() %>%
     dplyr::arrange(HUGO)
 
