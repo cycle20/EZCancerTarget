@@ -964,7 +964,7 @@ keggPathWayCounter <- function(clueTable) {
 
   ## count pathways in KEGG result list ----
   keggRegex <- stringr::regex(
-    "^PATHWAY.+^(NETWORK|DISEASE|DRUG TARGET|BRITE)",
+    "^PATHWAY.+?^(NETWORK|DISEASE|DRUG_TARGET|BRITE)",
     multiline = TRUE, dotall = TRUE
   )
   keggList <- sapply(keggList, simplify = FALSE, function(keggResult) {

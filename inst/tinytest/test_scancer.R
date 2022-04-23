@@ -101,7 +101,7 @@ BRITE       KEGG Orthology (KO) [BR:hsa00001]
 POSITION    17:81035131..81117434
 "
 ## act
-pattern <- stringr::regex("^PATHWAY.+^NETWORK", multiline = TRUE, dotall = TRUE)
+pattern <- stringr::regex("^PATHWAY.+?^(NETWORK|DISEASE|DRUG_TARGET|BRITE)", multiline = TRUE, dotall = TRUE)
 numOfPathwayEntries <- stringr::str_extract(keggText, pattern) %>%
   stringr::str_count("\n")
 ## assert
