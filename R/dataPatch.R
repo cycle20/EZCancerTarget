@@ -131,6 +131,8 @@ patch <- function(clueTable) {
   clueTable <- ema(clueTable)
   ## Append UniProt details
   clueTable <- xmlUniProt(clueTable)
+  ## Add count of KEGG pathways per target
+  clueTable <- keggPathWayCounter(clueTable)
 
   ## Adjustment of data of columns and HTML fragments
   clueTable <- consolidateColumns(clueTable)
@@ -925,6 +927,62 @@ xmlUniProt <- function(clueTable) {
   clueTable <- clueTable %>%
     dplyr::rowwise() %>%
     dplyr::mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
+  return(clueTable)
+}
+
+
+## Additional counters for KEGG pathways and STRING neighbours -----------
+
+#' keggPathWayCounter
+#'
+#' Add count of KEGG pathways per target.
+#'
+#' @param clueTable Input dataframe with UNIPROT_KB_ID column.
+#'
+#' @return updated clueTable
+keggPathWayCounter <- function(clueTable) {
+
+  ## function to get data in a customized way: get plain text file via HTTP
+  textGET <- function(url) {
+    # if it is a path of a cache file
+    if (stringr::str_starts(url, CACHE)) {
+      result <- readr::read_file(url)
+    } else {
+      result <- httr::GET(url)
+      result <- httr::content(result)
+    }
+    return(result)
+  }
+
+  ## build a local cache of downloaded data ----
+  uniProtList <- clueTable %>% select(UniProtData) %>% distinct() %>% pull(1)
+  keggList <- sapply(uniProtList, simplify = FALSE, function(uniProtData) {
+    keggId <- uniProtData$KEGG
+    url <- glue::glue('http://rest.kegg.jp/get/{keggId}')
+    return(getPageCached(url, downloadFunc = textGET))
+  })
+
+  ## count pathways in KEGG result list ----
+  keggRegex <- stringr::regex(
+    "^PATHWAY.+^(NETWORK|DISEASE|DRUG TARGET|BRITE)",
+    multiline = TRUE, dotall = TRUE
+  )
+  keggList <- sapply(keggList, simplify = FALSE, function(keggResult) {
+    keggText <- keggResult[["document"]]
+    ## extract text block, then count number of lines
+    numOfPathwayEntries <- stringr::str_extract(keggText, keggRegex) %>%
+      stringr::str_count("\n")
+    numOfPathwayEntries <- ifelse(
+      is.na(numOfPathwayEntries), 0, numOfPathwayEntries
+    )
+    return(numOfPathwayEntries)
+  })
+
+  ## update the input table and return the result -------------------------
+  clueTable <- clueTable %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(NumberOfKEGGPathways = keggList[[UNIPROT_KB_ID]])
+
   return(clueTable)
 }
 

@@ -350,7 +350,7 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
   cluePatched <- cluePatched %>% dplyr::transmute(
     HUGO                    = HUGO,
     `Reactome pathways`     = length(UniProtData$Reactome),
-    `KEGG pathways`         = 'TBD', # TODO
+    `KEGG pathways`         = NumberOfKEGGPathways,
     `STRING neighboures`    = 'TBD', # TODO
     `Molecular Functions`   = length(UniProtData$molecularFunction),
     `Subcellular Locations` = length(UniProtData$subCellularLocation),
