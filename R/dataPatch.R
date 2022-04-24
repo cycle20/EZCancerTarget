@@ -32,8 +32,6 @@ CLUE.INPUT <- glue::glue("{OUTPUT}/clue.rds")
 CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
 TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
 
-CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
-
 TOOL.NAME <- "https://github.com/cycle20/scancer/"
 
 PUBMED.BASE <- "https://pubmed.ncbi.nlm.nih.gov/"
@@ -70,7 +68,6 @@ EMA.OVERVIEW.PDF.URL <- paste0(
   "{compound}-epar-summary-public_en.pdf"
 )
 
-PUBCHEM.URL.TEMPLATE <- "https://pubchem.ncbi.nlm.nih.gov/compound/{id.or.name}"
 
 ##
 ## Functions --------------------------------------------------------------
@@ -133,6 +130,7 @@ patch <- function(clueTable) {
   clueTable <- xmlUniProt(clueTable)
   ## Add count of KEGG pathways per target
   clueTable <- keggPathWayCounter(clueTable)
+  clueTable <- stringInteractorsCounter(clueTable)
 
   ## Adjustment of data of columns and HTML fragments
   clueTable <- consolidateColumns(clueTable)
@@ -949,7 +947,7 @@ keggPathWayCounter <- function(clueTable) {
       result <- readr::read_file(url)
     } else {
       result <- httr::GET(url)
-      result <- httr::content(result)
+      result <- httr::content(result, as = 'text')
     }
     return(result)
   }
@@ -958,7 +956,7 @@ keggPathWayCounter <- function(clueTable) {
   uniProtList <- clueTable %>% select(UniProtData) %>% distinct() %>% pull(1)
   keggList <- sapply(uniProtList, simplify = FALSE, function(uniProtData) {
     keggId <- uniProtData$KEGG
-    url <- glue::glue('http://rest.kegg.jp/get/{keggId}')
+    url <- glue::glue('http://rest.kegg.jp/get/{keggId}') # TODO: expose it
     return(getPageCached(url, downloadFunc = textGET))
   })
 
@@ -982,6 +980,43 @@ keggPathWayCounter <- function(clueTable) {
   clueTable <- clueTable %>%
     dplyr::rowwise() %>%
     dplyr::mutate(NumberOfKEGGPathways = keggList[[UNIPROT_KB_ID]])
+
+  return(clueTable)
+}
+
+
+stringInteractorsCounter <- function(clueTable) {
+
+  ## function to get data in a customized way: get plain text file via HTTP
+  tsvGET <- function(url) {
+    # if it is a path of a cache file
+    if (stringr::str_starts(url, CACHE)) {
+      result <- readr::read_tsv(url)
+    } else {
+      result <- httr::GET(url)
+      result <- httr::content(result)
+    }
+    return(result)
+  }
+
+  ## build a local cache of downloaded data ----
+  uniProtList <- clueTable %>% select(UniProtData) %>% distinct() %>% pull(1)
+  interactorsCache <- sapply(uniProtList, simplify = FALSE, function(uniProtData) {
+    STRING_ID <- uniProtData$STRING
+    url <- glue::glue('https://string-db.org/api/tsv/interaction_partners?identifiers={STRING_ID}&species=9606&limit=0&required_score=900')
+    return(getPageCached(url, downloadFunc = tsvGET))
+  })
+  interactorsCache <- sapply(interactorsCache, simplify = FALSE, function(stringResult) {
+    ## get the tibble
+    stringTable <- stringResult[["document"]]
+    interactorsCount <- nrow(stringTable)
+    return(interactorsCount)
+  })
+
+  ## update the input table and return the result -------------------------
+  clueTable <- clueTable %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(NumberOfSTRINGInteractors = interactorsCache[[UNIPROT_KB_ID]])
 
   return(clueTable)
 }

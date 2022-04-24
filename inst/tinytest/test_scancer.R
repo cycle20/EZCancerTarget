@@ -106,3 +106,10 @@ numOfPathwayEntries <- stringr::str_extract(keggText, pattern) %>%
   stringr::str_count("\n")
 ## assert
 expect_equal(target = 4, numOfPathwayEntries)
+
+
+url <- 'https://string-db.org/api/tsv/interaction_partners?identifiers=TP53&species=9606&limit=0&required_score=900'
+result <- httr::GET(url)
+result <- httr::content(result)
+countOfPartners <- nrow(result)
+expect_equal(target = 426, countOfPartners)
