@@ -128,7 +128,7 @@ patch <- function(clueTable) {
   clueTable <- ema(clueTable)
   ## Append UniProt details
   clueTable <- xmlUniProt(clueTable)
-  ## Add count of KEGG pathways per target
+  ## Add count of KEGG pathways and STRING interactors per target
   clueTable <- keggPathWayCounter(clueTable)
   clueTable <- stringInteractorsCounter(clueTable)
 

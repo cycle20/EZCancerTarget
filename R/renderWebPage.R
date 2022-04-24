@@ -342,16 +342,18 @@ aHref <- function(link, titleText) {
 
 renderMolecularBackgroundSummary <- function(cluePatched) {
   cluePatched <- cluePatched %>%
-    dplyr::select(HUGO, UniProtData, NumberOfKEGGPathways) %>%
+    dplyr::select(
+      HUGO, UniProtData, NumberOfKEGGPathways, NumberOfSTRINGInteractors
+    ) %>%
     dplyr::distinct() %>%
     dplyr::arrange(HUGO)
 
 
   cluePatched <- cluePatched %>% dplyr::transmute(
     HUGO                    = HUGO,
-    `Reactome pathways`     = length(UniProtData$Reactome),
-    `KEGG pathways`         = dplyr::if_else(is.na(NumberOfKEGGPathways), 0, NumberOfKEGGPathways),
-    `STRING neighboures`    = 'TBD', # TODO
+    `Reactome Pathways`     = length(UniProtData$Reactome),
+    `KEGG Pathways`         = dplyr::if_else(is.na(NumberOfKEGGPathways), 0, NumberOfKEGGPathways),
+    `STRING Interactors`    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), 0, NumberOfKEGGPathways),
     `Molecular Functions`   = length(UniProtData$molecularFunction),
     `Subcellular Locations` = length(UniProtData$subCellularLocation),
     `Biological Processes`  = length(UniProtData$biologicalProcess)
