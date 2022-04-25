@@ -353,7 +353,7 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
     HUGO                    = HUGO,
     `Reactome Pathways`     = length(UniProtData$Reactome),
     `KEGG Pathways`         = dplyr::if_else(is.na(NumberOfKEGGPathways), 0, NumberOfKEGGPathways),
-    `STRING Interactors`    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), 0, NumberOfKEGGPathways),
+    `STRING Interactors`    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), 0, NumberOfSTRINGInteractors),
     `Molecular Functions`   = length(UniProtData$molecularFunction),
     `Subcellular Locations` = length(UniProtData$subCellularLocation),
     `Biological Processes`  = length(UniProtData$biologicalProcess)
