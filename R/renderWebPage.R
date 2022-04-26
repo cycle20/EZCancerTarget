@@ -353,7 +353,7 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
     HUGO                    = HUGO,
     `Reactome Pathways`     = length(UniProtData$Reactome),
     `KEGG Pathways`         = dplyr::if_else(is.na(NumberOfKEGGPathways), 0, NumberOfKEGGPathways),
-    `STRING Interactors`    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), 0, NumberOfSTRINGInteractors),
+    `STRING Interactors`    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), as.integer(0), NumberOfSTRINGInteractors),
     `Molecular Functions`   = length(UniProtData$molecularFunction),
     `Subcellular Locations` = length(UniProtData$subCellularLocation),
     `Biological Processes`  = length(UniProtData$biologicalProcess)
@@ -365,7 +365,6 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
 }
 
 renderCompoundsSummary <- function(cluePatched) {
-
   ## TODO: EMA counts must be added at least Launched values
   cluePatched <- cluePatched %>%
     dplyr::select(
