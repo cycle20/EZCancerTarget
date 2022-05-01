@@ -7,6 +7,8 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <!-- Bootstap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
     <!-- Some customization -->
     <style type="text/css" media="all">
@@ -40,9 +42,15 @@
 
     <title>Drug Targets - {{title}}</title>
   </head>
-  <body>
+  <body onload="defaultTab();">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
     <script type="text/javascript" src="./js/scancer.js"></script>
+    <script>
+      function defaultTab() {
+        e = document.querySelector("#list-SUMMARY-list");
+        e.dispatchEvent(new MouseEvent("click"));
+      }
+    </script>
 
     <div class="container">
 
@@ -51,6 +59,9 @@
       <div class="row">
         <div class="col-2 navbar-nav-scroll" style="--bs-scroll-height: 90vh;">
           <div class="list-group" id="list-tab" role="tablist">
+            <a class="list-group-item list-group-item-action" id="list-SUMMARY-list" data-bs-toggle="list" href="#list-SUMMARY" role="tab" aria-controls="profile">SUMMARY</a>
+
+
 {{#targets}}
 {{#target}}
             <a class="list-group-item list-group-item-action {{groupLabel}}" id="list-{{.}}-list" data-bs-toggle="list" href="#list-{{.}}" role="tab" aria-controls="profile">{{target}} <sup>[{{groupLabel}}]</sup></a>
@@ -60,6 +71,126 @@
         </div>
         <div class="col-10">
           <div class="tab-content" id="nav-tabContent">
+
+            <div class="tab-pane" id="list-SUMMARY" role="tabpanel" aria-labelledby="list-SUMMARY-list">
+              <div class="btn-group" role="group" aria-label="External Links">
+                <a role="button" class="btn btn-warning" target="_blank" href="molecular_background.csv">
+                  Molecular Background Data <i class="bi-filetype-csv"></i>
+                </a>
+                <a role="button" class="btn btn-info" target="_blank" href="compounds_summary.csv">
+                  Compounds Data <i class="bi-filetype-csv"></i>
+                </a>
+                </div>
+
+              <div class="accordion" id="accordion-SUMMARY">
+
+                <div class="accordion-item has-data-true">
+                  <h2 class="accordion-header" id="heading-SUMMARY">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-tbl-SUMMARY" aria-expanded="true" aria-controls="collapse-SUMMARY">
+                      SUMMARY :: Molecular Background
+                    </button>
+                  </h2>
+                  <div id="collapse-tbl-SUMMARY" class="accordion-collapse collapse show" aria-labelledby="heading-SUMMARY" data-bs-parent="#accordion-SUMMARY">
+                    <div class="accordion-body">
+                      <small class="text-muted">
+                      <b>RP:</b> Reactome Pathways |
+                      <b>KP:</b> KEGG Pathways |
+                      <b>SI:</b> STRING Interactors |<br/>
+                      <b>MF:</b> Molecular Functions |
+                      <b>SL:</b> Subcellular Locations |
+                      <b>BP:</b> Biological Processes
+                      </small>
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">HUGO</th>
+                            <th scope="col">RP</th>
+                            <th scope="col">KP</th>
+                            <th scope="col">SI</th>
+                            <th scope="col">MF</th>
+                            <th scope="col">SL</th>
+                            <th scope="col">BP</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+<!--
+ADAM23,0,0,0,0,0,0
+ALDH2,2,16,34,5,2,3
+AMH,0,0,0,0,0,0
+ANXA1,5,0,16,12,29,52
+ANXA3,0,0,0,0,0,0
+AURKA,8,2,86,10,19,28
+BCAT1,1,9,8,6,2,4
+BCL3,0,0,0,0,0,0
+BGN,0,0,0,0,0,0
+BIRC3,10,16,69,6,6,18
+C1QA,0,0,0,0,0,0
+CASP14,0,0,0,0,0,0
+CAV2,0,0,0,0,0,0
+CCL11,0,0,0,0,0,0
+-->
+                          <tr><th scope="row">ADAM23</th>
+                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
+                          </tr>
+                          <tr><th scope="row">ALDH2</th>
+                            <td>2</td><td>16</td><td>34</td><td>5</td><td>2</td><td>3</td>
+                          </tr>
+                    
+                        </tbody>
+                      </table>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="compounds-data-SUMMARY">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-compounds-SUMMARY" aria-expanded="false" aria-controls="collapse-string-SUMMARY">
+                      SUMMARY :: Compounds
+                    </button>
+                  </h2>
+                  <div id="collapse-compounds-SUMMARY" class="accordion-collapse collapse" aria-labelledby="string-data-SUMMARY" data-bs-parent="#accordion-SUMMARY">
+                    <div class="accordion-body">
+
+
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">HUGO</th>
+                            <th scope="col">RP</th>
+                            <th scope="col">KP</th>
+                            <th scope="col">SI</th>
+                            <th scope="col">MF</th>
+                            <th scope="col">SL</th>
+                            <th scope="col">BP</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr><th scope="row">ADAM23</th>
+                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
+                          </tr>
+                          <tr><th scope="row">ALDH2</th>
+                            <td>2</td><td>16</td><td>34</td><td>5</td><td>2</td><td>3</td>
+                          </tr>
+                    
+                        </tbody>
+                      </table>
+
+
+
+
+
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+
+
 {{#targets}}
 {{! #target}}
             <div class="tab-pane" id="list-{{target}}" role="tabpanel" aria-labelledby="list-{{target}}-list">
