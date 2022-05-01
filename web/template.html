@@ -69,6 +69,8 @@
 {{/targets}}
           </div>
         </div>
+
+
         <div class="col-10">
           <div class="tab-content" id="nav-tabContent">
 
@@ -93,12 +95,12 @@
                   <div id="collapse-tbl-SUMMARY" class="accordion-collapse collapse show" aria-labelledby="heading-SUMMARY" data-bs-parent="#accordion-SUMMARY">
                     <div class="accordion-body">
                       <small class="text-muted">
-                      <b>RP:</b> Reactome Pathways |
-                      <b>KP:</b> KEGG Pathways |
-                      <b>SI:</b> STRING Interactors |<br/>
-                      <b>MF:</b> Molecular Functions |
-                      <b>SL:</b> Subcellular Locations |
-                      <b>BP:</b> Biological Processes
+                        <b>RP:</b> Reactome Pathways |
+                        <b>KP:</b> KEGG Pathways |
+                        <b>SI:</b> STRING Interactors |
+                        <b>MF:</b> Molecular Functions |
+                        <b>SL:</b> Subcellular Locations |
+                        <b>BP:</b> Biological Processes
                       </small>
                       <table class="table">
                         <thead>
@@ -113,29 +115,12 @@
                           </tr>
                         </thead>
                         <tbody>
-<!--
-ADAM23,0,0,0,0,0,0
-ALDH2,2,16,34,5,2,3
-AMH,0,0,0,0,0,0
-ANXA1,5,0,16,12,29,52
-ANXA3,0,0,0,0,0,0
-AURKA,8,2,86,10,19,28
-BCAT1,1,9,8,6,2,4
-BCL3,0,0,0,0,0,0
-BGN,0,0,0,0,0,0
-BIRC3,10,16,69,6,6,18
-C1QA,0,0,0,0,0,0
-CASP14,0,0,0,0,0,0
-CAV2,0,0,0,0,0,0
-CCL11,0,0,0,0,0,0
--->
-                          <tr><th scope="row">ADAM23</th>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
+{{#molecularBackground}}
+                          <tr><th scope="row">{{HUGO}}</th>
+                            <td>{{ReactomePathways}}</td><td>{{KEGGPathways}}</td><td>{{STRINGInteractors}}</td></td><td>{{MolecularFunctions}}</td><td>{{SubcellularLocations}}</td><td>{{BiologicalProcesses}}</td>
                           </tr>
-                          <tr><th scope="row">ALDH2</th>
-                            <td>2</td><td>16</td><td>34</td><td>5</td><td>2</td><td>3</td>
-                          </tr>
-                    
+{{/molecularBackground}}
+
                         </tbody>
                       </table>
                     </div>
@@ -151,28 +136,39 @@ CCL11,0,0,0,0,0,0
                   </h2>
                   <div id="collapse-compounds-SUMMARY" class="accordion-collapse collapse" aria-labelledby="string-data-SUMMARY" data-bs-parent="#accordion-SUMMARY">
                     <div class="accordion-body">
-
-
+                      <small class="text-muted">
+                        <b>PRC:</b> Preclinical |
+                        <b>PH1:</b> Phase1 |
+                        <b>PH2:</b> Phase2 |
+                        <b>PH3:</b> Phase3 |
+                        <b>LNC:</b> Lunched |
+                        <b>PM:</b> PubMed |
+                        <b>PCH:</b> PubChem |
+                        <b>CHE:</b> ChEMBL |
+                        <b>DB:</b> DrugBank
+                      </small>
                       <table class="table">
                         <thead>
                           <tr>
-                            <th scope="col">HUGO</th>
-                            <th scope="col">RP</th>
-                            <th scope="col">KP</th>
-                            <th scope="col">SI</th>
-                            <th scope="col">MF</th>
-                            <th scope="col">SL</th>
-                            <th scope="col">BP</th>
+                            <th scope="col">Target</th>
+                            <th scope="col">PRC</th>
+                            <th scope="col">PH1</th>
+                            <th scope="col">PH2</th>
+                            <th scope="col">PH3</th>
+                            <th scope="col">LNC</th>
+                            <th scope="col">PM</th>
+                            <th scope="col">PCH</th>
+                            <th scope="col">CHE</th>
+                            <th scope="col">DB</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr><th scope="row">ADAM23</th>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
+{{#compoundsSummary}}
+                          <tr><th scope="row">{{HUGO}}</th>
+                            <td>{{Preclinical}}</td><td>{{Phase1}}</td><td>{{Phase2}}</td><td>{{Phase3}}</td><td>{{Launched}}</td><td>{{PubMed}}</td><td>{{PubChem}}</td><td>{{ChEMBL}}</td><td>{{DrugBank}}</td>
                           </tr>
-                          <tr><th scope="row">ALDH2</th>
-                            <td>2</td><td>16</td><td>34</td><td>5</td><td>2</td><td>3</td>
-                          </tr>
-                    
+{{/compoundsSummary}}
+
                         </tbody>
                       </table>
 

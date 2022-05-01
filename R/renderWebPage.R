@@ -47,23 +47,9 @@ main <- function() {
     rowwise() %>%
     mutate(has_data = (!is.na(pert_iname) && !is.na(UNIPROT_KB_ID)))
 
-  resultHasData <- patchedData %>%
-    filter(has_data == TRUE) %>%
-    arrange(Label, HUGO)
-
-  resultHasNoData <- patchedData %>%
-    filter(has_data == FALSE) %>%
-    arrange(Label, HUGO)
-
   renderWebPage(
-    resultHasData, title = "Has CLUE.IO Entries", outputHTML = WEB_OUT
+    patchedData, title = "Has CLUE.IO Entries", outputHTML = WEB_OUT
   )
-  renderWebPage(
-    resultHasNoData, title = "Not found on CLUE.IO", outputHTML = WEB_OUT_NODATA
-  )
-
-  renderMolecularBackgroundSummary(patchedData)
-  renderCompoundsSummary(patchedData)
 
   warnings()
 }
@@ -77,7 +63,19 @@ main <- function() {
 #'
 #' @return Invisible NULL.
 renderWebPage <- function(result, title, outputHTML = NULL) {
-  assertthat::assert_that(!is.null(outputHTML))
+
+  resultHasNoData <- result %>%
+    filter(has_data == FALSE) %>%
+    arrange(Label, HUGO)
+
+  result <- result %>%
+    filter(has_data == TRUE) %>%
+    arrange(Label, HUGO)
+
+  molecularBackground <- renderMolecularBackgroundSummary(result)
+  molecularBackground <- whisker::rowSplit(molecularBackground)
+  compoundsSummary <- renderCompoundsSummary(result)
+  compoundsSummary <- whisker::rowSplit(compoundsSummary)
 
   ## - this should be an iteration on each HUGO group
   ## - collect pert groups for each gene group
@@ -351,17 +349,19 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
 
   cluePatched <- cluePatched %>% dplyr::transmute(
     HUGO                    = HUGO,
-    `Reactome Pathways`     = length(UniProtData$Reactome),
-    `KEGG Pathways`         = dplyr::if_else(is.na(NumberOfKEGGPathways), 0, NumberOfKEGGPathways),
-    `STRING Interactors`    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), as.integer(0), NumberOfSTRINGInteractors),
-    `Molecular Functions`   = length(UniProtData$molecularFunction),
-    `Subcellular Locations` = length(UniProtData$subCellularLocation),
-    `Biological Processes`  = length(UniProtData$biologicalProcess)
+    ReactomePathways     = length(UniProtData$Reactome),
+    KEGGPathways         = dplyr::if_else(is.na(NumberOfKEGGPathways), 0, NumberOfKEGGPathways),
+    STRINGInteractors    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), as.integer(0), NumberOfSTRINGInteractors),
+    MolecularFunctions   = length(UniProtData$molecularFunction),
+    SubcellularLocations = length(UniProtData$subCellularLocation),
+    BiologicalProcesses  = length(UniProtData$biologicalProcess)
   )
 
   # print and save it as CSV
   print(cluePatched)
-  readr::write_csv(cluePatched, MOLECULAR_CSV.OUTPUT)
+  return(
+    readr::write_csv(cluePatched, MOLECULAR_CSV.OUTPUT)
+  )
 }
 
 renderCompoundsSummary <- function(cluePatched) {
@@ -414,5 +414,7 @@ renderCompoundsSummary <- function(cluePatched) {
 
   # print and save it as CSV
   print(cluePatched)
-  readr::write_csv(cluePatched, COMPOUNDS_CSV.OUTPUT)
+  return(
+    readr::write_csv(cluePatched, COMPOUNDS_CSV.OUTPUT)
+  )
 }
