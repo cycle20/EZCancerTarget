@@ -32,8 +32,6 @@ CLUE.INPUT <- glue::glue("{OUTPUT}/clue.rds")
 CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
 TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
 
-CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
-
 TOOL.NAME <- "https://github.com/cycle20/scancer/"
 
 PUBMED.BASE <- "https://pubmed.ncbi.nlm.nih.gov/"
@@ -49,6 +47,8 @@ PUBMED.RESULT.XPATH <- paste0(
   '/html/body/main//section[@class="search-results-list"]',
   '//article[position() < 4]//a'
 )
+# maximum number of displayed PubMed links per compound
+PUBMED.DISPLAY.MAX_LINKS <- 3
 
 UNIPROT.HTML.TEMPL = "https://www.uniprot.org/uniprot/{id}"
 UNIPROT.XML.TEMPL = "https://www.uniprot.org/uniprot/{id}.xml"
@@ -68,7 +68,6 @@ EMA.OVERVIEW.PDF.URL <- paste0(
   "{compound}-epar-summary-public_en.pdf"
 )
 
-PUBCHEM.URL.TEMPLATE <- "https://pubchem.ncbi.nlm.nih.gov/compound/{id.or.name}"
 
 ##
 ## Functions --------------------------------------------------------------
@@ -129,11 +128,12 @@ patch <- function(clueTable) {
   clueTable <- ema(clueTable)
   ## Append UniProt details
   clueTable <- xmlUniProt(clueTable)
+  ## Add count of KEGG pathways and STRING interactors per target
+  clueTable <- keggPathWayCounter(clueTable)
+  clueTable <- stringInteractorsCounter(clueTable)
 
   ## Adjustment of data of columns and HTML fragments
   clueTable <- consolidateColumns(clueTable)
-
-  ## TODO: chEbml data...
 
   ## return updated tables
   return(clueTable)
@@ -266,12 +266,13 @@ consolidateColumns <- function(clueTable) {
       searchLinkHTML <- aHref(link = glue::glue(PUBMED.SEARCH),
         titleText = "No search result"
       )
-      return(paste(c(title, searchLinkHTML), collapse = "<br class='cl'/>"))
+      return(paste(c(title, searchLinkHTML), collapse = "<br />"))
     } else {
       assertthat::assert_that(is.vector(PMIDs))
 
-      htmlLinks <- paste(sapply(PMIDs, pubMedLink), collapse = "<br class='cl'/>")
-      return(paste(c(title, htmlLinks), collapse = "<br class='cl2'/>"))
+      PMIDs <- head(PMIDs, n = PUBMED.DISPLAY.MAX_LINKS)
+      htmlLinks <- paste(sapply(PMIDs, pubMedLink), collapse = "<br />")
+      return(paste(c(title, htmlLinks), collapse = "<br />"))
     }
   }
 
@@ -282,7 +283,7 @@ consolidateColumns <- function(clueTable) {
     } else {
       status_source <- paste(
         c(status_source, "<strong>From EMA:</strong>"),
-        collapse = "<br class='ael'/>"
+        collapse = "<br />"
       )
 
       status_source <- paste(
@@ -290,7 +291,7 @@ consolidateColumns <- function(clueTable) {
           status_source,
           sapply(emaLinks, function(link) aHref(link, "Found PDF"))
         ),
-        collapse = "<br class='ael2'/>"
+        collapse = "<br />"
       )
 
       return(status_source)
@@ -305,7 +306,7 @@ consolidateColumns <- function(clueTable) {
       ## old value + title of FDA "section":
       status_source <- paste(
         c(status_source, "<strong>FDA Labels:</strong>"),
-        collapse = "<br class='afl'/>"
+        collapse = "<br />"
       )
 
       ## glue variable accessed from dplyr environment: "setId"
@@ -324,9 +325,9 @@ consolidateColumns <- function(clueTable) {
         select(labelURL, htmlURL)
 
       resultHTML <- htmlOfURLs %>% pull(htmlURL)
-      resultHTML <- paste(resultHTML, collapse = "<br class='fld'/>")
+      resultHTML <- paste(resultHTML, collapse = "<br />")
 
-      status_source <- paste(c(status_source, resultHTML), collapse = "<br class='fld2'/>")
+      status_source <- paste(c(status_source, resultHTML), collapse = "<br />")
       return(status_source)
     }
   }
@@ -346,7 +347,7 @@ consolidateColumns <- function(clueTable) {
       "{statusSourceHTML(status_source, pert_iname)}</div>"
     )) %>%
     mutate(
-      status_source = paste(c(emaLinks, clueSource), collapse = "<br class='mut'/>")
+      status_source = paste(c(emaLinks, clueSource), collapse = "<br />")
     )
 
   return(clueTable)
@@ -408,29 +409,15 @@ statusSourceHTML <- function(statusSource, pert_iname) {
 }
 
 
-#' ChEMBL Id
-#'
-#' @param chemblId
-#'
-#' @return ChEMBL Id or NA
-chemblXML <- function(chemblId) {
-  ## TODO: chEmbl
-  ## https://www.ebi.ac.uk/chembl/api/data/target/search?q=ANXA3
-
-  stop("Not implemented")
-}
-
-
 #' Extract and supply PMIDs/links
 #'
 #' @param clueTable
 #'
 #' @return
 pubMed <- function(clueTable) {
-  assertthat::assert_that(tibble::is_tibble(clueTable))
 
   ## pubMed search request and extract results
-  pubMedSearch <- function(compound, final_status) {
+  pubMedSearch <- function(compound) {
 
     ## download page or read it from cache
     searchURL <- glue::glue(PUBMED.SEARCH)
@@ -446,19 +433,23 @@ pubMed <- function(clueTable) {
     articleIds <- result$document %>%
       rvest::html_element(xpath = xpath) %>%
       stringr::str_split(pattern = ",") %>%
-      unlist() %>%
-      # limited to top 3 hits
-      head(3)
+      unlist()
 
     articleIds <- if_else(articleIds[1] == "",
-      list(NA), list(articleIds)) %>%
+      list(NULL), list(articleIds)) %>%
       unlist()
 
     return(articleIds)
   }
 
-  clueTable <- clueTable %>%
-    mutate(pubMedPreClinicalLinks = list(pubMedSearch(pert_iname, final_status)))
+  addPubMedData <- function(.data) {
+    .data <- .data %>%
+      mutate(pubMedPreClinicalLinks = list(pubMedSearch(pert_iname))) %>%
+      mutate(PubMedCounter = length(unlist(pubMedPreClinicalLinks)))
+    return(.data)
+  }
+
+  clueTable <- clueTable %>% addPubMedData()
 
   # TODO: PMC? And embargoed articles? https://www.ncbi.nlm.nih.gov/pmc
   # TODO: https://drugs.ncats.io/substances?facet=Pharmacology%2FInhibitor
@@ -555,12 +546,12 @@ ema <- function(clueTable) {
     }
     ## HEAD request and assert
     print(glue::glue("Check URL (HEAD request): {pdfURL}"))
-    sCode <- httr::HEAD(pdfURL)$status_code
-    print(c("Check HEAD HTTP status code: ", sCode))
-    if (sCode == 404) { ## NOTE: this case needs a better handler
+    statusCode <- httr::HEAD(pdfURL)$status_code
+    print(c("Check HEAD HTTP status code: ", statusCode))
+    if (statusCode == 404) { ## NOTE: this case needs a better handler
       print("ERROR 404: PAGE NOT FOUND")
     } else {
-      assertthat::assert_that(sCode %in% c(200, 301, 302))
+      assertthat::assert_that(statusCode %in% c(200, 301, 302))
     }
 
     ## return the public summary PDF link of the first hit from the search list
@@ -568,11 +559,31 @@ ema <- function(clueTable) {
     return(pdfURL)
   }
   clueTable <- clueTable %>%
-    rowwise() %>%
-    mutate(emaLinks = list(emaSearch( pert_iname )))
+    dplyr::rowwise() %>%
+    dplyr::mutate(emaLinks = list(emaSearch( pert_iname )))
 
   return(clueTable)
 }
+
+
+readReport <- function(fileName) {
+  getEMAFile(fileName)
+  report <- readxl::read_excel(fileName, skip = 7)
+  return(report)
+}
+
+getEMAFile <- function(file, quiet = FALSE) {
+  EMA_FILES_BASE_URL <- "https://www.ema.europa.eu/sites/default/files"
+  url <- glue::glue("{EMA_FILES_BASE_URL}/{file}")
+  if (!quiet) {
+    print(glue::glue("Downloading {url}"))
+  }
+  curl::curl_download(url = url, destfile = file, mode ="wb", quiet = quiet)
+}
+
+
+#############################################################
+
 
 
 fdaLabel <- function(clueTable) {
@@ -783,66 +794,6 @@ fdaLabel <- function(clueTable) {
   return(clueTable)
 }
 
-#' #' Look up PubChem ID
-#' #'
-#' #' @param inChIKey International Chemical Identifier
-#' #'
-#' #' @return PubChem ID or NA
-#' pubChemId <- function(inchiKey) {
-#'   # other possible resolvers:
-#'   # https://en.wikipedia.org/wiki/International_Chemical_Identifier#InChI_resolvers
-#'
-#'   stop("Not implemented")
-#'
-#'   searchURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/TODO")
-#'   compoundURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
-#'
-#'   # # TODO: !!!!! pubChem
-#'   # # TODO: JavaScript issue: result page is dynamic
-#'   # pubChem <- function(compound, inChIKey) {
-#'   #   assertthat::assert_that(!is.na(compound))
-#'   #   # assertthat::assert_that(!is.na(inChIKey))
-#'   #   searchURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/#query={compound}")
-#'   #   #compoundURL <- glue::glue("https://pubchem.ncbi.nlm.nih.gov/compound/{id}")
-#'   #   html <- rvest::read_html(searchURL)
-#'   #   return(html)
-#'   # }
-#'
-#' }
-
-
-#' PubChem Id
-#'
-#' @param id.or.name
-#'
-#' @return PubChem cid/name or NA
-pubChem <- function(id.or.name) {
-  ## TODO: PubChem check/download
-
-  ##
-  ## TODO:
-  ##
-  ## to find description by name:
-  ## https://pubchem.ncbi.nlm.nih.gov/compound/nitroflurbiprofen
-  ##
-  ## Can be extracted:
-  ##
-  ## <meta name="pubchem_uid_type" content="CID">
-  ## <meta name="pubchem_uid_type_prefix" content="PubChem">
-  ## <meta name="pubchem_uid_name" content="compound">
-  ## <meta name="pubchem_uid_value" content="119387">
-  ##
-  ## <link rel="alternate" type="application/rdf+xml"
-  ##   title="CID:119387"
-  ##   href="https://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID119387">
-  ##
-
-  stop("Not implemented")
-
-  ##
-  url <- glue::glue(PUBCHEM.URL.TEMPLATE)
-}
-
 
 #' Supply details from UniProtKB
 #'
@@ -917,8 +868,8 @@ xmlUniProt <- function(clueTable) {
       Reactome = list()
     )
     for (dbref in dbReferences) {
-      type <- xml_attr(dbref, "type")
-      referenceId <- xml_attr(dbref, "id")
+      type <- xml2::xml_attr(dbref, "type")
+      referenceId <- xml2::xml_attr(dbref, "id")
       if (type == "STRING") {
         ## TODO: if there are multiple ids, the last one "wins"
         resultList[["STRING"]] <- referenceId
@@ -949,10 +900,10 @@ xmlUniProt <- function(clueTable) {
 
   ## xmlUniProt "body"-----------------------------------------------------
   uniProtIdList <- clueTable %>%
-    select(UNIPROT_KB_ID) %>%
-    distinct() %>%
-    filter(!is.na(UNIPROT_KB_ID)) %>%
-    pull(UNIPROT_KB_ID)
+    dplyr::select(UNIPROT_KB_ID) %>%
+    dplyr::distinct() %>%
+    dplyr::filter(!is.na(UNIPROT_KB_ID)) %>%
+    dplyr::pull(UNIPROT_KB_ID)
 
   ##
   ## iterate on UniProtKB Id list and -------------------------------------
@@ -972,8 +923,101 @@ xmlUniProt <- function(clueTable) {
 
   ## update the input table and return the result -------------------------
   clueTable <- clueTable %>%
-    rowwise() %>%
-    mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
+    dplyr::rowwise() %>%
+    dplyr::mutate(UniProtData = filteredXMLData[UNIPROT_KB_ID])
+  return(clueTable)
+}
+
+
+## Additional counters for KEGG pathways and STRING neighbours -----------
+
+#' keggPathWayCounter
+#'
+#' Add count of KEGG pathways per target.
+#'
+#' @param clueTable Input dataframe with UNIPROT_KB_ID column.
+#'
+#' @return updated clueTable
+keggPathWayCounter <- function(clueTable) {
+
+  ## function to get data in a customized way: get plain text file via HTTP
+  textGET <- function(url) {
+    # if it is a path of a cache file
+    if (stringr::str_starts(url, CACHE)) {
+      result <- readr::read_file(url)
+    } else {
+      result <- httr::GET(url)
+      result <- httr::content(result, as = 'text')
+    }
+    return(result)
+  }
+
+  ## build a local cache of downloaded data ----
+  uniProtList <- clueTable %>% select(UniProtData) %>% distinct() %>% pull(1)
+  keggList <- sapply(uniProtList, simplify = FALSE, function(uniProtData) {
+    keggId <- uniProtData$KEGG
+    url <- glue::glue('http://rest.kegg.jp/get/{keggId}') # TODO: expose it
+    return(getPageCached(url, downloadFunc = textGET))
+  })
+
+  ## count pathways in KEGG result list ----
+  keggRegex <- stringr::regex(
+    "^PATHWAY.+?^(NETWORK|DISEASE|DRUG_TARGET|BRITE)",
+    multiline = TRUE, dotall = TRUE
+  )
+  keggList <- sapply(keggList, simplify = FALSE, function(keggResult) {
+    keggText <- keggResult[["document"]]
+    ## extract text block, then count number of lines
+    numOfPathwayEntries <- stringr::str_extract(keggText, keggRegex) %>%
+      stringr::str_count("\n")
+    numOfPathwayEntries <- ifelse(
+      is.na(numOfPathwayEntries), 0, numOfPathwayEntries
+    )
+    return(numOfPathwayEntries)
+  })
+
+  ## update the input table and return the result -------------------------
+  clueTable <- clueTable %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(NumberOfKEGGPathways = keggList[[UNIPROT_KB_ID]])
+
+  return(clueTable)
+}
+
+
+stringInteractorsCounter <- function(clueTable) {
+
+  ## function to get data in a customized way: get plain text file via HTTP
+  tsvGET <- function(url) {
+    # if it is a path of a cache file
+    if (stringr::str_starts(url, CACHE)) {
+      result <- readr::read_tsv(url)
+    } else {
+      result <- httr::GET(url)
+      result <- httr::content(result)
+    }
+    return(result)
+  }
+
+  ## build a local cache of downloaded data ----
+  uniProtList <- clueTable %>% select(UniProtData) %>% distinct() %>% pull(1)
+  interactorsCache <- sapply(uniProtList, simplify = FALSE, function(uniProtData) {
+    STRING_ID <- uniProtData$STRING
+    url <- glue::glue('https://string-db.org/api/tsv/interaction_partners?identifiers={STRING_ID}&species=9606&limit=0&required_score=900')
+    return(getPageCached(url, downloadFunc = tsvGET))
+  })
+  interactorsCache <- sapply(interactorsCache, simplify = FALSE, function(stringResult) {
+    ## get the tibble
+    stringTable <- stringResult[["document"]]
+    interactorsCount <- nrow(stringTable)
+    return(interactorsCount)
+  })
+
+  ## update the input table and return the result -------------------------
+  clueTable <- clueTable %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(NumberOfSTRINGInteractors = interactorsCache[[UNIPROT_KB_ID]])
+
   return(clueTable)
 }
 
@@ -989,6 +1033,7 @@ xmlUniProt <- function(clueTable) {
 #' if content is not cached. Default value is 3.
 #'
 #' @return XML representation of the file content.
+#' @import dplyr
 getPageCached <- function(url, sleepTime = 3, downloadFunc = rvest::read_html) {
   cacheFile <- glue::glue(CACHE, "/cache.tsv")
   ## initialize tibble object

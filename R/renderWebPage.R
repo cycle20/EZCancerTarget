@@ -27,7 +27,8 @@ TARGET_LIST.RDS <- glue::glue("{OUTPUT}/targetList.rds")
 # CLUE.INPUT <- glue::glue("{OUTPUT}/clue.tsv")
 PATCHED.CLUE.INPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
 CHEMBL.URL.TEMPLATE <- "https://www.ebi.ac.uk/chembl/target_report_card"
-
+MOLECULAR_CSV.OUTPUT <- glue::glue("{OUTPUT}/molecular_background.csv")
+COMPOUNDS_CSV.OUTPUT <- glue::glue("{OUTPUT}/compounds_summary.csv")
 
 #' Main function
 #'
@@ -46,19 +47,8 @@ main <- function() {
     rowwise() %>%
     mutate(has_data = (!is.na(pert_iname) && !is.na(UNIPROT_KB_ID)))
 
-  resultHasData <- patchedData %>%
-    filter(has_data == TRUE) %>%
-    arrange(Label, HUGO)
-
-  resultHasNoData <- patchedData %>%
-    filter(has_data == FALSE) %>%
-    arrange(Label, HUGO)
-
   renderWebPage(
-    resultHasData, title = "Has CLUE.IO Entries", outputHTML = WEB_OUT
-  )
-  renderWebPage(
-    resultHasNoData, title = "Not found on CLUE.IO", outputHTML = WEB_OUT_NODATA
+    patchedData, title = "Has CLUE.IO Entries", outputHTML = WEB_OUT
   )
 
   warnings()
@@ -73,7 +63,19 @@ main <- function() {
 #'
 #' @return Invisible NULL.
 renderWebPage <- function(result, title, outputHTML = NULL) {
-  assertthat::assert_that(!is.null(outputHTML))
+
+  resultHasNoData <- result %>%
+    filter(has_data == FALSE) %>%
+    arrange(Label, HUGO)
+
+  result <- result %>%
+    filter(has_data == TRUE) %>%
+    arrange(Label, HUGO)
+
+  molecularBackground <- renderMolecularBackgroundSummary(result)
+  molecularBackground <- whisker::rowSplit(molecularBackground)
+  compoundsSummary <- renderCompoundsSummary(result)
+  compoundsSummary <- whisker::rowSplit(compoundsSummary)
 
   ## - this should be an iteration on each HUGO group
   ## - collect pert groups for each gene group
@@ -159,6 +161,7 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
 #'
 #' @return Pre-processed dataframes to be ready to show multiple values in
 #' sepecific HTML table cells.
+#' @import dplyr
 multivaluedCellsToHTML <- function(dataList) {
   assertthat::assert_that(is.list(dataList))
   assertthat::assert_that(length(dataList) > 0)
@@ -331,4 +334,87 @@ uniProtBiologicalProcess <- function(uniProtDataItem) {
 #' @return HTML "a" snippet that can be used in HTML document directly.
 aHref <- function(link, titleText) {
   return(glue::glue("<a href=\"{link}\" target=\"_blank\">{titleText}</a>"))
+}
+
+## Summary Tables ----
+
+renderMolecularBackgroundSummary <- function(cluePatched) {
+  cluePatched <- cluePatched %>%
+    dplyr::select(
+      HUGO, UniProtData, NumberOfKEGGPathways, NumberOfSTRINGInteractors
+    ) %>%
+    dplyr::distinct() %>%
+    dplyr::arrange(HUGO)
+
+
+  cluePatched <- cluePatched %>% dplyr::transmute(
+    HUGO                    = HUGO,
+    ReactomePathways     = length(UniProtData$Reactome),
+    KEGGPathways         = dplyr::if_else(is.na(NumberOfKEGGPathways), 0, NumberOfKEGGPathways),
+    STRINGInteractors    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), as.integer(0), NumberOfSTRINGInteractors),
+    MolecularFunctions   = length(UniProtData$molecularFunction),
+    SubcellularLocations = length(UniProtData$subCellularLocation),
+    BiologicalProcesses  = length(UniProtData$biologicalProcess)
+  )
+
+  # print and save it as CSV
+  print(cluePatched)
+  return(
+    readr::write_csv(cluePatched, MOLECULAR_CSV.OUTPUT)
+  )
+}
+
+renderCompoundsSummary <- function(cluePatched) {
+  NA_to_zero <- Vectorize(function(value) {
+   return(dplyr::if_else(is.na(value), 0, value))
+  })
+  stringToNumeric <- Vectorize(function(actual, expected) {
+    return(NA_to_zero(
+        dplyr::if_else(actual == expected, 1, 0)
+    ))
+  })
+
+  ## TODO: EMA counts must be added at least Launched values
+  cluePatched <- cluePatched %>%
+    dplyr::select(
+      HUGO,
+      pert_iname,
+      final_status,
+      pubchem_cid,
+      chembl_id,
+      drugbank_id,
+      PubMedCounter
+    ) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(
+      Preclinical   = stringToNumeric(final_status, 'Preclinical'),
+      Phase1        = stringToNumeric(final_status, 'Phase 1'),
+      # TODO: Phase 1/Phase 2?
+      Phase2        = stringToNumeric(final_status, 'Phase 2'),
+      # TODO: Phase 2/Phase 3?
+      Phase3        = stringToNumeric(final_status, 'Phase 3'),
+      Launched      = stringToNumeric(final_status, 'Launched'),
+      PubMedCounter = dplyr::if_else(is.na(PubMedCounter), as.integer(0), PubMedCounter),
+      PubChem       = NA_to_zero(dplyr::if_else(pubchem_cid != '', 1, 0)),
+      ChEMBL        = NA_to_zero(dplyr::if_else(chembl_id != '', 1, 0)),
+      DrugBank      = NA_to_zero(dplyr::if_else(drugbank_id != '', 1, 0))
+    ) %>%
+    dplyr::group_by(HUGO) %>%
+    dplyr::summarise(
+      Preclinical = sum(Preclinical),
+      Phase1 = sum(Phase1),
+      Phase2 = sum(Phase2),
+      Phase3 = sum(Phase3),
+      Launched = sum(Launched),
+      PubMed = sum(PubMedCounter),
+      PubChem = sum(PubChem),
+      ChEMBL = sum(ChEMBL),
+      DrugBank = sum(DrugBank)
+    )
+
+  # print and save it as CSV
+  print(cluePatched)
+  return(
+    readr::write_csv(cluePatched, COMPOUNDS_CSV.OUTPUT)
+  )
 }

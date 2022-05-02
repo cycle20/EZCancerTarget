@@ -152,14 +152,6 @@
       "Hash": "f28149c2d7a1342a834b314e95e67260",
       "Requirements": []
     },
-    "fastmap": {
-      "Package": "fastmap",
-      "Version": "1.1.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "77bd60a6157420d4ffa93b27cf6a58b8",
-      "Requirements": []
-    },
     "fs": {
       "Package": "fs",
       "Version": "1.5.2",
@@ -453,7 +445,7 @@
       "Package": "renv",
       "Version": "0.15.2",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Hash": "206c4ef8b7ad6fb1060d69aa7b9dfe69",
       "Requirements": []
     },
