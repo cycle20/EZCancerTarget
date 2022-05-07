@@ -370,7 +370,9 @@ renderCompoundsSummary <- function(cluePatched) {
   })
   stringToNumeric <- Vectorize(function(actual, expected) {
     return(NA_to_zero(
-        dplyr::if_else(actual == expected, 1, 0)
+        dplyr::if_else(
+          stringr::str_ends(stringr::str_trim(actual), expected), 1, 0
+        )
     ))
   })
 
