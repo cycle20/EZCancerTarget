@@ -72,9 +72,30 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
     filter(has_data == TRUE) %>%
     arrange(Label, HUGO)
 
+  ## create summary tables ----
   molecularBackground <- renderMolecularBackgroundSummary(result)
-  molecularBackground <- whisker::rowSplit(molecularBackground)
   compoundsSummary <- renderCompoundsSummary(result)
+  ## create overview list ----
+  overview <- list(
+    targetsWithNoClueData = resultHasNoData %>% pull(HUGO) %>% unique(),
+    targetsWithClueData = result %>% pull(HUGO) %>% unique(),
+    # Az összes targetre talált összes találat száma
+    totalCompoundCount = result %>%
+      select(pert_iname) %>% distinct() %>% nrow()
+    
+  )
+  overview$targetsWithNoClueDataCount <- length(overview$targetsWithNoClueData)
+  overview$targetsWithClueDataCount <- length(overview$targetsWithClueData)
+
+  # result %>% select(pert_iname) %>% distinct()
+  # result %>% select(pubchem_cid) %>% distinct()
+  # result %>% select(chembl_id) %>% distinct()
+  # result %>% select(drugbank_id) %>% distinct()
+
+  browser()
+
+  ## prepare summary tables for access from template ----
+  molecularBackground <- whisker::rowSplit(molecularBackground)
   compoundsSummary <- whisker::rowSplit(compoundsSummary)
 
   ## - this should be an iteration on each HUGO group
