@@ -72,37 +72,44 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
     filter(has_data == TRUE) %>%
     arrange(Label, HUGO)
 
-  ## create summary tables ----
+
+  ## create summary tables ------------------------------------------------
+
   molecularBackground <- renderMolecularBackgroundSummary(result)
   compoundsSummary <- renderCompoundsSummary(result)
-  ## create overview list ----
+
+
+  ## create overview list  ------------------------------------------------
+
   overview <- list(
     targetsWithNoClueData = resultHasNoData %>% pull(HUGO) %>% unique(),
     targetsWithClueData = result %>% pull(HUGO) %>% unique(),
-    # Az összes targetre talált összes találat száma
     totalCompoundCount = result %>%
       select(pert_iname) %>% distinct() %>% nrow()
-    
   )
   overview$targetsWithNoClueDataCount <- length(overview$targetsWithNoClueData)
   overview$targetsWithClueDataCount <- length(overview$targetsWithClueData)
+
 
   # result %>% select(pert_iname) %>% distinct()
   # result %>% select(pubchem_cid) %>% distinct()
   # result %>% select(chembl_id) %>% distinct()
   # result %>% select(drugbank_id) %>% distinct()
 
-  browser()
 
-  ## prepare summary tables for access from template ----
+  ## prepare summary tables for access from template ----------------------
+
   molecularBackground <- whisker::rowSplit(molecularBackground)
   compoundsSummary <- whisker::rowSplit(compoundsSummary)
 
+  ## transforming data for rendering ----
+  message("transforming data for rendering...")
   ## - this should be an iteration on each HUGO group
   ## - collect pert groups for each gene group
   ## Maybe I shouldn't join result tables in download function.
   collection <- list()
   for (geneGroup in unique(result$HUGO)) {
+    message(glue::glue("processing gene group: {geneGroup}..."))
     groupName <- geneGroup
     # overwrite variable with data subset
     geneGroup <- result %>%
@@ -165,10 +172,16 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
   message(glue("reading web template: {WEB_TEMPLATE}"))
   template <- readr::read_file(WEB_TEMPLATE)
 
-  targets <- collection
   creationTime <- format(Sys.time(), usetz = TRUE)
   message(glue("rendering web page, template is '{WEB_TEMPLATE}'"))
-  renderResult <- whisker::whisker.render(template, debug = TRUE)
+  renderResult <- whisker::whisker.render(template, debug = TRUE, data = list(
+    targets = collection,
+    overview = overview,
+    molecularBackground = molecularBackground,
+    compoundsSummary = compoundsSummary,
+    title = title,
+    creationTime = creationTime
+  ))
   readr::write_file(renderResult, file = outputHTML)
   message(glue("rendered web page is saved into '{outputHTML}'"))
 
