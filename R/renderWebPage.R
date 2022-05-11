@@ -89,7 +89,9 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
   )
   overview$targetsWithNoClueDataCount <- length(overview$targetsWithNoClueData)
   overview$targetsWithClueDataCount <- length(overview$targetsWithClueData)
-
+  overview$targetsWithNoClueData <- paste(overview$targetsWithNoClueData, collapse = ', ')
+  overview$targetsWithClueData <- paste(overview$targetsWithClueData, collapse = ', ')
+  
 
   # result %>% select(pert_iname) %>% distinct()
   # result %>% select(pubchem_cid) %>% distinct()
