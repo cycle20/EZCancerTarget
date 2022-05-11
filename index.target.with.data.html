@@ -54,7 +54,7 @@
 
     <div class="container">
 
-      <h1>Drug Targets - Has CLUE.IO Entries <sup><small id="creation_time" class="text-muted">Created at 2022-05-07 07:49:45 UTC</small></sup></h1>
+      <h1>Drug Targets - Has CLUE.IO Entries <sup><small id="creation_time" class="text-muted">Created at 2022-05-11 02:15:45 UTC</small></sup></h1>
 
       <div class="row">
         <div class="col-2 navbar-nav-scroll" style="--bs-scroll-height: 90vh;">
@@ -113,12 +113,38 @@
               <div class="accordion" id="accordion-SUMMARY">
 
                 <div class="accordion-item has-data-true">
+                  <h2 class="accordion-header" id="overview-SUMMARY">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-overview-SUMMARY" aria-expanded="true" aria-controls="collapse-SUMMARY">
+                      SUMMARY :: Overview
+                    </button>
+                  </h2>
+                  <div id="collapse-overview-SUMMARY" class="accordion-collapse collapse show" aria-labelledby="overview-SUMMARY" data-bs-parent="#accordion-SUMMARY">
+                    <div class="accordion-body">
+
+                      <table class="table">
+                        <tbody>
+                          <tr>
+                            <th scope="row">Number of Compounds</th>
+                            <td>356</td>
+                          </tr>
+                          <tr><th colspan="2">Targets with CLUE.IO data:</th></tr>
+                          <tr><td colspan="2" class="text-muted">ALDH2, ANXA1, AURKA, BCAT1, BIRC3, CCL2, CCL4, CCL7, CCL8, CD44, CDK2, CXCL2, CXCL8, CXCR2, CXCR3, CXCR4, DCN, EGFR, IDH2, IL10, IL1B, ITGB6, MMP7, MYC, PAK3, PAK7, PTGS2, ROS1, STK24, TNFSF10, TTR</td></tr>
+                          <tr><th colspan="2">Targets with no CLUE.IO data:</th></tr>
+                          <tr><td colspan="2" class="text-muted">ADAM23, AMH, ANXA3, BCL3, BGN, C1QA, CASP14, CAV2, CCL11, CCL20, CCL21, CCL22, CCL23, CCL5, CD5, CD70, COL6A, CXCL10, CXCL17, CXCL7, CXCL9, HAVCR2, IL1A, ISG15, ITGAM, ITGB4, LTBP4, MSLN, MX1, NCSTN, OMD, PGC, PRAME, PRF1, PTN, SDC4, SERPINI1, TP63, VAMP8, VSNL1, YBX3</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="accordion-item has-data-true">
                   <h2 class="accordion-header" id="heading-SUMMARY">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-tbl-SUMMARY" aria-expanded="true" aria-controls="collapse-SUMMARY">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-tbl-SUMMARY" aria-expanded="false" aria-controls="collapse-SUMMARY">
                       SUMMARY :: Molecular Background
                     </button>
                   </h2>
-                  <div id="collapse-tbl-SUMMARY" class="accordion-collapse collapse show" aria-labelledby="heading-SUMMARY" data-bs-parent="#accordion-SUMMARY">
+                  <div id="collapse-tbl-SUMMARY" class="accordion-collapse collapse" aria-labelledby="heading-SUMMARY" data-bs-parent="#accordion-SUMMARY">
                     <div class="accordion-body">
                       <small class="text-muted">
                         <b>RP:</b> Reactome Pathways |
@@ -242,13 +268,13 @@
                   </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item has-data-true">
                   <h2 class="accordion-header" id="compounds-data-SUMMARY">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-compounds-SUMMARY" aria-expanded="false" aria-controls="collapse-string-SUMMARY">
                       SUMMARY :: Compounds
                     </button>
                   </h2>
-                  <div id="collapse-compounds-SUMMARY" class="accordion-collapse collapse" aria-labelledby="string-data-SUMMARY" data-bs-parent="#accordion-SUMMARY">
+                  <div id="collapse-compounds-SUMMARY" class="accordion-collapse collapse" aria-labelledby="compounds-data-SUMMARY" data-bs-parent="#accordion-SUMMARY">
                     <div class="accordion-body">
                       <small class="text-muted">
                         <b>PRC:</b> Preclinical |
@@ -627,11 +653,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-ALDH2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-ALDH2" aria-expanded="false" aria-controls="collapse-string-ALDH2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-ALDH2" aria-expanded="false" aria-controls="collapse-molecular-ALDH2">
                       ALDH2 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-ALDH2" class="accordion-collapse collapse" aria-labelledby="string-data-ALDH2" data-bs-parent="#accordion-ALDH2">
+                  <div id="collapse-molecular-ALDH2" class="accordion-collapse collapse" aria-labelledby="molecular-data-ALDH2" data-bs-parent="#accordion-ALDH2">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -675,11 +701,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-ALDH2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-ALDH2" aria-expanded="false" aria-controls="collapse-string-ALDH2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-ALDH2" aria-expanded="false" aria-controls="collapse-pathways-ALDH2">
                       ALDH2 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-ALDH2" class="accordion-collapse collapse" aria-labelledby="string-data-ALDH2" data-bs-parent="#accordion-ALDH2">
+                  <div id="collapse-pathways-ALDH2" class="accordion-collapse collapse" aria-labelledby="pathways-data-ALDH2" data-bs-parent="#accordion-ALDH2">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:217" target="_blank">KEGG hsa:217</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P05091#section_x-ref_genome" target="_blank">UniProt P05091</a></sup></h6>
 
@@ -803,11 +829,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-ANXA1">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-ANXA1" aria-expanded="false" aria-controls="collapse-string-ANXA1">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-ANXA1" aria-expanded="false" aria-controls="collapse-molecular-ANXA1">
                       ANXA1 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-ANXA1" class="accordion-collapse collapse" aria-labelledby="string-data-ANXA1" data-bs-parent="#accordion-ANXA1">
+                  <div id="collapse-molecular-ANXA1" class="accordion-collapse collapse" aria-labelledby="molecular-data-ANXA1" data-bs-parent="#accordion-ANXA1">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -934,11 +960,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-ANXA1">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-ANXA1" aria-expanded="false" aria-controls="collapse-string-ANXA1">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-ANXA1" aria-expanded="false" aria-controls="collapse-pathways-ANXA1">
                       ANXA1 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-ANXA1" class="accordion-collapse collapse" aria-labelledby="string-data-ANXA1" data-bs-parent="#accordion-ANXA1">
+                  <div id="collapse-pathways-ANXA1" class="accordion-collapse collapse" aria-labelledby="pathways-data-ANXA1" data-bs-parent="#accordion-ANXA1">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:301" target="_blank">KEGG hsa:301</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P04083#section_x-ref_genome" target="_blank">UniProt P04083</a></sup></h6>
 
@@ -1600,11 +1626,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-AURKA">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-AURKA" aria-expanded="false" aria-controls="collapse-string-AURKA">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-AURKA" aria-expanded="false" aria-controls="collapse-molecular-AURKA">
                       AURKA :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-AURKA" class="accordion-collapse collapse" aria-labelledby="string-data-AURKA" data-bs-parent="#accordion-AURKA">
+                  <div id="collapse-molecular-AURKA" class="accordion-collapse collapse" aria-labelledby="molecular-data-AURKA" data-bs-parent="#accordion-AURKA">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -1695,11 +1721,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-AURKA">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-AURKA" aria-expanded="false" aria-controls="collapse-string-AURKA">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-AURKA" aria-expanded="false" aria-controls="collapse-pathways-AURKA">
                       AURKA :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-AURKA" class="accordion-collapse collapse" aria-labelledby="string-data-AURKA" data-bs-parent="#accordion-AURKA">
+                  <div id="collapse-pathways-AURKA" class="accordion-collapse collapse" aria-labelledby="pathways-data-AURKA" data-bs-parent="#accordion-AURKA">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:6790" target="_blank">KEGG hsa:6790</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/O14965#section_x-ref_genome" target="_blank">UniProt O14965</a></sup></h6>
 
@@ -1854,11 +1880,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-BCAT1">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-BCAT1" aria-expanded="false" aria-controls="collapse-string-BCAT1">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-BCAT1" aria-expanded="false" aria-controls="collapse-molecular-BCAT1">
                       BCAT1 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-BCAT1" class="accordion-collapse collapse" aria-labelledby="string-data-BCAT1" data-bs-parent="#accordion-BCAT1">
+                  <div id="collapse-molecular-BCAT1" class="accordion-collapse collapse" aria-labelledby="molecular-data-BCAT1" data-bs-parent="#accordion-BCAT1">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -1904,11 +1930,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-BCAT1">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-BCAT1" aria-expanded="false" aria-controls="collapse-string-BCAT1">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-BCAT1" aria-expanded="false" aria-controls="collapse-pathways-BCAT1">
                       BCAT1 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-BCAT1" class="accordion-collapse collapse" aria-labelledby="string-data-BCAT1" data-bs-parent="#accordion-BCAT1">
+                  <div id="collapse-pathways-BCAT1" class="accordion-collapse collapse" aria-labelledby="pathways-data-BCAT1" data-bs-parent="#accordion-BCAT1">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:586" target="_blank">KEGG hsa:586</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P54687#section_x-ref_genome" target="_blank">UniProt P54687</a></sup></h6>
 
@@ -2087,11 +2113,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-BIRC3">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-BIRC3" aria-expanded="false" aria-controls="collapse-string-BIRC3">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-BIRC3" aria-expanded="false" aria-controls="collapse-molecular-BIRC3">
                       BIRC3 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-BIRC3" class="accordion-collapse collapse" aria-labelledby="string-data-BIRC3" data-bs-parent="#accordion-BIRC3">
+                  <div id="collapse-molecular-BIRC3" class="accordion-collapse collapse" aria-labelledby="molecular-data-BIRC3" data-bs-parent="#accordion-BIRC3">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -2155,11 +2181,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-BIRC3">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-BIRC3" aria-expanded="false" aria-controls="collapse-string-BIRC3">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-BIRC3" aria-expanded="false" aria-controls="collapse-pathways-BIRC3">
                       BIRC3 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-BIRC3" class="accordion-collapse collapse" aria-labelledby="string-data-BIRC3" data-bs-parent="#accordion-BIRC3">
+                  <div id="collapse-pathways-BIRC3" class="accordion-collapse collapse" aria-labelledby="pathways-data-BIRC3" data-bs-parent="#accordion-BIRC3">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:330" target="_blank">KEGG hsa:330</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/Q13489#section_x-ref_genome" target="_blank">UniProt Q13489</a></sup></h6>
 
@@ -2394,11 +2420,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CCL2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CCL2" aria-expanded="false" aria-controls="collapse-string-CCL2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CCL2" aria-expanded="false" aria-controls="collapse-molecular-CCL2">
                       CCL2 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CCL2" class="accordion-collapse collapse" aria-labelledby="string-data-CCL2" data-bs-parent="#accordion-CCL2">
+                  <div id="collapse-molecular-CCL2" class="accordion-collapse collapse" aria-labelledby="molecular-data-CCL2" data-bs-parent="#accordion-CCL2">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -2489,11 +2515,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CCL2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CCL2" aria-expanded="false" aria-controls="collapse-string-CCL2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CCL2" aria-expanded="false" aria-controls="collapse-pathways-CCL2">
                       CCL2 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CCL2" class="accordion-collapse collapse" aria-labelledby="string-data-CCL2" data-bs-parent="#accordion-CCL2">
+                  <div id="collapse-pathways-CCL2" class="accordion-collapse collapse" aria-labelledby="pathways-data-CCL2" data-bs-parent="#accordion-CCL2">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:6347" target="_blank">KEGG hsa:6347</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P13500#section_x-ref_genome" target="_blank">UniProt P13500</a></sup></h6>
 
@@ -2602,11 +2628,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CCL4">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CCL4" aria-expanded="false" aria-controls="collapse-string-CCL4">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CCL4" aria-expanded="false" aria-controls="collapse-molecular-CCL4">
                       CCL4 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CCL4" class="accordion-collapse collapse" aria-labelledby="string-data-CCL4" data-bs-parent="#accordion-CCL4">
+                  <div id="collapse-molecular-CCL4" class="accordion-collapse collapse" aria-labelledby="molecular-data-CCL4" data-bs-parent="#accordion-CCL4">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -2655,11 +2681,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CCL4">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CCL4" aria-expanded="false" aria-controls="collapse-string-CCL4">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CCL4" aria-expanded="false" aria-controls="collapse-pathways-CCL4">
                       CCL4 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CCL4" class="accordion-collapse collapse" aria-labelledby="string-data-CCL4" data-bs-parent="#accordion-CCL4">
+                  <div id="collapse-pathways-CCL4" class="accordion-collapse collapse" aria-labelledby="pathways-data-CCL4" data-bs-parent="#accordion-CCL4">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:9560" target="_blank">KEGG hsa:9560</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/Q8NHW4#section_x-ref_genome" target="_blank">UniProt Q8NHW4</a></sup></h6>
 
@@ -2762,11 +2788,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CCL7">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CCL7" aria-expanded="false" aria-controls="collapse-string-CCL7">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CCL7" aria-expanded="false" aria-controls="collapse-molecular-CCL7">
                       CCL7 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CCL7" class="accordion-collapse collapse" aria-labelledby="string-data-CCL7" data-bs-parent="#accordion-CCL7">
+                  <div id="collapse-molecular-CCL7" class="accordion-collapse collapse" aria-labelledby="molecular-data-CCL7" data-bs-parent="#accordion-CCL7">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -2829,11 +2855,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CCL7">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CCL7" aria-expanded="false" aria-controls="collapse-string-CCL7">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CCL7" aria-expanded="false" aria-controls="collapse-pathways-CCL7">
                       CCL7 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CCL7" class="accordion-collapse collapse" aria-labelledby="string-data-CCL7" data-bs-parent="#accordion-CCL7">
+                  <div id="collapse-pathways-CCL7" class="accordion-collapse collapse" aria-labelledby="pathways-data-CCL7" data-bs-parent="#accordion-CCL7">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:6354" target="_blank">KEGG hsa:6354</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P80098#section_x-ref_genome" target="_blank">UniProt P80098</a></sup></h6>
 
@@ -2955,11 +2981,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CCL8">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CCL8" aria-expanded="false" aria-controls="collapse-string-CCL8">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CCL8" aria-expanded="false" aria-controls="collapse-molecular-CCL8">
                       CCL8 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CCL8" class="accordion-collapse collapse" aria-labelledby="string-data-CCL8" data-bs-parent="#accordion-CCL8">
+                  <div id="collapse-molecular-CCL8" class="accordion-collapse collapse" aria-labelledby="molecular-data-CCL8" data-bs-parent="#accordion-CCL8">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -3023,11 +3049,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CCL8">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CCL8" aria-expanded="false" aria-controls="collapse-string-CCL8">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CCL8" aria-expanded="false" aria-controls="collapse-pathways-CCL8">
                       CCL8 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CCL8" class="accordion-collapse collapse" aria-labelledby="string-data-CCL8" data-bs-parent="#accordion-CCL8">
+                  <div id="collapse-pathways-CCL8" class="accordion-collapse collapse" aria-labelledby="pathways-data-CCL8" data-bs-parent="#accordion-CCL8">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:6355" target="_blank">KEGG hsa:6355</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P80075#section_x-ref_genome" target="_blank">UniProt P80075</a></sup></h6>
 
@@ -3147,11 +3173,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CD44">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CD44" aria-expanded="false" aria-controls="collapse-string-CD44">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CD44" aria-expanded="false" aria-controls="collapse-molecular-CD44">
                       CD44 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CD44" class="accordion-collapse collapse" aria-labelledby="string-data-CD44" data-bs-parent="#accordion-CD44">
+                  <div id="collapse-molecular-CD44" class="accordion-collapse collapse" aria-labelledby="molecular-data-CD44" data-bs-parent="#accordion-CD44">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -3224,11 +3250,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CD44">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CD44" aria-expanded="false" aria-controls="collapse-string-CD44">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CD44" aria-expanded="false" aria-controls="collapse-pathways-CD44">
                       CD44 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CD44" class="accordion-collapse collapse" aria-labelledby="string-data-CD44" data-bs-parent="#accordion-CD44">
+                  <div id="collapse-pathways-CD44" class="accordion-collapse collapse" aria-labelledby="pathways-data-CD44" data-bs-parent="#accordion-CD44">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:960" target="_blank">KEGG hsa:960</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P16070#section_x-ref_genome" target="_blank">UniProt P16070</a></sup></h6>
 
@@ -4139,11 +4165,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CDK2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CDK2" aria-expanded="false" aria-controls="collapse-string-CDK2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CDK2" aria-expanded="false" aria-controls="collapse-molecular-CDK2">
                       CDK2 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CDK2" class="accordion-collapse collapse" aria-labelledby="string-data-CDK2" data-bs-parent="#accordion-CDK2">
+                  <div id="collapse-molecular-CDK2" class="accordion-collapse collapse" aria-labelledby="molecular-data-CDK2" data-bs-parent="#accordion-CDK2">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -4219,11 +4245,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CDK2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CDK2" aria-expanded="false" aria-controls="collapse-string-CDK2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CDK2" aria-expanded="false" aria-controls="collapse-pathways-CDK2">
                       CDK2 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CDK2" class="accordion-collapse collapse" aria-labelledby="string-data-CDK2" data-bs-parent="#accordion-CDK2">
+                  <div id="collapse-pathways-CDK2" class="accordion-collapse collapse" aria-labelledby="pathways-data-CDK2" data-bs-parent="#accordion-CDK2">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:1017" target="_blank">KEGG hsa:1017</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P24941#section_x-ref_genome" target="_blank">UniProt P24941</a></sup></h6>
 
@@ -4376,11 +4402,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CXCL2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCL2" aria-expanded="false" aria-controls="collapse-string-CXCL2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCL2" aria-expanded="false" aria-controls="collapse-molecular-CXCL2">
                       CXCL2 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CXCL2" class="accordion-collapse collapse" aria-labelledby="string-data-CXCL2" data-bs-parent="#accordion-CXCL2">
+                  <div id="collapse-molecular-CXCL2" class="accordion-collapse collapse" aria-labelledby="molecular-data-CXCL2" data-bs-parent="#accordion-CXCL2">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -4426,11 +4452,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CXCL2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCL2" aria-expanded="false" aria-controls="collapse-string-CXCL2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCL2" aria-expanded="false" aria-controls="collapse-pathways-CXCL2">
                       CXCL2 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CXCL2" class="accordion-collapse collapse" aria-labelledby="string-data-CXCL2" data-bs-parent="#accordion-CXCL2">
+                  <div id="collapse-pathways-CXCL2" class="accordion-collapse collapse" aria-labelledby="pathways-data-CXCL2" data-bs-parent="#accordion-CXCL2">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:2920" target="_blank">KEGG hsa:2920</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P19875#section_x-ref_genome" target="_blank">UniProt P19875</a></sup></h6>
 
@@ -4613,11 +4639,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CXCL8">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCL8" aria-expanded="false" aria-controls="collapse-string-CXCL8">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCL8" aria-expanded="false" aria-controls="collapse-molecular-CXCL8">
                       CXCL8 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CXCL8" class="accordion-collapse collapse" aria-labelledby="string-data-CXCL8" data-bs-parent="#accordion-CXCL8">
+                  <div id="collapse-molecular-CXCL8" class="accordion-collapse collapse" aria-labelledby="molecular-data-CXCL8" data-bs-parent="#accordion-CXCL8">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -4689,11 +4715,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CXCL8">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCL8" aria-expanded="false" aria-controls="collapse-string-CXCL8">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCL8" aria-expanded="false" aria-controls="collapse-pathways-CXCL8">
                       CXCL8 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CXCL8" class="accordion-collapse collapse" aria-labelledby="string-data-CXCL8" data-bs-parent="#accordion-CXCL8">
+                  <div id="collapse-pathways-CXCL8" class="accordion-collapse collapse" aria-labelledby="pathways-data-CXCL8" data-bs-parent="#accordion-CXCL8">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:3576" target="_blank">KEGG hsa:3576</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P10145#section_x-ref_genome" target="_blank">UniProt P10145</a></sup></h6>
 
@@ -4941,11 +4967,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CXCR2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCR2" aria-expanded="false" aria-controls="collapse-string-CXCR2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCR2" aria-expanded="false" aria-controls="collapse-molecular-CXCR2">
                       CXCR2 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CXCR2" class="accordion-collapse collapse" aria-labelledby="string-data-CXCR2" data-bs-parent="#accordion-CXCR2">
+                  <div id="collapse-molecular-CXCR2" class="accordion-collapse collapse" aria-labelledby="molecular-data-CXCR2" data-bs-parent="#accordion-CXCR2">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -5019,11 +5045,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CXCR2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCR2" aria-expanded="false" aria-controls="collapse-string-CXCR2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCR2" aria-expanded="false" aria-controls="collapse-pathways-CXCR2">
                       CXCR2 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CXCR2" class="accordion-collapse collapse" aria-labelledby="string-data-CXCR2" data-bs-parent="#accordion-CXCR2">
+                  <div id="collapse-pathways-CXCR2" class="accordion-collapse collapse" aria-labelledby="pathways-data-CXCR2" data-bs-parent="#accordion-CXCR2">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:3579" target="_blank">KEGG hsa:3579</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P25025#section_x-ref_genome" target="_blank">UniProt P25025</a></sup></h6>
 
@@ -5206,11 +5232,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CXCR3">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCR3" aria-expanded="false" aria-controls="collapse-string-CXCR3">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCR3" aria-expanded="false" aria-controls="collapse-molecular-CXCR3">
                       CXCR3 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CXCR3" class="accordion-collapse collapse" aria-labelledby="string-data-CXCR3" data-bs-parent="#accordion-CXCR3">
+                  <div id="collapse-molecular-CXCR3" class="accordion-collapse collapse" aria-labelledby="molecular-data-CXCR3" data-bs-parent="#accordion-CXCR3">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -5279,11 +5305,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CXCR3">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCR3" aria-expanded="false" aria-controls="collapse-string-CXCR3">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCR3" aria-expanded="false" aria-controls="collapse-pathways-CXCR3">
                       CXCR3 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CXCR3" class="accordion-collapse collapse" aria-labelledby="string-data-CXCR3" data-bs-parent="#accordion-CXCR3">
+                  <div id="collapse-pathways-CXCR3" class="accordion-collapse collapse" aria-labelledby="pathways-data-CXCR3" data-bs-parent="#accordion-CXCR3">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:2833" target="_blank">KEGG hsa:2833</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P49682#section_x-ref_genome" target="_blank">UniProt P49682</a></sup></h6>
 
@@ -5559,11 +5585,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-CXCR4">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCR4" aria-expanded="false" aria-controls="collapse-string-CXCR4">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-CXCR4" aria-expanded="false" aria-controls="collapse-molecular-CXCR4">
                       CXCR4 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-CXCR4" class="accordion-collapse collapse" aria-labelledby="string-data-CXCR4" data-bs-parent="#accordion-CXCR4">
+                  <div id="collapse-molecular-CXCR4" class="accordion-collapse collapse" aria-labelledby="molecular-data-CXCR4" data-bs-parent="#accordion-CXCR4">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -5663,11 +5689,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-CXCR4">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCR4" aria-expanded="false" aria-controls="collapse-string-CXCR4">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-CXCR4" aria-expanded="false" aria-controls="collapse-pathways-CXCR4">
                       CXCR4 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-CXCR4" class="accordion-collapse collapse" aria-labelledby="string-data-CXCR4" data-bs-parent="#accordion-CXCR4">
+                  <div id="collapse-pathways-CXCR4" class="accordion-collapse collapse" aria-labelledby="pathways-data-CXCR4" data-bs-parent="#accordion-CXCR4">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:7852" target="_blank">KEGG hsa:7852</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P61073#section_x-ref_genome" target="_blank">UniProt P61073</a></sup></h6>
 
@@ -5776,11 +5802,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-DCN">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-DCN" aria-expanded="false" aria-controls="collapse-string-DCN">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-DCN" aria-expanded="false" aria-controls="collapse-molecular-DCN">
                       DCN :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-DCN" class="accordion-collapse collapse" aria-labelledby="string-data-DCN" data-bs-parent="#accordion-DCN">
+                  <div id="collapse-molecular-DCN" class="accordion-collapse collapse" aria-labelledby="molecular-data-DCN" data-bs-parent="#accordion-DCN">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -5844,11 +5870,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-DCN">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-DCN" aria-expanded="false" aria-controls="collapse-string-DCN">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-DCN" aria-expanded="false" aria-controls="collapse-pathways-DCN">
                       DCN :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-DCN" class="accordion-collapse collapse" aria-labelledby="string-data-DCN" data-bs-parent="#accordion-DCN">
+                  <div id="collapse-pathways-DCN" class="accordion-collapse collapse" aria-labelledby="pathways-data-DCN" data-bs-parent="#accordion-DCN">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:1634" target="_blank">KEGG hsa:1634</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P07585#section_x-ref_genome" target="_blank">UniProt P07585</a></sup></h6>
 
@@ -7436,11 +7462,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-EGFR">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-EGFR" aria-expanded="false" aria-controls="collapse-string-EGFR">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-EGFR" aria-expanded="false" aria-controls="collapse-molecular-EGFR">
                       EGFR :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-EGFR" class="accordion-collapse collapse" aria-labelledby="string-data-EGFR" data-bs-parent="#accordion-EGFR">
+                  <div id="collapse-molecular-EGFR" class="accordion-collapse collapse" aria-labelledby="molecular-data-EGFR" data-bs-parent="#accordion-EGFR">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -7606,11 +7632,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-EGFR">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-EGFR" aria-expanded="false" aria-controls="collapse-string-EGFR">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-EGFR" aria-expanded="false" aria-controls="collapse-pathways-EGFR">
                       EGFR :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-EGFR" class="accordion-collapse collapse" aria-labelledby="string-data-EGFR" data-bs-parent="#accordion-EGFR">
+                  <div id="collapse-pathways-EGFR" class="accordion-collapse collapse" aria-labelledby="pathways-data-EGFR" data-bs-parent="#accordion-EGFR">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:1956" target="_blank">KEGG hsa:1956</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P00533#section_x-ref_genome" target="_blank">UniProt P00533</a></sup></h6>
 
@@ -7781,11 +7807,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-IDH2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-IDH2" aria-expanded="false" aria-controls="collapse-string-IDH2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-IDH2" aria-expanded="false" aria-controls="collapse-molecular-IDH2">
                       IDH2 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-IDH2" class="accordion-collapse collapse" aria-labelledby="string-data-IDH2" data-bs-parent="#accordion-IDH2">
+                  <div id="collapse-molecular-IDH2" class="accordion-collapse collapse" aria-labelledby="molecular-data-IDH2" data-bs-parent="#accordion-IDH2">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -7837,11 +7863,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-IDH2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-IDH2" aria-expanded="false" aria-controls="collapse-string-IDH2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-IDH2" aria-expanded="false" aria-controls="collapse-pathways-IDH2">
                       IDH2 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-IDH2" class="accordion-collapse collapse" aria-labelledby="string-data-IDH2" data-bs-parent="#accordion-IDH2">
+                  <div id="collapse-pathways-IDH2" class="accordion-collapse collapse" aria-labelledby="pathways-data-IDH2" data-bs-parent="#accordion-IDH2">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:3418" target="_blank">KEGG hsa:3418</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P48735#section_x-ref_genome" target="_blank">UniProt P48735</a></sup></h6>
 
@@ -7965,11 +7991,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-IL10">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-IL10" aria-expanded="false" aria-controls="collapse-string-IL10">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-IL10" aria-expanded="false" aria-controls="collapse-molecular-IL10">
                       IL10 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-IL10" class="accordion-collapse collapse" aria-labelledby="string-data-IL10" data-bs-parent="#accordion-IL10">
+                  <div id="collapse-molecular-IL10" class="accordion-collapse collapse" aria-labelledby="molecular-data-IL10" data-bs-parent="#accordion-IL10">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -8080,11 +8106,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-IL10">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-IL10" aria-expanded="false" aria-controls="collapse-string-IL10">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-IL10" aria-expanded="false" aria-controls="collapse-pathways-IL10">
                       IL10 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-IL10" class="accordion-collapse collapse" aria-labelledby="string-data-IL10" data-bs-parent="#accordion-IL10">
+                  <div id="collapse-pathways-IL10" class="accordion-collapse collapse" aria-labelledby="pathways-data-IL10" data-bs-parent="#accordion-IL10">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:3586" target="_blank">KEGG hsa:3586</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P22301#section_x-ref_genome" target="_blank">UniProt P22301</a></sup></h6>
 
@@ -8556,11 +8582,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-IL1B">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-IL1B" aria-expanded="false" aria-controls="collapse-string-IL1B">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-IL1B" aria-expanded="false" aria-controls="collapse-molecular-IL1B">
                       IL1B :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-IL1B" class="accordion-collapse collapse" aria-labelledby="string-data-IL1B" data-bs-parent="#accordion-IL1B">
+                  <div id="collapse-molecular-IL1B" class="accordion-collapse collapse" aria-labelledby="molecular-data-IL1B" data-bs-parent="#accordion-IL1B">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -8689,11 +8715,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-IL1B">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-IL1B" aria-expanded="false" aria-controls="collapse-string-IL1B">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-IL1B" aria-expanded="false" aria-controls="collapse-pathways-IL1B">
                       IL1B :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-IL1B" class="accordion-collapse collapse" aria-labelledby="string-data-IL1B" data-bs-parent="#accordion-IL1B">
+                  <div id="collapse-pathways-IL1B" class="accordion-collapse collapse" aria-labelledby="pathways-data-IL1B" data-bs-parent="#accordion-IL1B">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:3553" target="_blank">KEGG hsa:3553</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P01584#section_x-ref_genome" target="_blank">UniProt P01584</a></sup></h6>
 
@@ -8808,11 +8834,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-ITGB6">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-ITGB6" aria-expanded="false" aria-controls="collapse-string-ITGB6">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-ITGB6" aria-expanded="false" aria-controls="collapse-molecular-ITGB6">
                       ITGB6 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-ITGB6" class="accordion-collapse collapse" aria-labelledby="string-data-ITGB6" data-bs-parent="#accordion-ITGB6">
+                  <div id="collapse-molecular-ITGB6" class="accordion-collapse collapse" aria-labelledby="molecular-data-ITGB6" data-bs-parent="#accordion-ITGB6">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -8882,11 +8908,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-ITGB6">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-ITGB6" aria-expanded="false" aria-controls="collapse-string-ITGB6">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-ITGB6" aria-expanded="false" aria-controls="collapse-pathways-ITGB6">
                       ITGB6 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-ITGB6" class="accordion-collapse collapse" aria-labelledby="string-data-ITGB6" data-bs-parent="#accordion-ITGB6">
+                  <div id="collapse-pathways-ITGB6" class="accordion-collapse collapse" aria-labelledby="pathways-data-ITGB6" data-bs-parent="#accordion-ITGB6">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:3694" target="_blank">KEGG hsa:3694</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P18564#section_x-ref_genome" target="_blank">UniProt P18564</a></sup></h6>
 
@@ -8995,11 +9021,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-MMP7">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-MMP7" aria-expanded="false" aria-controls="collapse-string-MMP7">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-MMP7" aria-expanded="false" aria-controls="collapse-molecular-MMP7">
                       MMP7 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-MMP7" class="accordion-collapse collapse" aria-labelledby="string-data-MMP7" data-bs-parent="#accordion-MMP7">
+                  <div id="collapse-molecular-MMP7" class="accordion-collapse collapse" aria-labelledby="molecular-data-MMP7" data-bs-parent="#accordion-MMP7">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -9056,11 +9082,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-MMP7">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-MMP7" aria-expanded="false" aria-controls="collapse-string-MMP7">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-MMP7" aria-expanded="false" aria-controls="collapse-pathways-MMP7">
                       MMP7 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-MMP7" class="accordion-collapse collapse" aria-labelledby="string-data-MMP7" data-bs-parent="#accordion-MMP7">
+                  <div id="collapse-pathways-MMP7" class="accordion-collapse collapse" aria-labelledby="pathways-data-MMP7" data-bs-parent="#accordion-MMP7">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:4316" target="_blank">KEGG hsa:4316</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P09237#section_x-ref_genome" target="_blank">UniProt P09237</a></sup></h6>
 
@@ -9209,11 +9235,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-MYC">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-MYC" aria-expanded="false" aria-controls="collapse-string-MYC">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-MYC" aria-expanded="false" aria-controls="collapse-molecular-MYC">
                       MYC :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-MYC" class="accordion-collapse collapse" aria-labelledby="string-data-MYC" data-bs-parent="#accordion-MYC">
+                  <div id="collapse-molecular-MYC" class="accordion-collapse collapse" aria-labelledby="molecular-data-MYC" data-bs-parent="#accordion-MYC">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -9305,11 +9331,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-MYC">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-MYC" aria-expanded="false" aria-controls="collapse-string-MYC">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-MYC" aria-expanded="false" aria-controls="collapse-pathways-MYC">
                       MYC :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-MYC" class="accordion-collapse collapse" aria-labelledby="string-data-MYC" data-bs-parent="#accordion-MYC">
+                  <div id="collapse-pathways-MYC" class="accordion-collapse collapse" aria-labelledby="pathways-data-MYC" data-bs-parent="#accordion-MYC">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:4609" target="_blank">KEGG hsa:4609</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P01106#section_x-ref_genome" target="_blank">UniProt P01106</a></sup></h6>
 
@@ -9440,11 +9466,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-PAK3">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-PAK3" aria-expanded="false" aria-controls="collapse-string-PAK3">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-PAK3" aria-expanded="false" aria-controls="collapse-molecular-PAK3">
                       PAK3 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-PAK3" class="accordion-collapse collapse" aria-labelledby="string-data-PAK3" data-bs-parent="#accordion-PAK3">
+                  <div id="collapse-molecular-PAK3" class="accordion-collapse collapse" aria-labelledby="molecular-data-PAK3" data-bs-parent="#accordion-PAK3">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -9510,11 +9536,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-PAK3">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-PAK3" aria-expanded="false" aria-controls="collapse-string-PAK3">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-PAK3" aria-expanded="false" aria-controls="collapse-pathways-PAK3">
                       PAK3 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-PAK3" class="accordion-collapse collapse" aria-labelledby="string-data-PAK3" data-bs-parent="#accordion-PAK3">
+                  <div id="collapse-pathways-PAK3" class="accordion-collapse collapse" aria-labelledby="pathways-data-PAK3" data-bs-parent="#accordion-PAK3">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:5063" target="_blank">KEGG hsa:5063</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/O75914#section_x-ref_genome" target="_blank">UniProt O75914</a></sup></h6>
 
@@ -9641,11 +9667,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-PAK7">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-PAK7" aria-expanded="false" aria-controls="collapse-string-PAK7">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-PAK7" aria-expanded="false" aria-controls="collapse-molecular-PAK7">
                       PAK7 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-PAK7" class="accordion-collapse collapse" aria-labelledby="string-data-PAK7" data-bs-parent="#accordion-PAK7">
+                  <div id="collapse-molecular-PAK7" class="accordion-collapse collapse" aria-labelledby="molecular-data-PAK7" data-bs-parent="#accordion-PAK7">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -9703,11 +9729,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-PAK7">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-PAK7" aria-expanded="false" aria-controls="collapse-string-PAK7">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-PAK7" aria-expanded="false" aria-controls="collapse-pathways-PAK7">
                       PAK7 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-PAK7" class="accordion-collapse collapse" aria-labelledby="string-data-PAK7" data-bs-parent="#accordion-PAK7">
+                  <div id="collapse-pathways-PAK7" class="accordion-collapse collapse" aria-labelledby="pathways-data-PAK7" data-bs-parent="#accordion-PAK7">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:57144" target="_blank">KEGG hsa:57144</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/Q9P286#section_x-ref_genome" target="_blank">UniProt Q9P286</a></sup></h6>
 
@@ -11965,11 +11991,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-PTGS2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-PTGS2" aria-expanded="false" aria-controls="collapse-string-PTGS2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-PTGS2" aria-expanded="false" aria-controls="collapse-molecular-PTGS2">
                       PTGS2 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-PTGS2" class="accordion-collapse collapse" aria-labelledby="string-data-PTGS2" data-bs-parent="#accordion-PTGS2">
+                  <div id="collapse-molecular-PTGS2" class="accordion-collapse collapse" aria-labelledby="molecular-data-PTGS2" data-bs-parent="#accordion-PTGS2">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -12081,11 +12107,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-PTGS2">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-PTGS2" aria-expanded="false" aria-controls="collapse-string-PTGS2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-PTGS2" aria-expanded="false" aria-controls="collapse-pathways-PTGS2">
                       PTGS2 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-PTGS2" class="accordion-collapse collapse" aria-labelledby="string-data-PTGS2" data-bs-parent="#accordion-PTGS2">
+                  <div id="collapse-pathways-PTGS2" class="accordion-collapse collapse" aria-labelledby="pathways-data-PTGS2" data-bs-parent="#accordion-PTGS2">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:5743" target="_blank">KEGG hsa:5743</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P35354#section_x-ref_genome" target="_blank">UniProt P35354</a></sup></h6>
 
@@ -12299,11 +12325,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-ROS1">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-ROS1" aria-expanded="false" aria-controls="collapse-string-ROS1">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-ROS1" aria-expanded="false" aria-controls="collapse-molecular-ROS1">
                       ROS1 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-ROS1" class="accordion-collapse collapse" aria-labelledby="string-data-ROS1" data-bs-parent="#accordion-ROS1">
+                  <div id="collapse-molecular-ROS1" class="accordion-collapse collapse" aria-labelledby="molecular-data-ROS1" data-bs-parent="#accordion-ROS1">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -12353,11 +12379,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-ROS1">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-ROS1" aria-expanded="false" aria-controls="collapse-string-ROS1">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-ROS1" aria-expanded="false" aria-controls="collapse-pathways-ROS1">
                       ROS1 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-ROS1" class="accordion-collapse collapse" aria-labelledby="string-data-ROS1" data-bs-parent="#accordion-ROS1">
+                  <div id="collapse-pathways-ROS1" class="accordion-collapse collapse" aria-labelledby="pathways-data-ROS1" data-bs-parent="#accordion-ROS1">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:6098" target="_blank">KEGG hsa:6098</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P08922#section_x-ref_genome" target="_blank">UniProt P08922</a></sup></h6>
 
@@ -12458,11 +12484,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-STK24">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-STK24" aria-expanded="false" aria-controls="collapse-string-STK24">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-STK24" aria-expanded="false" aria-controls="collapse-molecular-STK24">
                       STK24 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-STK24" class="accordion-collapse collapse" aria-labelledby="string-data-STK24" data-bs-parent="#accordion-STK24">
+                  <div id="collapse-molecular-STK24" class="accordion-collapse collapse" aria-labelledby="molecular-data-STK24" data-bs-parent="#accordion-STK24">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -12520,11 +12546,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-STK24">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-STK24" aria-expanded="false" aria-controls="collapse-string-STK24">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-STK24" aria-expanded="false" aria-controls="collapse-pathways-STK24">
                       STK24 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-STK24" class="accordion-collapse collapse" aria-labelledby="string-data-STK24" data-bs-parent="#accordion-STK24">
+                  <div id="collapse-pathways-STK24" class="accordion-collapse collapse" aria-labelledby="pathways-data-STK24" data-bs-parent="#accordion-STK24">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:8428" target="_blank">KEGG hsa:8428</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/Q9Y6E0#section_x-ref_genome" target="_blank">UniProt Q9Y6E0</a></sup></h6>
 
@@ -12629,11 +12655,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-TNFSF10">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-TNFSF10" aria-expanded="false" aria-controls="collapse-string-TNFSF10">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-TNFSF10" aria-expanded="false" aria-controls="collapse-molecular-TNFSF10">
                       TNFSF10 :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-TNFSF10" class="accordion-collapse collapse" aria-labelledby="string-data-TNFSF10" data-bs-parent="#accordion-TNFSF10">
+                  <div id="collapse-molecular-TNFSF10" class="accordion-collapse collapse" aria-labelledby="molecular-data-TNFSF10" data-bs-parent="#accordion-TNFSF10">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -12687,11 +12713,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-TNFSF10">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-TNFSF10" aria-expanded="false" aria-controls="collapse-string-TNFSF10">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-TNFSF10" aria-expanded="false" aria-controls="collapse-pathways-TNFSF10">
                       TNFSF10 :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-TNFSF10" class="accordion-collapse collapse" aria-labelledby="string-data-TNFSF10" data-bs-parent="#accordion-TNFSF10">
+                  <div id="collapse-pathways-TNFSF10" class="accordion-collapse collapse" aria-labelledby="pathways-data-TNFSF10" data-bs-parent="#accordion-TNFSF10">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:8743" target="_blank">KEGG hsa:8743</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P50591#section_x-ref_genome" target="_blank">UniProt P50591</a></sup></h6>
 
@@ -12842,11 +12868,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-TTR">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-TTR" aria-expanded="false" aria-controls="collapse-string-TTR">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-TTR" aria-expanded="false" aria-controls="collapse-molecular-TTR">
                       TTR :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-TTR" class="accordion-collapse collapse" aria-labelledby="string-data-TTR" data-bs-parent="#accordion-TTR">
+                  <div id="collapse-molecular-TTR" class="accordion-collapse collapse" aria-labelledby="molecular-data-TTR" data-bs-parent="#accordion-TTR">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -12890,11 +12916,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-TTR">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-TTR" aria-expanded="false" aria-controls="collapse-string-TTR">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-TTR" aria-expanded="false" aria-controls="collapse-pathways-TTR">
                       TTR :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-TTR" class="accordion-collapse collapse" aria-labelledby="string-data-TTR" data-bs-parent="#accordion-TTR">
+                  <div id="collapse-pathways-TTR" class="accordion-collapse collapse" aria-labelledby="pathways-data-TTR" data-bs-parent="#accordion-TTR">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?hsa:7276" target="_blank">KEGG hsa:7276</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/P02766#section_x-ref_genome" target="_blank">UniProt P02766</a></sup></h6>
 
