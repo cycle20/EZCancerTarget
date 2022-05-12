@@ -38,6 +38,7 @@
         padding: 0 0 0 5px;
       }
       .clue > a { color: steelblue; }
+      .o { text-align: right; padding-right: 2rem !important; }
     </style>
 
     <title>Drug Targets - {{title}}</title>
@@ -99,12 +100,41 @@
                         <tbody>
 {{#overview}}
                           <tr>
-                            <th scope="row">Number of Compounds</th>
-                            <td>{{totalCompoundCount}}</td>
+                            <td scope="row">Number of Compounds</td>
+                            <td class="o">{{totalCompoundCount}}</td>
                           </tr>
-                          <tr><th colspan="2">Targets with CLUE.IO data:</th></tr>
+                          <tr>
+                            <td scope="row">AVG Compounds Per Target</td>
+                            <td class="o">{{avgCompoundsPerTarget}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Preclinical Compounds</td>
+                            <td class="o">{{PreclinicalCount}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Phase 1 Compounds</td>
+                            <td class="o">{{Phase1Count}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Phase 2 Compounds</td>
+                            <td class="o">{{Phase2Count}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Phase 3 Compounds</td>
+                            <td class="o">{{Phase3Count}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Launched Compounds</td>
+                            <td class="o">{{LaunchedCount}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Withdrawn Compounds</td>
+                            <td class="o">{{WithdrawnCount}}</td>
+                          </tr>
+                          <tr><th colspan="2">Targets with CLUE.IO data ({{targetsWithClueDataCount}}):</th></tr>
                           <tr><td colspan="2" class="text-muted">{{targetsWithClueData}}</td></tr>
-                          <tr><th colspan="2">Targets with no CLUE.IO data:</th></tr>
+
+                          <tr><th colspan="2">Targets with no CLUE.IO data ({{targetsWithNoClueDataCount}}):</th></tr>
                           <tr><td colspan="2" class="text-muted">{{targetsWithNoClueData}}</td></tr>
 {{/overview}}
                         </tbody>

@@ -91,7 +91,12 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
   overview$targetsWithClueDataCount <- length(overview$targetsWithClueData)
   overview$targetsWithNoClueData <- paste(overview$targetsWithNoClueData, collapse = ', ')
   overview$targetsWithClueData <- paste(overview$targetsWithClueData, collapse = ', ')
-  
+  overview$avgCompoundsPerTarget <- round(
+    overview$totalCompoundCount / overview$targetsWithClueDataCount, digits = 2
+  )
+
+  countsByFinalStatus <- overviewByFinalStatus(result)
+  overview <- c(overview, countsByFinalStatus)
 
   # result %>% select(pert_iname) %>% distinct()
   # result %>% select(pubchem_cid) %>% distinct()
@@ -401,16 +406,6 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
 }
 
 renderCompoundsSummary <- function(cluePatched) {
-  NA_to_zero <- Vectorize(function(value) {
-   return(dplyr::if_else(is.na(value), 0, value))
-  })
-  stringToNumeric <- Vectorize(function(actual, expected) {
-    return(NA_to_zero(
-        dplyr::if_else(
-          stringr::str_ends(stringr::str_trim(actual), expected), 1, 0
-        )
-    ))
-  })
 
   ## TODO: EMA counts must be added at least Launched values
   cluePatched <- cluePatched %>%
@@ -427,9 +422,7 @@ renderCompoundsSummary <- function(cluePatched) {
     dplyr::mutate(
       Preclinical   = stringToNumeric(final_status, 'Preclinical'),
       Phase1        = stringToNumeric(final_status, 'Phase 1'),
-      # TODO: Phase 1/Phase 2?
       Phase2        = stringToNumeric(final_status, 'Phase 2'),
-      # TODO: Phase 2/Phase 3?
       Phase3        = stringToNumeric(final_status, 'Phase 3'),
       Launched      = stringToNumeric(final_status, 'Launched'),
       PubMedCounter = dplyr::if_else(is.na(PubMedCounter), as.integer(0), PubMedCounter),
@@ -456,3 +449,49 @@ renderCompoundsSummary <- function(cluePatched) {
     readr::write_csv(cluePatched, COMPOUNDS_CSV.OUTPUT)
   )
 }
+
+overviewByFinalStatus <- function(cluePatched) {
+  cluePatched <- cluePatched %>%
+    dplyr::select(
+      pert_iname,
+      final_status
+    ) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(
+      Preclinical   = stringToNumeric(final_status, 'Preclinical'),
+      Phase1        = stringToNumeric(final_status, 'Phase 1'),
+      Phase2        = stringToNumeric(final_status, 'Phase 2'),
+      Phase3        = stringToNumeric(final_status, 'Phase 3'),
+      Launched      = stringToNumeric(final_status, 'Launched'),
+      Withdrawn     = stringToNumeric(final_status, 'Withdrawn')
+    )
+
+  saveRDS(cluePatched, 'countsByFinalStatus.rds')
+
+  countsByFinalStatus <- list(
+    PreclinicalCount  = sum(cluePatched$Preclinical),
+    Phase1Count       = sum(cluePatched$Phase1),
+    Phase2Count       = sum(cluePatched$Phase2),
+    Phase3Count       = sum(cluePatched$Phase3),
+    LaunchedCount     = sum(cluePatched$Launched),
+    WithdrawnCount    = sum(cluePatched$Withdrawn)
+  )
+  return(countsByFinalStatus)
+}
+
+
+NA_to_zero <- function(value) {
+  return(dplyr::if_else(is.na(value), 0, value))
+}
+NA_to_zero <- Vectorize(NA_to_zero)
+
+
+stringToNumeric <- function(actual, expected) {
+  return(NA_to_zero(
+    dplyr::if_else(
+      stringr::str_ends(stringr::str_trim(actual), expected), 1, 0
+    )
+  ))
+}
+stringToNumeric <- Vectorize(stringToNumeric)
+
