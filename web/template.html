@@ -38,6 +38,7 @@
         padding: 0 0 0 5px;
       }
       .clue > a { color: steelblue; }
+      .o { text-align: right; padding-right: 2rem !important; }
     </style>
 
     <title>Drug Targets - {{title}}</title>
@@ -87,12 +88,69 @@
               <div class="accordion" id="accordion-SUMMARY">
 
                 <div class="accordion-item has-data-true">
+                  <h2 class="accordion-header" id="overview-SUMMARY">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-overview-SUMMARY" aria-expanded="true" aria-controls="collapse-SUMMARY">
+                      SUMMARY :: Overview
+                    </button>
+                  </h2>
+                  <div id="collapse-overview-SUMMARY" class="accordion-collapse collapse show" aria-labelledby="overview-SUMMARY" data-bs-parent="#accordion-SUMMARY">
+                    <div class="accordion-body">
+
+                      <table class="table">
+                        <tbody>
+{{#overview}}
+                          <tr>
+                            <td scope="row">Number of Compounds</td>
+                            <td class="o">{{totalCompoundCount}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">AVG Compounds Per Target</td>
+                            <td class="o">{{avgCompoundsPerTarget}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Preclinical Compounds</td>
+                            <td class="o">{{PreclinicalCount}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Phase 1 Compounds</td>
+                            <td class="o">{{Phase1Count}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Phase 2 Compounds</td>
+                            <td class="o">{{Phase2Count}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Phase 3 Compounds</td>
+                            <td class="o">{{Phase3Count}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Launched Compounds</td>
+                            <td class="o">{{LaunchedCount}}</td>
+                          </tr>
+                          <tr>
+                            <td scope="row">Withdrawn Compounds</td>
+                            <td class="o">{{WithdrawnCount}}</td>
+                          </tr>
+                          <tr><th colspan="2">Targets with CLUE.IO data ({{targetsWithClueDataCount}}):</th></tr>
+                          <tr><td colspan="2" class="text-muted">{{targetsWithClueData}}</td></tr>
+
+                          <tr><th colspan="2">Targets with no CLUE.IO data ({{targetsWithNoClueDataCount}}):</th></tr>
+                          <tr><td colspan="2" class="text-muted">{{targetsWithNoClueData}}</td></tr>
+{{/overview}}
+                        </tbody>
+                      </table>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="accordion-item has-data-true">
                   <h2 class="accordion-header" id="heading-SUMMARY">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-tbl-SUMMARY" aria-expanded="true" aria-controls="collapse-SUMMARY">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-tbl-SUMMARY" aria-expanded="false" aria-controls="collapse-SUMMARY">
                       SUMMARY :: Molecular Background
                     </button>
                   </h2>
-                  <div id="collapse-tbl-SUMMARY" class="accordion-collapse collapse show" aria-labelledby="heading-SUMMARY" data-bs-parent="#accordion-SUMMARY">
+                  <div id="collapse-tbl-SUMMARY" class="accordion-collapse collapse" aria-labelledby="heading-SUMMARY" data-bs-parent="#accordion-SUMMARY">
                     <div class="accordion-body">
                       <small class="text-muted">
                         <b>RP:</b> Reactome Pathways |
@@ -128,13 +186,13 @@
                   </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item has-data-true">
                   <h2 class="accordion-header" id="compounds-data-SUMMARY">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-compounds-SUMMARY" aria-expanded="false" aria-controls="collapse-string-SUMMARY">
                       SUMMARY :: Compounds
                     </button>
                   </h2>
-                  <div id="collapse-compounds-SUMMARY" class="accordion-collapse collapse" aria-labelledby="string-data-SUMMARY" data-bs-parent="#accordion-SUMMARY">
+                  <div id="collapse-compounds-SUMMARY" class="accordion-collapse collapse" aria-labelledby="compounds-data-SUMMARY" data-bs-parent="#accordion-SUMMARY">
                     <div class="accordion-body">
                       <small class="text-muted">
                         <b>PRC:</b> Preclinical |
@@ -278,11 +336,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="molecular-data-{{target}}">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-{{target}}" aria-expanded="false" aria-controls="collapse-string-{{target}}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-molecular-{{target}}" aria-expanded="false" aria-controls="collapse-molecular-{{target}}">
                       {{target}} :: Molecular Functions / Subcellular Locations / Biological Processes
                     </button>
                   </h2>
-                  <div id="collapse-molecular-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
+                  <div id="collapse-molecular-{{target}}" class="accordion-collapse collapse" aria-labelledby="molecular-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
 
                       <div class="row">
@@ -325,11 +383,11 @@
 
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="pathways-data-{{target}}">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-{{target}}" aria-expanded="false" aria-controls="collapse-string-{{target}}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-pathways-{{target}}" aria-expanded="false" aria-controls="collapse-pathways-{{target}}">
                       {{target}} :: Pathways
                     </button>
                   </h2>
-                  <div id="collapse-pathways-{{target}}" class="accordion-collapse collapse" aria-labelledby="string-data-{{target}}" data-bs-parent="#accordion-{{target}}">
+                  <div id="collapse-pathways-{{target}}" class="accordion-collapse collapse" aria-labelledby="pathways-data-{{target}}" data-bs-parent="#accordion-{{target}}">
                     <div class="accordion-body">
                       <h6><a href="https://www.genome.jp/dbget-bin/www_bget?{{keggID}}" target="_blank">KEGG {{keggID}}</a> <sup class="sup text-muted">Source <a href="https://www.uniprot.org/uniprot/{{UNIPROT_KB_ID}}#section_x-ref_genome" target="_blank">UniProt {{UNIPROT_KB_ID}}</a></sup></h6>
 

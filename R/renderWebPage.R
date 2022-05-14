@@ -72,37 +72,51 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
     filter(has_data == TRUE) %>%
     arrange(Label, HUGO)
 
-  ## create summary tables ----
+
+  ## create summary tables ------------------------------------------------
+
   molecularBackground <- renderMolecularBackgroundSummary(result)
   compoundsSummary <- renderCompoundsSummary(result)
-  ## create overview list ----
+
+
+  ## create overview list  ------------------------------------------------
+
   overview <- list(
     targetsWithNoClueData = resultHasNoData %>% pull(HUGO) %>% unique(),
     targetsWithClueData = result %>% pull(HUGO) %>% unique(),
-    # Az összes targetre talált összes találat száma
     totalCompoundCount = result %>%
       select(pert_iname) %>% distinct() %>% nrow()
-    
   )
   overview$targetsWithNoClueDataCount <- length(overview$targetsWithNoClueData)
   overview$targetsWithClueDataCount <- length(overview$targetsWithClueData)
+  overview$targetsWithNoClueData <- paste(overview$targetsWithNoClueData, collapse = ', ')
+  overview$targetsWithClueData <- paste(overview$targetsWithClueData, collapse = ', ')
+  overview$avgCompoundsPerTarget <- round(
+    overview$totalCompoundCount / overview$targetsWithClueDataCount, digits = 2
+  )
+
+  countsByFinalStatus <- overviewByFinalStatus(result)
+  overview <- c(overview, countsByFinalStatus)
 
   # result %>% select(pert_iname) %>% distinct()
   # result %>% select(pubchem_cid) %>% distinct()
   # result %>% select(chembl_id) %>% distinct()
   # result %>% select(drugbank_id) %>% distinct()
 
-  browser()
 
-  ## prepare summary tables for access from template ----
+  ## prepare summary tables for access from template ----------------------
+
   molecularBackground <- whisker::rowSplit(molecularBackground)
   compoundsSummary <- whisker::rowSplit(compoundsSummary)
 
+  ## transforming data for rendering ----
+  message("transforming data for rendering...")
   ## - this should be an iteration on each HUGO group
   ## - collect pert groups for each gene group
   ## Maybe I shouldn't join result tables in download function.
   collection <- list()
   for (geneGroup in unique(result$HUGO)) {
+    message(glue::glue("processing gene group: {geneGroup}..."))
     groupName <- geneGroup
     # overwrite variable with data subset
     geneGroup <- result %>%
@@ -165,10 +179,16 @@ renderWebPage <- function(result, title, outputHTML = NULL) {
   message(glue("reading web template: {WEB_TEMPLATE}"))
   template <- readr::read_file(WEB_TEMPLATE)
 
-  targets <- collection
   creationTime <- format(Sys.time(), usetz = TRUE)
   message(glue("rendering web page, template is '{WEB_TEMPLATE}'"))
-  renderResult <- whisker::whisker.render(template, debug = TRUE)
+  renderResult <- whisker::whisker.render(template, debug = TRUE, data = list(
+    targets = collection,
+    overview = overview,
+    molecularBackground = molecularBackground,
+    compoundsSummary = compoundsSummary,
+    title = title,
+    creationTime = creationTime
+  ))
   readr::write_file(renderResult, file = outputHTML)
   message(glue("rendered web page is saved into '{outputHTML}'"))
 
@@ -386,16 +406,6 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
 }
 
 renderCompoundsSummary <- function(cluePatched) {
-  NA_to_zero <- Vectorize(function(value) {
-   return(dplyr::if_else(is.na(value), 0, value))
-  })
-  stringToNumeric <- Vectorize(function(actual, expected) {
-    return(NA_to_zero(
-        dplyr::if_else(
-          stringr::str_ends(stringr::str_trim(actual), expected), 1, 0
-        )
-    ))
-  })
 
   ## TODO: EMA counts must be added at least Launched values
   cluePatched <- cluePatched %>%
@@ -412,9 +422,7 @@ renderCompoundsSummary <- function(cluePatched) {
     dplyr::mutate(
       Preclinical   = stringToNumeric(final_status, 'Preclinical'),
       Phase1        = stringToNumeric(final_status, 'Phase 1'),
-      # TODO: Phase 1/Phase 2?
       Phase2        = stringToNumeric(final_status, 'Phase 2'),
-      # TODO: Phase 2/Phase 3?
       Phase3        = stringToNumeric(final_status, 'Phase 3'),
       Launched      = stringToNumeric(final_status, 'Launched'),
       PubMedCounter = dplyr::if_else(is.na(PubMedCounter), as.integer(0), PubMedCounter),
@@ -441,3 +449,49 @@ renderCompoundsSummary <- function(cluePatched) {
     readr::write_csv(cluePatched, COMPOUNDS_CSV.OUTPUT)
   )
 }
+
+overviewByFinalStatus <- function(cluePatched) {
+  cluePatched <- cluePatched %>%
+    dplyr::select(
+      pert_iname,
+      final_status
+    ) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(
+      Preclinical   = stringToNumeric(final_status, 'Preclinical'),
+      Phase1        = stringToNumeric(final_status, 'Phase 1'),
+      Phase2        = stringToNumeric(final_status, 'Phase 2'),
+      Phase3        = stringToNumeric(final_status, 'Phase 3'),
+      Launched      = stringToNumeric(final_status, 'Launched'),
+      Withdrawn     = stringToNumeric(final_status, 'Withdrawn')
+    )
+
+  saveRDS(cluePatched, 'countsByFinalStatus.rds')
+
+  countsByFinalStatus <- list(
+    PreclinicalCount  = sum(cluePatched$Preclinical),
+    Phase1Count       = sum(cluePatched$Phase1),
+    Phase2Count       = sum(cluePatched$Phase2),
+    Phase3Count       = sum(cluePatched$Phase3),
+    LaunchedCount     = sum(cluePatched$Launched),
+    WithdrawnCount    = sum(cluePatched$Withdrawn)
+  )
+  return(countsByFinalStatus)
+}
+
+
+NA_to_zero <- function(value) {
+  return(dplyr::if_else(is.na(value), 0, value))
+}
+NA_to_zero <- Vectorize(NA_to_zero)
+
+
+stringToNumeric <- function(actual, expected) {
+  return(NA_to_zero(
+    dplyr::if_else(
+      stringr::str_ends(stringr::str_trim(actual), expected), 1, 0
+    )
+  ))
+}
+stringToNumeric <- Vectorize(stringToNumeric)
+
