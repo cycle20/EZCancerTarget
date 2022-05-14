@@ -442,9 +442,18 @@ pubMed <- function(clueTable) {
     return(articleIds)
   }
 
+  ## get link for a compound only once: list of unique compound names
+  compoundList <- clueTable %>%
+    select(pert_iname) %>%
+    distinct() %>%
+    filter(!is.na(pert_iname)) %>%
+    pull(1)
+  ## apply search on each compound
+  compoundList <- sapply(compoundList, pubMedSearch, simplify = FALSE)
+
   addPubMedData <- function(.data) {
     .data <- .data %>%
-      mutate(pubMedPreClinicalLinks = list(pubMedSearch(pert_iname))) %>%
+      mutate(pubMedPreClinicalLinks = list(compoundList[[pert_iname]])) %>%
       mutate(PubMedCounter = length(unlist(pubMedPreClinicalLinks)))
     return(.data)
   }
