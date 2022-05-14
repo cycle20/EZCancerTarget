@@ -483,7 +483,6 @@ ema <- function(clueTable) {
 
     if(hasName(emaSearchLocalCache, compound)) {
       pdfURL <- emaSearchLocalCache[[compound]]
-      print(glue::glue("EMA LCACHE: compound: {compound}: {pdfURL}"))
       return(pdfURL)
     }
     ## parent environment
@@ -558,9 +557,20 @@ ema <- function(clueTable) {
     penv$emaSearchLocalCache[[compound]] <- pdfURL
     return(pdfURL)
   }
+
+  ## get link for a compound only once: list of unique compound names
+  compoundList <- clueTable %>%
+    select(pert_iname) %>%
+    distinct() %>%
+    filter(!is.na(pert_iname)) %>%
+    pull(1)
+  ## apply search on each compound
+  compoundList <- sapply(compoundList, emaSearch, simplify = FALSE)
+
+  ## update table with EMA links
   clueTable <- clueTable %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(emaLinks = list(emaSearch( pert_iname )))
+    dplyr::mutate(emaLinks = list(compoundList[[pert_iname]]))
 
   return(clueTable)
 }
