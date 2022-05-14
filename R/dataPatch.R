@@ -443,11 +443,7 @@ pubMed <- function(clueTable) {
   }
 
   ## get link for a compound only once: list of unique compound names
-  compoundList <- clueTable %>%
-    select(pert_iname) %>%
-    distinct() %>%
-    filter(!is.na(pert_iname)) %>%
-    pull(1)
+  compoundList <- getCompoundList(clueTable)
   ## apply search on each compound
   compoundList <- sapply(compoundList, pubMedSearch, simplify = FALSE)
 
@@ -568,11 +564,7 @@ ema <- function(clueTable) {
   }
 
   ## get link for a compound only once: list of unique compound names
-  compoundList <- clueTable %>%
-    select(pert_iname) %>%
-    distinct() %>%
-    filter(!is.na(pert_iname)) %>%
-    pull(1)
+  compoundList <- getCompoundList(clueTable)
   ## apply search on each compound
   compoundList <- sapply(compoundList, emaSearch, simplify = FALSE)
 
@@ -806,11 +798,7 @@ fdaLabel <- function(clueTable) {
   }
 
   ## get link for a compound only once: list of unique compound names
-  compoundList <- clueTable %>%
-    select(pert_iname) %>%
-    distinct() %>%
-    filter(!is.na(pert_iname)) %>%
-    pull(1)
+  compoundList <- getCompoundList(clueTable)
   ## apply search on each compound
   compoundList <- sapply(compoundList, getFDALabelResults, simplify = FALSE)
 
@@ -956,6 +944,15 @@ xmlUniProt <- function(clueTable) {
   return(clueTable)
 }
 
+
+getCompoundList <- function(clueTable) {
+  compoundList <- clueTable %>%
+    select(pert_iname) %>%
+    distinct() %>%
+    filter(!is.na(pert_iname)) %>%
+    pull(1)
+  return(compoundList)
+}
 
 ## Additional counters for KEGG pathways and STRING neighbours -----------
 
