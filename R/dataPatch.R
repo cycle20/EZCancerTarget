@@ -442,9 +442,14 @@ pubMed <- function(clueTable) {
     return(articleIds)
   }
 
+  ## get link for a compound only once: list of unique compound names
+  compoundList <- getCompoundList(clueTable)
+  ## apply search on each compound
+  compoundList <- sapply(compoundList, pubMedSearch, simplify = FALSE)
+
   addPubMedData <- function(.data) {
     .data <- .data %>%
-      mutate(pubMedPreClinicalLinks = list(pubMedSearch(pert_iname))) %>%
+      mutate(pubMedPreClinicalLinks = list(compoundList[[pert_iname]])) %>%
       mutate(PubMedCounter = length(unlist(pubMedPreClinicalLinks)))
     return(.data)
   }
@@ -483,7 +488,6 @@ ema <- function(clueTable) {
 
     if(hasName(emaSearchLocalCache, compound)) {
       pdfURL <- emaSearchLocalCache[[compound]]
-      print(glue::glue("EMA LCACHE: compound: {compound}: {pdfURL}"))
       return(pdfURL)
     }
     ## parent environment
@@ -558,9 +562,16 @@ ema <- function(clueTable) {
     penv$emaSearchLocalCache[[compound]] <- pdfURL
     return(pdfURL)
   }
+
+  ## get link for a compound only once: list of unique compound names
+  compoundList <- getCompoundList(clueTable)
+  ## apply search on each compound
+  compoundList <- sapply(compoundList, emaSearch, simplify = FALSE)
+
+  ## update table with EMA links
   clueTable <- clueTable %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(emaLinks = list(emaSearch( pert_iname )))
+    dplyr::mutate(emaLinks = list(compoundList[[pert_iname]]))
 
   return(clueTable)
 }
@@ -786,10 +797,15 @@ fdaLabel <- function(clueTable) {
     ))
   }
 
+  ## get link for a compound only once: list of unique compound names
+  compoundList <- getCompoundList(clueTable)
+  ## apply search on each compound
+  compoundList <- sapply(compoundList, getFDALabelResults, simplify = FALSE)
+
   ## transform status_source based on FDA results
   clueTable <- clueTable %>%
     # filter(final_status == "Launched" && !is.na(orange_book)) %>%
-    mutate(fdaSearchResults = list(getFDALabelResults(pert_iname)))
+    mutate(fdaSearchResults = list(compoundList[[pert_iname]]))
 
   return(clueTable)
 }
@@ -928,6 +944,15 @@ xmlUniProt <- function(clueTable) {
   return(clueTable)
 }
 
+
+getCompoundList <- function(clueTable) {
+  compoundList <- clueTable %>%
+    select(pert_iname) %>%
+    distinct() %>%
+    filter(!is.na(pert_iname)) %>%
+    pull(1)
+  return(compoundList)
+}
 
 ## Additional counters for KEGG pathways and STRING neighbours -----------
 
