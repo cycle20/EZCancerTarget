@@ -796,10 +796,19 @@ fdaLabel <- function(clueTable) {
     ))
   }
 
+  ## get link for a compound only once: list of unique compound names
+  compoundList <- clueTable %>%
+    select(pert_iname) %>%
+    distinct() %>%
+    filter(!is.na(pert_iname)) %>%
+    pull(1)
+  ## apply search on each compound
+  compoundList <- sapply(compoundList, getFDALabelResults, simplify = FALSE)
+
   ## transform status_source based on FDA results
   clueTable <- clueTable %>%
     # filter(final_status == "Launched" && !is.na(orange_book)) %>%
-    mutate(fdaSearchResults = list(getFDALabelResults(pert_iname)))
+    mutate(fdaSearchResults = list(compoundList[[pert_iname]]))
 
   return(clueTable)
 }
