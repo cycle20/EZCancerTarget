@@ -497,7 +497,7 @@ readReport <- function(fileName) {
   reportFile <- glue::glue("{OUTPUT}/{fileName}")
   downloadEMAFile(fileName, destinationFile = reportFile)
 
-  report <- readxl::read_excel(fileName, skip = 7)
+  report <- readxl::read_excel(reportFile, skip = 7)
   return(report)
 }
 
