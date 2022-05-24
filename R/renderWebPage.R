@@ -391,8 +391,8 @@ renderMolecularBackgroundSummary <- function(cluePatched) {
   cluePatched <- cluePatched %>% dplyr::transmute(
     HUGO                    = HUGO,
     ReactomePathways     = length(UniProtData$Reactome),
-    KEGGPathways         = dplyr::if_else(is.na(NumberOfKEGGPathways), 0, NumberOfKEGGPathways),
-    STRINGInteractors    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), as.integer(0), NumberOfSTRINGInteractors),
+    KEGGPathways         = dplyr::if_else(is.na(NumberOfKEGGPathways), as.integer(0), as.integer(NumberOfKEGGPathways)),
+    STRINGInteractors    = dplyr::if_else(is.na(NumberOfSTRINGInteractors), as.integer(0), as.integer(NumberOfSTRINGInteractors)),
     MolecularFunctions   = length(UniProtData$molecularFunction),
     SubcellularLocations = length(UniProtData$subCellularLocation),
     BiologicalProcesses  = length(UniProtData$biologicalProcess)

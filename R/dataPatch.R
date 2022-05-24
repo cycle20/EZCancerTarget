@@ -896,11 +896,17 @@ keggPathWayCounter <- function(clueTable) {
   }
 
   ## build a local cache of downloaded data ----
-  uniProtList <- clueTable %>% select(UniProtData) %>% distinct() %>% pull(1)
+
+  uniProtList <- clueTable %>%
+    select(UniProtData) %>% distinct() %>% pull(1)
   keggList <- sapply(uniProtList, simplify = FALSE, function(uniProtData) {
-    keggId <- uniProtData$KEGG
-    url <- glue::glue('http://rest.kegg.jp/get/{keggId}') # TODO: expose it
-    return(getPageCached(url, downloadFunc = textGET))
+    retVal <- list(document = NA)
+    if (hasName(uniProtData, 'KEGG')) {
+      keggId <- uniProtData$KEGG
+      url <- glue::glue('http://rest.kegg.jp/get/{keggId}') # TODO: expose it
+      retVal <- getPageCached(url, downloadFunc = textGET)
+    }
+    return(retVal)
   })
 
   ## count pathways in KEGG result list ----
@@ -933,7 +939,7 @@ stringInteractorsCounter <- function(clueTable) {
   ## function to get data in a customized way: get plain text file via HTTP
   tsvGET <- function(url) {
     # if it is a path of a cache file
-    if (stringr::str_starts(url, CACHE)) {
+    if (stringr::str_starts(url, pattern = CACHE)) {
       result <- readr::read_tsv(url)
     } else {
       result <- httr::GET(url)
@@ -945,14 +951,18 @@ stringInteractorsCounter <- function(clueTable) {
   ## build a local cache of downloaded data ----
   uniProtList <- clueTable %>% select(UniProtData) %>% distinct() %>% pull(1)
   interactorsCache <- sapply(uniProtList, simplify = FALSE, function(uniProtData) {
-    STRING_ID <- uniProtData$STRING
-    url <- glue::glue('https://string-db.org/api/tsv/interaction_partners?identifiers={STRING_ID}&species=9606&limit=0&required_score=900')
-    return(getPageCached(url, downloadFunc = tsvGET))
+    retVal <- list(document = NA)
+    if (hasName(uniProtData, 'STRING')) {
+      STRING_ID <- uniProtData$STRING
+      url <- glue::glue('https://string-db.org/api/tsv/interaction_partners?identifiers={STRING_ID}&species=9606&limit=0&required_score=900')
+      retVal <- getPageCached(url, downloadFunc = tsvGET)
+    }
+    return(retVal)
   })
   interactorsCache <- sapply(interactorsCache, simplify = FALSE, function(stringResult) {
     ## get the tibble
     stringTable <- stringResult[["document"]]
-    interactorsCount <- nrow(stringTable)
+    interactorsCount <- ifelse(tibble::is_tibble(stringTable), nrow(stringTable), 0)
     return(interactorsCount)
   })
 
@@ -1030,7 +1040,11 @@ getPageCached <- function(url, sleepTime = 3, downloadFunc = rvest::read_html) {
       resultPage <- downloadFunc(url)
       print(glue::glue("{Sys.time()} :: downloaded: {url}"))
       # ...and save
-      write_file(toString(resultPage), file = path)
+      if(tibble::is_tibble(resultPage)) {
+        readr::write_tsv(resultPage, file = path)
+      } else {
+        readr::write_file(toString(resultPage), file = path)
+      }
       # ...update cache
       {
         newRow <- tibble::tibble_row(
