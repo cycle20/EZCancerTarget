@@ -463,12 +463,23 @@ ema <- function(clueTable) {
 
   reportTable <- readReport(EMA.XLSX.FILE)
 
+  ## Compare
+  compare <- function(compound1, compound2) {
+    pattern <- "[()+]"
+    compound1 <- stringr::str_remove_all(compound1, pattern)
+    compound2 <- stringr::regex(
+      stringr::str_remove_all(compound2, pattern),
+      ignore_case = TRUE
+    )
+    return(stringr::str_detect(compound1, compound2))
+  }
+
   ## Get results of query on EMA search page
   emaSearch <- function(compound) {
 
     print(glue::glue("EMA SEARCH: compound: {compound}"))
     reportTable <- reportTable %>%
-      dplyr::filter(stringr::str_detect(`Active substance`, compound))
+      dplyr::filter(compare(`Active substance`, compound))
 
     if (nrow(reportTable) == 0) {
       return(NA_character_)
