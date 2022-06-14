@@ -1,6 +1,6 @@
-### project scancer
+### EZCancerTarget
 
-[scancer - Target INPUT table](https://docs.google.com/spreadsheets/d/1oQtWxPJASB-WfwqnyBJr3woXmv03bu3iSzIrKyK2-t8/) - the easiest way to provide input dataset to ```scancer``` workflow and start it on GitHub.
+[EZCancerTarget - Target INPUT table](https://docs.google.com/spreadsheets/d/1oQtWxPJASB-WfwqnyBJr3woXmv03bu3iSzIrKyK2-t8/) - the easiest way to provide input dataset to ```EZCancerTarget``` workflow and start it on GitHub.
 
 Its access requires
 * a Google account,
@@ -11,16 +11,16 @@ _NOTE:_ future improvements of this prototype can eliminate this inconvenience. 
 
 ##### Results
 
-* [targets with data: the most recent version](https://cycle20.github.io/scancer/index.target.with.data.html)
-* [targets with data: baseline version](https://cycle20.github.io/scancer/baseline/index.target.with.data.html)
-* [workflow results](https://github.com/cycle20/scancer/actions/workflows/clue.yml)
+* [targets with data: the most recent version](https://cycle20.github.io/EZCancerTarget/index.target.with.data.html)
+* [targets with data: baseline version](https://cycle20.github.io/EZCancerTarget/baseline/index.target.with.data.html)
+* [workflow results](https://github.com/cycle20/EZCancerTarget/actions/workflows/clue.yml)
 
 ----
 
 ##### Overview from software perspective
 
-* [Functional Overview](https://cycle20.github.io/scancer/Functional%20Overview)
-* [Software Versions and Runtime Environment](https://cycle20.github.io/scancer/Software%20Versions%20and%20Runtime%20Environment)
+* [Functional Overview](https://cycle20.github.io/EZCancerTarget/Functional%20Overview)
+* [Software Versions and Runtime Environment](https://cycle20.github.io/EZCancerTarget/Software%20Versions%20and%20Runtime%20Environment)
 
 ----
 
