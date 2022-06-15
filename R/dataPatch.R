@@ -54,6 +54,10 @@ UNIPROT.HTML.TEMPL = "https://www.uniprot.org/uniprot/{id}"
 UNIPROT.XML.TEMPL = "https://www.uniprot.org/uniprot/{id}.xml"
 
 EMA.XLSX.FILE <- "Medicines_output_european_public_assessment_reports.xlsx"
+EMA.PRODUCT.INFORMATION.URL <- paste0(
+  'https://www.ema.europa.eu/en/documents/product-information',
+  '/{urlName}-epar-product-information_en.pdf'
+)
 
 ##
 ## Functions --------------------------------------------------------------
@@ -262,9 +266,9 @@ consolidateColumns <- function(clueTable) {
     }
   }
 
-  ## FUNC: to compose EMA and append links to "status_source"
-  appendEMALinks <- function(status_source = "", emaLinks) {
-    if(all(is.na(emaLinks))) {
+  ## FUNC: to compose EMA and append link to "status_source"
+  appendEMALinks <- function(status_source = "", emaProduct, emaLink) {
+    if(is.na(emaLink)) {
       return(status_source)
     } else {
       status_source <- paste(
@@ -272,10 +276,17 @@ consolidateColumns <- function(clueTable) {
         collapse = "<br />"
       )
 
+      # Example:
+      # https://www.ema.europa.eu/en/medicines/human/EPAR/glyxambi
+      # https://www.ema.europa.eu/en/documents/overview/glyxambi-epar-summary-public_en.pdf
+      # or
+      # https://www.ema.europa.eu/en/documents/product-information/glyxambi-epar-product-information_en.pdf
+      urlName <- stringr::str_remove(emaLink, '^https:.+/')
+      emaLink <- glue::glue(EMA.PRODUCT.INFORMATION.URL)
       status_source <- paste(
         c(
           status_source,
-          sapply(emaLinks, function(link) aHref(link, "Found PDF"))
+          aHref(emaLink, glue::glue('{emaProduct} (PDF)'))
         ),
         collapse = "<br />"
       )
@@ -325,7 +336,7 @@ consolidateColumns <- function(clueTable) {
       pubMedPreClinicalLinks = pubMedLinks(pubMedPreClinicalLinks, pert_iname),
       fdaSearchResults = appendFDALinks(pubMedPreClinicalLinks,
                                         fdaLabelDetails = fdaSearchResults),
-      emaLinks = appendEMALinks(fdaSearchResults, emaLinks = emaLinks)
+      emaLinks = appendEMALinks(fdaSearchResults, emaProduct, emaLink = emaLinks)
     ) %>%
     rowwise() %>%
     mutate(clueSource = glue::glue(
@@ -482,12 +493,17 @@ ema <- function(clueTable) {
       dplyr::filter(compare(`Active substance`, compound))
 
     if (nrow(reportTable) == 0) {
-      return(NA_character_)
+      return(list(
+        url = NA_character_,
+        productName = NA_character_
+      ))
     }
 
     # pick the first URL
-    url = reportTable$URL[1]
-    return(url)
+    return(list(
+      url = reportTable$URL[1],
+      productName = reportTable$`Medicine name`[1]
+    ))
   }
 
   ## get link for a compound only once: list of unique compound names
@@ -498,7 +514,10 @@ ema <- function(clueTable) {
   ## update table with EMA links
   clueTable <- clueTable %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(emaLinks = list(compoundList[[pert_iname]]))
+    dplyr::mutate(
+      emaLinks = compoundList[[pert_iname]]$url,
+      emaProduct = compoundList[[pert_iname]]$productName
+    )
 
   return(clueTable)
 }

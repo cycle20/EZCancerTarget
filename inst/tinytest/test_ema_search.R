@@ -60,4 +60,20 @@ expect_equal(target = "Tookad,", filtered$`Medicine name`[1])
 # readReport("Medicines_output_herbal_medicines.xlsx")
 # readReport("Medicines_output_opinions_outside_eu.xlsx")
 
+## check URLs ------------------------------
 
+## arrange
+clueTable <- tibble::as_tibble(list(
+  pert_iname = c('padeliporfin', 'empagliflozin')
+))
+## act
+clueTable <- ema(clueTable)
+## assert
+expect_equal(
+  target = 'https://www.ema.europa.eu/en/medicines/human/EPAR/tookad',
+  current = clueTable$emaLinks[1][[1]]
+)
+expect_equal(
+  target = 'https://www.ema.europa.eu/en/medicines/human/EPAR/glyxambi',
+  current = clueTable$emaLinks[2][[1]]
+)
