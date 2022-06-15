@@ -53,21 +53,11 @@ PUBMED.DISPLAY.MAX_LINKS <- 3
 UNIPROT.HTML.TEMPL = "https://www.uniprot.org/uniprot/{id}"
 UNIPROT.XML.TEMPL = "https://www.uniprot.org/uniprot/{id}.xml"
 
-EMA.URL.TEMPLATE <- paste0(
-  "https://www.ema.europa.eu/en/medicines/",
-  ## more specific: EPAR items only
-  "field_ema_web_categories%253Aname_field/Human/ema_group_types/ema_medicine/",
-  "field_ema_med_status/authorised-36",
-  "?search_api_views_fulltext={compound}", ## compound is the variable part
-  "&page={pageNumber}",
-  "&sort=search_api_relevance",
-  "&order=desc"
+EMA.XLSX.FILE <- "Medicines_output_european_public_assessment_reports.xlsx"
+EMA.PRODUCT.INFORMATION.URL <- paste0(
+  'https://www.ema.europa.eu/en/documents/product-information',
+  '/{urlName}-epar-product-information_en.pdf'
 )
-EMA.OVERVIEW.PDF.URL <- paste0(
-  "https://www.ema.europa.eu/en/documents/overview/",
-  "{compound}-epar-summary-public_en.pdf"
-)
-
 
 ##
 ## Functions --------------------------------------------------------------
@@ -276,9 +266,9 @@ consolidateColumns <- function(clueTable) {
     }
   }
 
-  ## FUNC: to compose EMA and append links to "status_source"
-  appendEMALinks <- function(status_source = "", emaLinks) {
-    if(all(is.na(emaLinks))) {
+  ## FUNC: to compose EMA and append link to "status_source"
+  appendEMALinks <- function(status_source = "", emaProduct, emaLink) {
+    if(is.na(emaLink)) {
       return(status_source)
     } else {
       status_source <- paste(
@@ -286,10 +276,17 @@ consolidateColumns <- function(clueTable) {
         collapse = "<br />"
       )
 
+      # Example:
+      # https://www.ema.europa.eu/en/medicines/human/EPAR/glyxambi
+      # https://www.ema.europa.eu/en/documents/overview/glyxambi-epar-summary-public_en.pdf
+      # or
+      # https://www.ema.europa.eu/en/documents/product-information/glyxambi-epar-product-information_en.pdf
+      urlName <- stringr::str_remove(emaLink, '^https:.+/')
+      emaLink <- glue::glue(EMA.PRODUCT.INFORMATION.URL)
       status_source <- paste(
         c(
           status_source,
-          sapply(emaLinks, function(link) aHref(link, "Found PDF"))
+          aHref(emaLink, glue::glue('{emaProduct} (PDF)'))
         ),
         collapse = "<br />"
       )
@@ -339,7 +336,7 @@ consolidateColumns <- function(clueTable) {
       pubMedPreClinicalLinks = pubMedLinks(pubMedPreClinicalLinks, pert_iname),
       fdaSearchResults = appendFDALinks(pubMedPreClinicalLinks,
                                         fdaLabelDetails = fdaSearchResults),
-      emaLinks = appendEMALinks(fdaSearchResults, emaLinks = emaLinks)
+      emaLinks = appendEMALinks(fdaSearchResults, emaProduct, emaLink = emaLinks)
     ) %>%
     rowwise() %>%
     mutate(clueSource = glue::glue(
@@ -475,92 +472,38 @@ pubMed <- function(clueTable) {
 #' @return data.frame patched by EMA links.
 ema <- function(clueTable) {
 
-  ## Decreased sleep time for EMA requests
-  ## (based on https://www.ema.europa.eu/robots.txt at 2021-05-30 21:05 GMT)
-  SLEEP_TIME <- 11
+  reportTable <- readReport(EMA.XLSX.FILE)
 
-  emaSearchLocalCache <- list()
+  ## Compare
+  compare <- function(compound1, compound2) {
+    pattern <- "[()+]"
+    compound1 <- stringr::str_remove_all(compound1, pattern)
+    compound2 <- stringr::regex(
+      stringr::str_remove_all(compound2, pattern),
+      ignore_case = TRUE
+    )
+    return(stringr::str_detect(compound1, compound2))
+  }
 
   ## Get results of query on EMA search page
-  ## Does not harvest each drug link so pageNumber is not in use currently.
-  emaSearch <- function(compound, pageNumber = 0) {
-    assertthat::assert_that(!is.na(compound))
-
-    if(hasName(emaSearchLocalCache, compound)) {
-      pdfURL <- emaSearchLocalCache[[compound]]
-      return(pdfURL)
-    }
-    ## parent environment
-    penv <- parent.env(environment())
-
+  emaSearch <- function(compound) {
 
     print(glue::glue("EMA SEARCH: compound: {compound}"))
-    ## get search result --------------------------------------------------
-    emaResult <- getPageCached(glue::glue(EMA.URL.TEMPLATE))
-    xpath = paste0(
-     "string(//*/a[",
-       "contains(@href, '/en/medicines/human/EPAR')",
-       " and not(descendant::img/@alt = 'Additional monitoring')",
-     "]/@href)"
-    )
-    firstDrugPath <- rvest::html_element(emaResult$document, xpath = xpath)
-    ## If not hit at all
-    if (firstDrugPath == "") {
-      warning(
-        glue::glue("NO DRUG FOUND :: COMPOUND: {compound} ", EMA.URL.TEMPLATE),
-        immediate. = TRUE
-      )
-      penv$emaSearchLocalCache[[compound]] <- NA
-      return(NA)
+    reportTable <- reportTable %>%
+      dplyr::filter(compare(`Active substance`, compound))
+
+    if (nrow(reportTable) == 0) {
+      return(list(
+        url = NA_character_,
+        productName = NA_character_
+      ))
     }
 
-    ## "most" relevant drug -----------------------------------------------
-    firstDrugPage <- getPageCached(
-      glue::glue("https://www.ema.europa.eu{firstDrugPath}"),
-      sleepTime = ifelse(emaResult$fromCache, 1, SLEEP_TIME)
-    )
-
-    ## get public summary PDF link ----------------------------------------
-    xpath <- paste0(
-      "string(//*/a[",
-      "contains(@href, '.pdf') and (",
-        "contains(@href, 'summary-public_en')",
-        " or contains(@href, 'documents/product-information/')",
-        " or contains(@href, 'refusal-public-assessment-report')",
-        " or contains(@href, 'public-assessment-report')",
-        " or (",
-          "contains(@href, 'documents/public-statement')",
-          " and contains(@href, 'non-renewal')",
-          " and contains(@href, 'authorisation')",
-        ") ",
-        # probably this is the least restrictive URL filter
-        " or contains(@href, 'documents'))",
-      "]/@href)"
-    )
-    pdfURL <- rvest::html_element(firstDrugPage$document, xpath = xpath)
-    assertthat::assert_that(pdfURL != "")
-    assertthat::assert_that(!is.na(pdfURL) && !is.null(pdfURL))
-
-    ## PDF URL verification -----------------------------------------------
-    if (!firstDrugPage$fromCache) {
-      print(glue::glue("Sleep before HEAD request: {SLEEP_TIME} secs"))
-      Sys.sleep(SLEEP_TIME)
-    } else {
-      Sys.sleep(2)
-    }
-    ## HEAD request and assert
-    print(glue::glue("Check URL (HEAD request): {pdfURL}"))
-    statusCode <- httr::HEAD(pdfURL)$status_code
-    print(c("Check HEAD HTTP status code: ", statusCode))
-    if (statusCode == 404) { ## NOTE: this case needs a better handler
-      print("ERROR 404: PAGE NOT FOUND")
-    } else {
-      assertthat::assert_that(statusCode %in% c(200, 301, 302))
-    }
-
-    ## return the public summary PDF link of the first hit from the search list
-    penv$emaSearchLocalCache[[compound]] <- pdfURL
-    return(pdfURL)
+    # pick the first URL
+    return(list(
+      url = reportTable$URL[1],
+      productName = reportTable$`Medicine name`[1]
+    ))
   }
 
   ## get link for a compound only once: list of unique compound names
@@ -571,25 +514,30 @@ ema <- function(clueTable) {
   ## update table with EMA links
   clueTable <- clueTable %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(emaLinks = list(compoundList[[pert_iname]]))
+    dplyr::mutate(
+      emaLinks = compoundList[[pert_iname]]$url,
+      emaProduct = compoundList[[pert_iname]]$productName
+    )
 
   return(clueTable)
 }
 
 
 readReport <- function(fileName) {
-  getEMAFile(fileName)
-  report <- readxl::read_excel(fileName, skip = 7)
+  reportFile <- glue::glue("{OUTPUT}/{fileName}")
+  downloadEMAFile(fileName, destinationFile = reportFile)
+
+  report <- readxl::read_excel(reportFile, skip = 7)
   return(report)
 }
 
-getEMAFile <- function(file, quiet = FALSE) {
+downloadEMAFile <- function(file, destinationFile = file, quiet = FALSE) {
   EMA_FILES_BASE_URL <- "https://www.ema.europa.eu/sites/default/files"
   url <- glue::glue("{EMA_FILES_BASE_URL}/{file}")
   if (!quiet) {
     print(glue::glue("Downloading {url}"))
   }
-  curl::curl_download(url = url, destfile = file, mode ="wb", quiet = quiet)
+  curl::curl_download(url = url, destfile = destinationFile, mode ="wb", quiet = quiet)
 }
 
 
