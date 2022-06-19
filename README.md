@@ -1,9 +1,9 @@
-# scancer
+# EZCancerTarget
 
-###### GitHub page: https://cycle20.github.io/scancer/
+###### GitHub page: https://cycle20.github.io/EZCancerTarget/
 
 
-```scancer``` is a tool harnessing data from various sources to create a summary [static web page](https://cycle20.github.io/scancer/index.target.with.data.html) for drug compounds of "configured" targets.
+```EZCancerTarget``` is a tool harnessing data from various sources to create a summary [static web page](https://cycle20.github.io/EZCancerTarget/index.target.with.data.html) for drug compounds of "configured" targets.
 
 [CLUE REPURPOSING](https://clue.io/repurposing-app) is a fundamental data source.
 
