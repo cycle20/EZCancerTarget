@@ -1,0 +1,20 @@
+### Installation Guide
+
+#### Requirement: R environment
+
+`EZCancerTarget` are collection of R scripts. Its requirement is an installed and working `R` environment. You can find more details on CRAN about `R` setup: https://cran.r-project.org/bin/windows/base/
+
+Linux and macOS users can find download and installation instructions on these pages and can consult with their system-sepcific package management tools:
+
+* https://cran.r-project.org/doc/manuals/r-release/R-admin.html
+* https://cran.r-project.org/bin/linux/
+* https://cran.r-project.org/bin/macosx/
+
+
+#### Installation Steps
+
+* Download `EZCancerTarget` [latest ZIP bundle](https://github.com/cycle20/EZCancerTarget/archive/refs/heads/main.zip)
+* Extract its content into a folder: for example `C:\EzCancerTarget`
+
+Thats all.
+
