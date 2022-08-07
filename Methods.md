@@ -6,15 +6,30 @@ Target inclusion/exclusion depends on search results from a clue.io query. EZCan
 
 _NOTE:_ R scripts of the application are located in the `R` directory of the source tree.
 
-#### `dataPatch.R`functions
+#### `dataPatch.R` functions
 
 ##### `fdaLabel` function
 
+`dataPatch.R` collects additional details from external resources. Most of them are used by clue.io itself, but gaps can occur in its dataset. For example _EMA_ data is not included at all, so appending it is an improvement. Another plus is harvesting direct links to drug labels from the search interface of _FDALabel_. `fdaLabel` function implements this feature that contains several internal sub-functions (some of them are anonymous and vectorized). This function then sends a POST HTTP request to a specific _FDALabel_ link - the same that is used by the human search interface to send a query. `fdaLabel` function uses `pert_iname` from clue.io as a search parameter and uses the following parameters to define the search criteria:
+
+* document types of labeling types as documentTypeCodes: `Human Rx 34391-3, Human OTC 34390-5, Vaccine 53404-0`
+* labeling section: `selectedLabelingType: 0, sectionTypeCode: Active Ingredient 2-55106-9`
+  `fdaLabel` uses its internal function - `getFDALabelResults` - to send the query and interpret the HTTP response from the FDA service.
+
+The result may contain several duplications for a specific product. It is a consequence of FDA strict registration and regulation procedures (products are allowed for different time ranges or can be withdrawn, etc). The function uses a weighting method in order to reduce these duplications and return the most relevant items. `fdaLabel` function filters out products that are parts of aid kits by verifying presence of simple words first `aid|kit|KIT` in product names. It receives responses from the _FDALabel_ service in JSON format. It parses, prioritizes and filters the list of returned drug products based on their market date and match-mode with `pert_iname` (exact, prefix, suffix, inner, not at all). This is a necessary step since the product list contains copies of drugs with only different dates.
+
+
 ##### `pubMed` function
+
+This function searches for the compound name received from clue.io and sends a search request to _PubMed®_ service of _National Center for Biotechnology Information_ (NCBI). It restricts the result set by including only clinical trials, meta-analyses, randomized controlled trials, reviews and systematic reviews. The results are ordered by the best match algorithm of _PubMed®_. Our function picks the top 3 of the result set and stores it in the global datatable. If there is no hit at all, `dataPatch.R` provides the used search URL and this search can be re-initiated and/or refined by users of `EZCancerTarget`. `pubMed` function uses a simple XPath query to extract _PubMed®_ identifiers embedded into the resulting HTML source code.
 
 ##### `ema` function
 
+`ema` function complements the dataset with links to drugs' overview pages on the website of _European Medicines Agency_ (EMA). It downloads the summary table of approved drugs from the _EMA_ site and lookups compounds by their 'active substance' property. Each drug has a URL to its overview page. The function pastes it into the dataset, if there is a hit by the name of the active substance.
+
 ##### `xmlUniProt` function
+
+This function collects data from the _UniProt_ website. _UniProt_ provides APIs to access and query its data. Easy to access the human readable contents in machine readable formats (for example XML, RDF, etc.). The usage of the _UniProt_ website's REST API is straightforward, since the input target list also contains UniProt identifiers. `xmlUniProt` extracts GO (_Gene Ontology_) molecular function and cellular component terms, _STRING_ and _Reactome_ references from the received XML data. These specific entries are stored in simple R lists and added to the data frame of already collected data in a new column: `UniProtData`.
 
 #### `renderWebPage.R` script
 
