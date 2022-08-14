@@ -1,8 +1,9 @@
-overview
+introduction
 installation-guide
 requirement-r-environment
 installation-steps
 methods
+overview
 clue.r-and-datapatch.r-scripts
 datapatch.r-functions
 fdalabel-function
