@@ -5,14 +5,13 @@ date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
-bibliography: [book.bib, packages.bib]
 biblio-style: apalike
 link-citations: yes
 github-repo: rstudio/bookdown-demo
 description: "An Open-access Drug Repurposing and Data-mining Platform to Enhance Target Validation and Optimize International Research Efforts against Highly Progressive Cancers"
 ---
 
-# Overview
+# Introduction
 
 `EZCancerTarget` provides detailed biological information on the selected set of
 target molecules using open-access databases, such as _UniProt_, _GeneCards_,
