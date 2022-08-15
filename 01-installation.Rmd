@@ -1,6 +1,8 @@
 # Installation Guide
 
-## Requirement: R environment
+## Requirements
+
+### R environment
 
 `EZCancerTarget` are collection of R scripts. Its requirement is an installed and working `R` environment. You can find more details on CRAN about `R` setup: https://cran.r-project.org/bin/windows/base/
 
@@ -9,6 +11,12 @@ Linux and macOS users can find download and installation instructions on these p
 * https://cran.r-project.org/doc/manuals/r-release/R-admin.html
 * https://cran.r-project.org/bin/linux/
 * https://cran.r-project.org/bin/macosx/
+
+### CLUE.IO API Key
+
+`CLUE_USER_KEY` environment variable must be set on the host operating system.
+This key is user-specific and it can be obtained after registration
+on _CLUE.IO_ (https://clue.io).
 
 
 ## Installation Steps

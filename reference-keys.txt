@@ -1,6 +1,8 @@
 introduction
 installation-guide
-requirement-r-environment
+requirements
+r-environment
+clue.io-api-key
 installation-steps
 methods
 overview
