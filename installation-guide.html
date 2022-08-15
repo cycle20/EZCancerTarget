@@ -23,7 +23,7 @@
 <meta name="author" content="David Dora MD, PhD; Timea Dora MS; Gabor Szegvari MS; Csongor Gerdán BS; Zoltan Lohinai MD, PhD" />
 
 
-<meta name="date" content="2022-08-14" />
+<meta name="date" content="2022-08-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -54,6 +54,68 @@
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 
 
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
 
 
 <link rel="stylesheet" href="style.css" type="text/css" />
@@ -141,8 +203,75 @@
 <ul>
 <li>Download <code>EZCancerTarget</code> <a href="https://github.com/cycle20/EZCancerTarget/archive/refs/heads/main.zip">latest ZIP bundle</a></li>
 <li>Extract its content into a folder: for example <code>C:\EzCancerTarget</code></li>
+<li>Open a terminal window and enter into this directory <code>cd C:\EzCancerTarget</code></li>
+<li>Start R here by the <code>R</code> command</li>
+<li>Similar output should display:</li>
 </ul>
-<p>Thats all.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"></a>
+<a class="sourceLine" id="cb1-2" title="2">R version <span class="dv">4</span>.<span class="fl">1.1</span> (<span class="dv">2021-08-10</span>) <span class="op">--</span><span class="st"> &quot;Kick Things&quot;</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">Copyright</span> (C) <span class="dv">2021</span> The R Foundation <span class="cf">for</span> Statistical Computing</a>
+<a class="sourceLine" id="cb1-4" title="4">Platform<span class="op">:</span><span class="st"> </span>x86_<span class="dv">64</span><span class="op">-</span>pc<span class="op">-</span>linux<span class="op">-</span><span class="kw">gnu</span> (<span class="dv">64</span><span class="op">-</span>bit)</a>
+<a class="sourceLine" id="cb1-5" title="5"></a>
+<a class="sourceLine" id="cb1-6" title="6">R is free software and comes with ABSOLUTELY NO WARRANTY.</a>
+<a class="sourceLine" id="cb1-7" title="7">You are welcome to redistribute it under certain conditions.</a>
+<a class="sourceLine" id="cb1-8" title="8">Type <span class="st">&#39;license()&#39;</span> or <span class="st">&#39;licence()&#39;</span> <span class="cf">for</span> distribution details.</a>
+<a class="sourceLine" id="cb1-9" title="9"></a>
+<a class="sourceLine" id="cb1-10" title="10">  Natural language support but running <span class="cf">in</span> an English locale</a>
+<a class="sourceLine" id="cb1-11" title="11"></a>
+<a class="sourceLine" id="cb1-12" title="12">R is a collaborative project with many contributors.</a>
+<a class="sourceLine" id="cb1-13" title="13">Type <span class="st">&#39;contributors()&#39;</span> <span class="cf">for</span> more information and</a>
+<a class="sourceLine" id="cb1-14" title="14"><span class="st">&#39;citation()&#39;</span> on how to cite R or R packages <span class="cf">in</span> publications.</a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16">Type <span class="st">&#39;demo()&#39;</span> <span class="cf">for</span> some demos, <span class="st">&#39;help()&#39;</span> <span class="cf">for</span> on<span class="op">-</span>line help, or</a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="st">&#39;help.start()&#39;</span> <span class="cf">for</span> an HTML browser interface to help.</a>
+<a class="sourceLine" id="cb1-18" title="18">Type <span class="st">&#39;q()&#39;</span> to quit R.</a>
+<a class="sourceLine" id="cb1-19" title="19"></a>
+<a class="sourceLine" id="cb1-20" title="20"><span class="co"># Bootstrapping renv 0.15.2 --------------------------------------------------</span></a>
+<a class="sourceLine" id="cb1-21" title="21"><span class="op">*</span><span class="st"> </span>Downloading renv <span class="dv">0</span>.<span class="fl">15.2</span> ... OK</a>
+<a class="sourceLine" id="cb1-22" title="22"><span class="op">*</span><span class="st"> </span>Installing renv <span class="dv">0</span>.<span class="fl">15.2</span> ... Done<span class="op">!</span></a>
+<a class="sourceLine" id="cb1-23" title="23"><span class="er">*</span><span class="st"> </span>Successfully installed and loaded renv <span class="dv">0</span>.<span class="dv">15</span>.<span class="fl">2.</span></a>
+<a class="sourceLine" id="cb1-24" title="24"><span class="op">*</span><span class="st"> </span>Project <span class="st">&#39;~/EZCancerTarget-main&#39;</span> loaded. [renv <span class="dv">0</span>.<span class="fl">15.2</span>]</a>
+<a class="sourceLine" id="cb1-25" title="25"><span class="op">*</span><span class="st"> </span>The project library is out of sync with the lockfile.</a>
+<a class="sourceLine" id="cb1-26" title="26"><span class="op">*</span><span class="st"> </span>Use <span class="st">`</span><span class="dt">renv::restore()</span><span class="st">`</span> to install packages recorded <span class="cf">in</span> the lockfile.</a></code></pre></div>
+<ul>
+<li>Type the suggested command to install <code>EZCancerTarget</code> dependencies and chooes yes at prompted question . It will take a while:</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&gt;</span><span class="st"> </span>renv<span class="op">::</span><span class="kw">restore</span>()</a>
+<a class="sourceLine" id="cb2-2" title="2">The following <span class="kw">package</span>(s) will be updated<span class="op">:</span></a>
+<a class="sourceLine" id="cb2-3" title="3"></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co"># CRAN ===============================</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="op">-</span><span class="st"> </span>R6              [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">2</span>.<span class="fl">5.1</span>]</a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="op">-</span><span class="st"> </span>askpass         [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="fl">1.1</span>]</a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="op">-</span><span class="st"> </span>assertthat      [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">0</span>.<span class="fl">2.1</span>]</a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">-</span><span class="st"> </span>bit             [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">4</span>.<span class="fl">0.4</span>]</a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="op">-</span><span class="st"> </span>bit64           [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">4</span>.<span class="fl">0.5</span>]</a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="op">-</span><span class="st"> </span>cellranger      [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">1</span>.<span class="fl">1.0</span>]</a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="op">-</span><span class="st"> </span>cli             [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">3</span>.<span class="fl">1.1</span>]</a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="op">-</span><span class="st"> </span>clipr           [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">0</span>.<span class="fl">7.1</span>]</a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="op">-</span><span class="st"> </span>cpp11           [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">0</span>.<span class="fl">4.2</span>]</a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="op">-</span><span class="st"> </span>crayon          [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">1</span>.<span class="fl">4.2</span>]</a>
+<a class="sourceLine" id="cb2-15" title="15"><span class="op">-</span><span class="st"> </span>curl            [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">4</span>.<span class="fl">3.2</span>]</a>
+<a class="sourceLine" id="cb2-16" title="16">.</a>
+<a class="sourceLine" id="cb2-17" title="17">.</a>
+<a class="sourceLine" id="cb2-18" title="18">.</a>
+<a class="sourceLine" id="cb2-19" title="19"></a>
+<a class="sourceLine" id="cb2-20" title="20">Do you want to proceed? [y<span class="op">/</span>N]<span class="op">:</span><span class="st"> </span>y</a>
+<a class="sourceLine" id="cb2-21" title="21"></a>
+<a class="sourceLine" id="cb2-22" title="22"><span class="op">*</span><span class="st"> </span>Querying repositories <span class="cf">for</span> available source packages ... Done<span class="op">!</span></a>
+<a class="sourceLine" id="cb2-23" title="23">Retrieving <span class="st">&#39;https://cloud.r-project.org/src/contrib/R6_2.5.1.tar.gz&#39;</span> ...</a>
+<a class="sourceLine" id="cb2-24" title="24">    OK [downloaded <span class="fl">61.9</span> Kb <span class="cf">in</span> <span class="fl">0.3</span> secs]</a>
+<a class="sourceLine" id="cb2-25" title="25">Retrieving <span class="st">&#39;https://cloud.r-project.org/src/contrib/askpass_1.1.tar.gz&#39;</span> ...</a>
+<a class="sourceLine" id="cb2-26" title="26">    OK [downloaded <span class="fl">5.6</span> Kb <span class="cf">in</span> <span class="dv">0</span> secs]</a>
+<a class="sourceLine" id="cb2-27" title="27">Retrieving <span class="st">&#39;https://cloud.r-project.org/src/contrib/sys_3.4.tar.gz&#39;</span> ...</a>
+<a class="sourceLine" id="cb2-28" title="28">.</a>
+<a class="sourceLine" id="cb2-29" title="29">.</a>
+<a class="sourceLine" id="cb2-30" title="30">.</a>
+<a class="sourceLine" id="cb2-31" title="31"></a>
+<a class="sourceLine" id="cb2-32" title="32"></a>
+<a class="sourceLine" id="cb2-33" title="33">Installing whisker [<span class="fl">0.4</span>] ...</a>
+<a class="sourceLine" id="cb2-34" title="34">    OK [built from source]</a>
+<a class="sourceLine" id="cb2-35" title="35">Moving whisker [<span class="fl">0.4</span>] into the cache ...</a>
+<a class="sourceLine" id="cb2-36" title="36">    OK [moved to cache <span class="cf">in</span> <span class="fl">0.64</span> milliseconds]</a></code></pre></div>
 
 </div>
 </div>
