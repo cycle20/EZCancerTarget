@@ -15,5 +15,76 @@ Linux and macOS users can find download and installation instructions on these p
 
 * Download `EZCancerTarget` [latest ZIP bundle](https://github.com/cycle20/EZCancerTarget/archive/refs/heads/main.zip)
 * Extract its content into a folder: for example `C:\EzCancerTarget`
+* Open a terminal window and enter into this directory `cd C:\EzCancerTarget`
+* Start R here by the `R` command
+* Similar output should display:
 
-Thats all.
+```r
+
+R version 4.1.1 (2021-08-10) -- "Kick Things"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+# Bootstrapping renv 0.15.2 --------------------------------------------------
+* Downloading renv 0.15.2 ... OK
+* Installing renv 0.15.2 ... Done!
+* Successfully installed and loaded renv 0.15.2.
+* Project '~/EZCancerTarget-main' loaded. [renv 0.15.2]
+* The project library is out of sync with the lockfile.
+* Use `renv::restore()` to install packages recorded in the lockfile.
+```
+
+* Type the suggested command to install `EZCancerTarget` dependencies and chooes yes at prompted question . It will take a while:
+
+```r
+> renv::restore()
+The following package(s) will be updated:
+
+# CRAN ===============================
+- R6              [* -> 2.5.1]
+- askpass         [* -> 1.1]
+- assertthat      [* -> 0.2.1]
+- bit             [* -> 4.0.4]
+- bit64           [* -> 4.0.5]
+- cellranger      [* -> 1.1.0]
+- cli             [* -> 3.1.1]
+- clipr           [* -> 0.7.1]
+- cpp11           [* -> 0.4.2]
+- crayon          [* -> 1.4.2]
+- curl            [* -> 4.3.2]
+.
+.
+.
+
+Do you want to proceed? [y/N]: y
+
+* Querying repositories for available source packages ... Done!
+Retrieving 'https://cloud.r-project.org/src/contrib/R6_2.5.1.tar.gz' ...
+	OK [downloaded 61.9 Kb in 0.3 secs]
+Retrieving 'https://cloud.r-project.org/src/contrib/askpass_1.1.tar.gz' ...
+	OK [downloaded 5.6 Kb in 0 secs]
+Retrieving 'https://cloud.r-project.org/src/contrib/sys_3.4.tar.gz' ...
+.
+.
+.
+
+
+Installing whisker [0.4] ...
+	OK [built from source]
+Moving whisker [0.4] into the cache ...
+	OK [moved to cache in 0.64 milliseconds]
+```
