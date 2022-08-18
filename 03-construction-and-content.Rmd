@@ -6,28 +6,30 @@ _NOTE: This section describes input spreadsheet hosted on Google Drive._
 
 Each entry obtained from the search results in the interactive online
 platform of `EZCancerTarget` is referenced and has at least one scientific
-piece of evidence. Figure 1 shows a flowchart on the processing steps and
-workflow of `EZCancerTarget`. First, users of `EZCancerTarget` can start their
-workflow by opening the project's starting page on _GitHub_
-(https://cycle20.github.io/EZCancerTarget/). Then, users can upload their target
+piece of evidence. Figure \@ref(fig:flowchart) shows a flowchart on
+the processing steps and workflow of `EZCancerTarget`. First, users of
+`EZCancerTarget` can start their workflow by opening the project's starting page on
+_GitHub_ (https://cycle20.github.io/EZCancerTarget/). Then, users can upload their target
 list with three pieces of information into a _Google Spreadsheet_ (Target INPUT).
-The first piece (Fig. 2 Column A), asks for the _HUGO ID_. In _Column B_,
-users can give a _"Label"_ for every target for classification and clustering
-useful in later work. The third piece (Fig. 2 column C) is the _UniProtKB ID_ of
+The first piece (Fig. \@ref(fig:input-table) Column A), asks for the _HUGO ID_.
+In _Column B_, users can give a _"Label"_ for every target for classification and
+clustering useful in later work.
+The third piece (Fig. \@ref(fig:input-table) column C) is the _UniProtKB ID_ of
 the searched gene. Inputs for the `HUGO` and `Label` columns are limited to
 12 characters. On the right side of the spreadsheet (columns `E-K`), hyperlinks
 provide access to the results page on _GitHub_, and
 in the _"Results of Update Request"_ box, users can check the query's status.
 Hitting the _"Start Rendering"_ button located on columns `E-F` starts the query.
-The area within `E1-K8` are protected and automatically overwritten if edited (Fig. 2).
+The area within `E1-K8` are protected and automatically overwritten if edited
+(Fig. \@ref(fig:input-table)).
 
 ## Result Page
 
 By clicking on the _"Result page"_ link on the target spreadsheet, we can access
-the results of our query within approximately 30 minutes. Clicking on
+the results of our query within approximately 10 minutes. Clicking on
 the hyperlink in cell `H6` we can follow the progress of the query
-(Fig. 2, arrow). A new query overwrites the earlier one in the web application,
-but every previous version is saved on _GitHub_ under the
+(Fig. \@ref(fig:input-table), arrow). A new query overwrites the earlier one in
+the web application, but every previous version is saved on _GitHub_ under the
 _"Result of Update Request"_ link
 (https://github.com/cycle20/EZCancerTarget/actions/workflows/clue.yml).
 A scrollable panel displays all the targets on the left with at least one valid
@@ -53,7 +55,7 @@ the mechanism of action (_MoA_), clinical status (_preclinical_, _phase 1_,
 _phase 2_, _phase 3_, or _launched_), and the search resources from _PubMed_,
 _EMA_ and the direct entry from _clue.io_. Furthermore, the query table includes
 hyperlinks with _DrugBank_, _PubChem_, and _ChEMBL_ IDs to quickly access
-the compounds' chemical and pharmacological properties (Fig. 3).
+the compounds' chemical and pharmacological properties (Fig. \@ref(fig:drugs)).
 
 
 `EZCancerTarget` also gives a comprehensive, highly structured overview of the
@@ -63,15 +65,17 @@ participation in pathways, and cellular localization (_Reactome_ and _KEGG_)
 retrieved from various databases. Hyperlinks to _GeneCards_ and
 _DrugBank Target Search_ are also available but differently structured as for
 _UniProt_ entries. The _"STRING"_ entry opens a static _STRING_ map for
-the target and provides a hyperlink to https://string-db.org (Fig. 4).
+the target and provides a hyperlink to https://string-db.org (Fig. \@ref(fig:molecular-background)).
 The following entry carries the _"Molecular Functions / Subcellular Localizations"_
 title, where the two main hyperlinks (source) lead to _UniProt_'s _"Function"_ and
 _"Subcellular Localization"_ pages. Molecular function entries and target
 localizations are also provided as text separately, where hyperlinks lead to
 the _QuickGo_ platform to obtain further information about relevant
-compartment-specific molecular pathways (Fig. 4). The last entry named _"Pathways"_
-provides links to every _Reactome_ database, where the target's participation is
-visualized in every relevant metabolic pathway (Fig. 4). The hyperlink to
+compartment-specific molecular pathways (Fig. \@ref(fig:molecular-background)).
+The last entry named _"Pathways"_ provides links to every _Reactome_ database,
+where the target's participation is visualized in every relevant metabolic pathway
+(Fig. \@ref(fig:molecular-background)). The hyperlink to
 the entry of the _KEGG_ database is also displayed here, without being broken down
 to individual links to pathways. **Supplementary Video 1** shows a short tutorial
 about the functionality of the program and the main steps to generate a query.
+

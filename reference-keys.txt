@@ -1,3 +1,7 @@
+fig:flowchart
+fig:input-table
+fig:drugs
+fig:molecular-background
 introduction
 installation-guide
 requirements

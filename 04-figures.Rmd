@@ -7,7 +7,7 @@ Flowchart describes the main steps of `EZCancerTarget`’s functionality,
 including data input, _clue.io_ target search, cross-referencing in databases
 (Datapatch) and molecular background information on selected targets (Render).
 
-```{r echo=FALSE, out.width='90%', fig.align='center'}
+```{r flowchart, fig.cap='Flowchart of functionality', echo=FALSE, out.width='90%', fig.align='center'}
 knitr::include_graphics("images/Figure_1.jpg")
 ```
 
@@ -21,7 +21,7 @@ search (red arrowhead). Progress can be traced by clicking on hyperlink in cells
 `H6-K6` (black arrow). Clicking on the hyperlink in cell `F2-I2` reveals
 the results page.
 
-```{r echo=FALSE, out.width='90%', fig.align='center'}
+```{r input-table, fig.cap='Input table of targets', echo=FALSE, out.width='90%', fig.align='center'}
 knitr::include_graphics("images/Figure_2_NEW.jpg")
 ```
 
@@ -33,7 +33,7 @@ available compound list (black box) describing also _mechanism of action_
 (MoA, dashed box), _clinical status_ (red box), _resources_ of information on
 _PubMed_ (green box) and _DrugBank_/_PubChem_/_ChEMBL_ entries (blue box).
 
-```{r echo=FALSE, out.width='90%', fig.align='center'}
+```{r drugs, fig.cap='Targets and drugs', echo=FALSE, out.width='90%', fig.align='center'}
 knitr::include_graphics("images/Figure_3.jpg")
 ```
 
@@ -49,6 +49,6 @@ _Panel C_ shows hyperlinks to visualize _KEGG_ and _Reactome_ pathways of the
 selected target. For Reactome, clicking on individual pathway titles we can
 directly access the infographic of the given pathway.
 
-```{r echo=FALSE, out.width='90%', fig.align='center'}
+```{r molecular-background, fig.cap='Molecular background', echo=FALSE, out.width='90%', fig.align='center'}
 knitr::include_graphics("images/Figure_4_NEW.jpg")
 ```
