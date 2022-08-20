@@ -23,7 +23,7 @@
 <meta name="author" content="David Dora MD, PhD; Timea Dora MS; Gabor Szegvari MS; Csongor Gerdán BS; Zoltan Lohinai MD, PhD" />
 
 
-<meta name="date" content="2022-08-18" />
+<meta name="date" content="2022-08-20" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -134,7 +134,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="./">EZCancerTarget</a></li>
 
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#running-with-no-installation"><i class="fa fa-check"></i><b>1.1</b> Running with no installation</a><ul>
+<li class="chapter" data-level="1.1.1" data-path="index.html"><a href="index.html#input-google-spreadsheet"><i class="fa fa-check"></i><b>1.1.1</b> Input Google Spreadsheet</a></li>
+<li class="chapter" data-level="1.1.2" data-path="index.html"><a href="index.html#result-page-and-workflow-status-check"><i class="fa fa-check"></i><b>1.1.2</b> Result page and workflow status check</a></li>
+</ul></li>
+</ul></li>
 <li class="chapter" data-level="2" data-path="installation-guide.html"><a href="installation-guide.html"><i class="fa fa-check"></i><b>2</b> Installation Guide</a><ul>
 <li class="chapter" data-level="2.1" data-path="installation-guide.html"><a href="installation-guide.html#requirements"><i class="fa fa-check"></i><b>2.1</b> Requirements</a><ul>
 <li class="chapter" data-level="2.1.1" data-path="installation-guide.html"><a href="installation-guide.html#r-environment"><i class="fa fa-check"></i><b>2.1.1</b> R environment</a></li>
@@ -192,7 +197,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="header">
 <h1 class="title">EZCancerTarget Documentation</h1>
 <p class="author"><em>David Dora MD, PhD; Timea Dora MS; Gabor Szegvari MS; Csongor Gerdán BS; Zoltan Lohinai MD, PhD</em></p>
-<p class="date"><em>2022-08-18</em></p>
+<p class="date"><em>2022-08-20</em></p>
 </div>
 <div id="introduction" class="section level1 hasAnchor">
 <h1><span class="header-section-number">Chapter 1</span> Introduction<a href="index.html#introduction" class="anchor-section" aria-label="Anchor link to header"></a></h1>
@@ -201,7 +206,28 @@ target molecules using open-access databases, such as <em>UniProt</em>, <em>Gene
 <em>Gene Ontology</em> and <em>STRING</em>. This way, the user receives a concise summary on
 the biological relevance of every target, that is explicitly important for
 researchers who are not experts in molecular biology.</p>
+<div id="running-with-no-installation" class="section level2 hasAnchor">
+<h2><span class="header-section-number">1.1</span> Running with no installation<a href="index.html#running-with-no-installation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="input-google-spreadsheet" class="section level3 hasAnchor">
+<h3><span class="header-section-number">1.1.1</span> Input Google Spreadsheet<a href="index.html#input-google-spreadsheet" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><a href="https://docs.google.com/spreadsheets/d/1oQtWxPJASB-WfwqnyBJr3woXmv03bu3iSzIrKyK2-t8/">EZCancerTarget - Target INPUT table</a> - the easiest way to provide input dataset to <code>EZCancerTarget</code> workflow and start it on GitHub.</p>
+<p>Its access requires</p>
+<ul>
+<li>a Google account,</li>
+<li>an editor permission,</li>
+<li>cooperations with other users to avoid unintended changes of initial dataset.</li>
+</ul>
+</div>
+<div id="result-page-and-workflow-status-check" class="section level3 hasAnchor">
+<h3><span class="header-section-number">1.1.2</span> Result page and workflow status check<a href="index.html#result-page-and-workflow-status-check" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<ul>
+<li>Result of recent targets: <a href="https://cycle20.github.io/EZCancerTarget/index.target.with.data.html">index.target.with.data.html</a></li>
+<li><a href="https://cycle20.github.io/EZCancerTarget/baseline/index.target.with.data.html">Baseline version of result page</a></li>
+<li><a href="https://github.com/cycle20/EZCancerTarget/actions/workflows/clue.yml">Workflow results</a> - list of each workflow run on GitHub.</li>
+</ul>
 
+</div>
+</div>
 </div>
             </section>
 

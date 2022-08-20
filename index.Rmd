@@ -18,3 +18,23 @@ target molecules using open-access databases, such as _UniProt_, _GeneCards_,
 _Gene Ontology_ and _STRING_. This way, the user receives a concise summary on
 the biological relevance of every target, that is explicitly important for
 researchers who are not experts in molecular biology.
+
+## Running with no installation
+
+### Input Google Spreadsheet
+
+[EZCancerTarget - Target INPUT table](https://docs.google.com/spreadsheets/d/1oQtWxPJASB-WfwqnyBJr3woXmv03bu3iSzIrKyK2-t8/) - the easiest way to provide input dataset to ```EZCancerTarget``` workflow and start it on GitHub.
+
+Its access requires
+
+* a Google account,
+* an editor permission,
+* cooperations with other users to avoid unintended changes of initial dataset.
+
+### Result page and workflow status check
+
+* Result of recent targets: [index.target.with.data.html](https://cycle20.github.io/EZCancerTarget/index.target.with.data.html)
+* [Baseline version of result page](https://cycle20.github.io/EZCancerTarget/baseline/index.target.with.data.html)
+* [Workflow results](https://github.com/cycle20/EZCancerTarget/actions/workflows/clue.yml) - list of each workflow run on GitHub.
+
+

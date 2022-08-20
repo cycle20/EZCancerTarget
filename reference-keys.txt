@@ -3,6 +3,9 @@ fig:input-table
 fig:drugs
 fig:molecular-background
 introduction
+running-with-no-installation
+input-google-spreadsheet
+result-page-and-workflow-status-check
 installation-guide
 requirements
 r-environment
