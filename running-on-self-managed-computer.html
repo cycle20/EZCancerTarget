@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 6 Figures and Legends | EZCancerTarget Documentation</title>
+  <title>Chapter 3 Running on self-managed computer | EZCancerTarget Documentation</title>
   <meta name="description" content="An Open-access Drug Repurposing and Data-mining Platform to Enhance Target Validation and Optimize International Research Efforts against Highly Progressive Cancers" />
   <meta name="generator" content="bookdown 0.28 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 6 Figures and Legends | EZCancerTarget Documentation" />
+  <meta property="og:title" content="Chapter 3 Running on self-managed computer | EZCancerTarget Documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="An Open-access Drug Repurposing and Data-mining Platform to Enhance Target Validation and Optimize International Research Efforts against Highly Progressive Cancers" />
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 6 Figures and Legends | EZCancerTarget Documentation" />
+  <meta name="twitter:title" content="Chapter 3 Running on self-managed computer | EZCancerTarget Documentation" />
   
   <meta name="twitter:description" content="An Open-access Drug Repurposing and Data-mining Platform to Enhance Target Validation and Optimize International Research Efforts against Highly Progressive Cancers" />
   
@@ -30,8 +30,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="construction-and-content.html"/>
-
+<link rel="prev" href="installation-guide.html"/>
+<link rel="next" href="methods.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -195,74 +195,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="figures-and-legends" class="section level1 hasAnchor">
-<h1><span class="header-section-number">Chapter 6</span> Figures and Legends<a href="figures-and-legends.html#figures-and-legends" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<div id="flowchart-of-functionality" class="section level2 hasAnchor">
-<h2><span class="header-section-number">6.1</span> Flowchart of functionality<a href="figures-and-legends.html#flowchart-of-functionality" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Flowchart describes the main steps of <code>EZCancerTarget</code>’s functionality,
-including data input, <em>clue.io</em> target search, cross-referencing in databases
-(Datapatch) and molecular background information on selected targets (Render).</p>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:flowchart"></span>
-<img src="images/Figure_1.jpg" alt="Flowchart of functionality" width="90%" />
-<p class="caption">
-Figure 6.1: Flowchart of functionality
-</p>
-</div>
-</div>
-<div id="input-table-for-molecular-targets" class="section level2 hasAnchor">
-<h2><span class="header-section-number">6.2</span> Input table for molecular targets<a href="figures-and-legends.html#input-table-for-molecular-targets" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Users can enter selected targets’ <em>HUGO</em> name (black rectangle),
-<em>label</em> (blue dashed rectangle) and <em>UniProt</em> ID (green dashed rectangle) in
-columns <code>A</code>, <code>B</code> and <code>C</code>. Hitting <em>“Start Rendering”</em> will initiate the <em>clue.io</em>
-search (red arrowhead). Progress can be traced by clicking on hyperlink in cells
-<code>H6-K6</code> (black arrow). Clicking on the hyperlink in cell <code>F2-I2</code> reveals
-the results page.</p>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:input-table"></span>
-<img src="images/Figure_2_NEW.jpg" alt="Input table of targets" width="90%" />
-<p class="caption">
-Figure 6.2: Input table of targets
-</p>
-</div>
-</div>
-<div id="list-of-drug-targets" class="section level2 hasAnchor">
-<h2><span class="header-section-number">6.3</span> List of drug targets<a href="figures-and-legends.html#list-of-drug-targets" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Clicking on the labels of selected targets (column on left side) unveils
-available compound list (black box) describing also <em>mechanism of action</em>
-(MoA, dashed box), <em>clinical status</em> (red box), <em>resources</em> of information on
-<em>PubMed</em> (green box) and <em>DrugBank</em>/<em>PubChem</em>/<em>ChEMBL</em> entries (blue box).</p>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:drugs"></span>
-<img src="images/Figure_3.jpg" alt="Targets and drugs" width="90%" />
-<p class="caption">
-Figure 6.3: Targets and drugs
-</p>
-</div>
-</div>
-<div id="molecular-background-of-druggable-targets" class="section level2 hasAnchor">
-<h2><span class="header-section-number">6.4</span> Molecular background of druggable targets<a href="figures-and-legends.html#molecular-background-of-druggable-targets" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p><em>Details on the molecular background of druggable targets:</em> <em>Panel A</em> shows the
-network map from <em>STRING</em> with static string map and hyperlink to STRING DB entry.
-<em>Panel B</em> displays hyperlinks to <em>“molecular function”</em>, <em>“biological processes”</em> and
-<em>“subcellular localisation”</em> to browse the <em>UniProt</em> database on molecular background.
-By clicking directly on the titles, we can access a specific function.
-<em>Panel C</em> shows hyperlinks to visualize <em>KEGG</em> and <em>Reactome</em> pathways of the
-selected target. For Reactome, clicking on individual pathway titles we can
-directly access the infographic of the given pathway.</p>
-<div class="figure" style="text-align: center"><span style="display:block;" id="fig:molecular-background"></span>
-<img src="images/Figure_4_NEW.jpg" alt="Molecular background" width="90%" />
-<p class="caption">
-Figure 6.4: Molecular background
-</p>
-</div>
+<div id="running-on-self-managed-computer" class="section level1 hasAnchor">
+<h1><span class="header-section-number">Chapter 3</span> Running on self-managed computer<a href="running-on-self-managed-computer.html#running-on-self-managed-computer" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Scripts of three stages can run on a local computer,
+if steps of installation have been performed on it.
+These stages, their functionalities and input/output files are
+described in Chapter 4 and 5.</p>
+<p>Steps of executing each stage script</p>
+<ul>
+<li>Open a terminal window on your computer</li>
+<li>Enter into the location of the installation directory. For example <code>cd C:\EZCancerTarget</code>.</li>
+<li>Run clue stage by <code>Rscript -e "source('R/clue.R'); main()"</code></li>
+<li>Run dataPatch stage by <code>Rscript -e "source('R/dataPatch.R'); main()"</code></li>
+<li>Run report generation by <code>Rscript -e "source('R/renderWebPage.R'); main()"</code></li>
+</ul>
 
-</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="construction-and-content.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="installation-guide.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="methods.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -293,7 +248,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/cycle20/EZCancerTarget/blob/gh-pages/05-figures.Rmd",
+"link": "https://github.com/cycle20/EZCancerTarget/blob/gh-pages/02-running.Rmd",
 "text": "Edit"
 },
 "history": {

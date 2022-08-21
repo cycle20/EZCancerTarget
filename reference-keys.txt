@@ -11,6 +11,7 @@ requirements
 r-environment
 clue.io-api-key
 installation-steps
+running-on-self-managed-computer
 methods
 overview
 clue.r-and-datapatch.r-scripts

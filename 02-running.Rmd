@@ -1,0 +1,15 @@
+# Running on self-managed computer
+
+Scripts of three stages can run on a local computer,
+if steps of installation have been performed on it.
+These stages, their functionalities and input/output files are
+described in Chapter 4 and 5.
+
+Steps of executing each stage script
+
+* Open a terminal window on your computer
+* Enter into the location of the installation directory. For example `cd C:\EZCancerTarget`.
+* Run clue stage by `Rscript -e "source('R/clue.R'); main()"`
+* Run dataPatch stage by `Rscript -e "source('R/dataPatch.R'); main()"`
+* Run report generation by `Rscript -e "source('R/renderWebPage.R'); main()"`
+
