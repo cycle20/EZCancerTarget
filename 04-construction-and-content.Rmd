@@ -43,6 +43,11 @@ The area within `E1-K8` are protected and automatically overwritten if edited
 
 ## Result Page
 
+_NOTE: This section describes result page made public on GitHub or_
+_located in_ `OUTPUT` _directory of EZCancerTarget in case of self-hosted run_
+`index.target.with.data.html`.
+
+
 By clicking on the _"Result page"_ link on the target spreadsheet, we can access
 the results of our query within approximately 10 minutes. Clicking on
 the hyperlink in cell `H6` we can follow the progress of the query
