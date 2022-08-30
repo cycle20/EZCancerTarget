@@ -28,5 +28,3 @@ dynamic-request-for-string-network-image-and-a-simple-cache-for-htmlxml-contents
 construction-and-content
 input-spreadsheet
 result-page
-figures-and-legends
-list-of-drug-targets
