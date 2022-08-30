@@ -7,10 +7,27 @@ _NOTE: This section describes input spreadsheet hosted on Google Drive._
 Each entry obtained from the search results in the interactive online
 platform of `EZCancerTarget` is referenced and has at least one scientific
 piece of evidence. Figure \@ref(fig:flowchart) shows a flowchart on
-the processing steps and workflow of `EZCancerTarget`. First, users of
+the processing steps and workflow of `EZCancerTarget`.
+
+(ref:flowchart) Flowchart of functionality describes the main steps of `EZCancerTarget`’s functionality, including data input, _clue.io_ target search, cross-referencing in databases (Datapatch) and molecular background information on selected targets (Render).
+
+```{r flowchart, fig.cap='(ref:flowchart)', echo=FALSE, out.width='90%', fig.align='center'}
+knitr::include_graphics("images/Figure_1.jpg")
+```
+
+
+First, users of
 `EZCancerTarget` can start their workflow by opening the project's starting page on
 _GitHub_ (https://cycle20.github.io/EZCancerTarget/). Then, users can upload their target
-list with three pieces of information into a _Google Spreadsheet_ (Target INPUT).
+list with three pieces of information into a _Google Spreadsheet_
+([Target INPUT](https://docs.google.com/spreadsheets/d/1oQtWxPJASB-WfwqnyBJr3woXmv03bu3iSzIrKyK2-t8/)).
+
+(ref:molecular-targets) Input table of targets - Users can enter selected targets’ _HUGO_ name (black rectangle), _label_ (blue dashed rectangle) and _UniProt_ ID (green dashed rectangle) in columns `A`, `B` and `C`. Hitting _"Start Rendering"_ will initiate the _clue.io_ search (red arrowhead). Progress can be traced by clicking on hyperlink in cells `H6-K6` (black arrow). Clicking on the hyperlink in cell `F2-I2` reveals the results page.
+
+```{r input-table, fig.cap='(ref:molecular-targets)', echo=FALSE, out.width='90%', fig.align='center'}
+knitr::include_graphics("images/Figure_2_NEW.jpg")
+```
+
 The first piece (Fig. \@ref(fig:input-table) Column A), asks for the _HUGO ID_.
 In _Column B_, users can give a _"Label"_ for every target for classification and
 clustering useful in later work.
@@ -57,6 +74,12 @@ _EMA_ and the direct entry from _clue.io_. Furthermore, the query table includes
 hyperlinks with _DrugBank_, _PubChem_, and _ChEMBL_ IDs to quickly access
 the compounds' chemical and pharmacological properties (Fig. \@ref(fig:drugs)).
 
+(ref:targets-and-drugs) Targets and drugs - Clicking on the labels of selected targets (column on left side) unveils available compound list (black box) describing also _mechanism of action_ (MoA, dashed box), _clinical status_ (red box), _resources_ of information on _PubMed_ (green box) and _DrugBank_/_PubChem_/_ChEMBL_ entries (blue box).
+
+```{r drugs, fig.cap='(ref:targets-and-drugs)', echo=FALSE, out.width='90%', fig.align='center'}
+knitr::include_graphics("images/Figure_3.jpg")
+```
+
 
 `EZCancerTarget` also gives a comprehensive, highly structured overview of the
 selected targets regarding their molecular biology data,
@@ -65,12 +88,20 @@ participation in pathways, and cellular localization (_Reactome_ and _KEGG_)
 retrieved from various databases. Hyperlinks to _GeneCards_ and
 _DrugBank Target Search_ are also available but differently structured as for
 _UniProt_ entries. The _"STRING"_ entry opens a static _STRING_ map for
-the target and provides a hyperlink to https://string-db.org (Fig. \@ref(fig:molecular-background)).
+the target and provides a hyperlink to https://string-db.org/ (Fig. \@ref(fig:molecular-background)).
+
+(ref:molecular-bg) Molecular background of druggable targets - _Details on the molecular background of druggable targets:_ _Panel A_ shows the network map from _STRING_ with static string map and hyperlink to STRING DB entry. _Panel B_ displays hyperlinks to _"molecular function"_, _"biological processes"_ and _"subcellular localisation"_ to browse the _UniProt_ database on molecular background. By clicking directly on the titles, we can access a specific function. _Panel C_ shows hyperlinks to visualize _KEGG_ and _Reactome_ pathways of the selected target. For Reactome, clicking on individual pathway titles we can directly access the infographic of the given pathway.
+
+```{r molecular-background, fig.cap='(ref:molecular-bg)', echo=FALSE, out.width='90%', fig.align='center'}
+knitr::include_graphics("images/Figure_4_NEW.jpg")
+```
+
+
 The following entry carries the _"Molecular Functions / Subcellular Localizations"_
 title, where the two main hyperlinks (source) lead to _UniProt_'s _"Function"_ and
 _"Subcellular Localization"_ pages. Molecular function entries and target
 localizations are also provided as text separately, where hyperlinks lead to
-the _QuickGo_ platform to obtain further information about relevant
+the _QuickGO_ platform to obtain further information about relevant
 compartment-specific molecular pathways (Fig. \@ref(fig:molecular-background)).
 The last entry named _"Pathways"_ provides links to every _Reactome_ database,
 where the target's participation is visualized in every relevant metabolic pathway

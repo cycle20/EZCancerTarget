@@ -29,7 +29,4 @@ construction-and-content
 input-spreadsheet
 result-page
 figures-and-legends
-flowchart-of-functionality
-input-table-for-molecular-targets
 list-of-drug-targets
-molecular-background-of-druggable-targets

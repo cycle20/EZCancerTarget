@@ -23,7 +23,7 @@
 <meta name="author" content="David Dora MD, PhD; Timea Dora MS; Gabor Szegvari MS; Csongor Gerdán BS; Zoltan Lohinai MD, PhD" />
 
 
-<meta name="date" content="2022-08-21" />
+<meta name="date" content="2022-08-30" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -55,25 +55,27 @@
 
 
 <style type="text/css">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -82,9 +84,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -134,46 +136,53 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="./">EZCancerTarget</a></li>
 
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
-<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#running-with-no-installation"><i class="fa fa-check"></i><b>1.1</b> Running with no installation</a><ul>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#running-with-no-installation"><i class="fa fa-check"></i><b>1.1</b> Running with no installation</a>
+<ul>
 <li class="chapter" data-level="1.1.1" data-path="index.html"><a href="index.html#input-google-spreadsheet"><i class="fa fa-check"></i><b>1.1.1</b> Input Google Spreadsheet</a></li>
 <li class="chapter" data-level="1.1.2" data-path="index.html"><a href="index.html#result-page-and-workflow-status-check"><i class="fa fa-check"></i><b>1.1.2</b> Result page and workflow status check</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="2" data-path="installation-guide.html"><a href="installation-guide.html"><i class="fa fa-check"></i><b>2</b> Installation Guide</a><ul>
-<li class="chapter" data-level="2.1" data-path="installation-guide.html"><a href="installation-guide.html#requirements"><i class="fa fa-check"></i><b>2.1</b> Requirements</a><ul>
+<li class="chapter" data-level="2" data-path="installation-guide.html"><a href="installation-guide.html"><i class="fa fa-check"></i><b>2</b> Installation Guide</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="installation-guide.html"><a href="installation-guide.html#requirements"><i class="fa fa-check"></i><b>2.1</b> Requirements</a>
+<ul>
 <li class="chapter" data-level="2.1.1" data-path="installation-guide.html"><a href="installation-guide.html#r-environment"><i class="fa fa-check"></i><b>2.1.1</b> R environment</a></li>
 <li class="chapter" data-level="2.1.2" data-path="installation-guide.html"><a href="installation-guide.html#clue.io-api-key"><i class="fa fa-check"></i><b>2.1.2</b> CLUE.IO API Key</a></li>
 </ul></li>
 <li class="chapter" data-level="2.2" data-path="installation-guide.html"><a href="installation-guide.html#installation-steps"><i class="fa fa-check"></i><b>2.2</b> Installation Steps</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="running-on-self-managed-computer.html"><a href="running-on-self-managed-computer.html"><i class="fa fa-check"></i><b>3</b> Running on self-managed computer</a></li>
-<li class="chapter" data-level="4" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>4</b> Methods</a><ul>
+<li class="chapter" data-level="4" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>4</b> Methods</a>
+<ul>
 <li class="chapter" data-level="4.1" data-path="methods.html"><a href="methods.html#overview"><i class="fa fa-check"></i><b>4.1</b> Overview</a></li>
 <li class="chapter" data-level="4.2" data-path="methods.html"><a href="methods.html#clue.r-and-datapatch.r-scripts"><i class="fa fa-check"></i><b>4.2</b> <code>clue.R</code> and <code>dataPatch.R</code> scripts</a></li>
-<li class="chapter" data-level="4.3" data-path="methods.html"><a href="methods.html#datapatch.r-functions"><i class="fa fa-check"></i><b>4.3</b> <code>dataPatch.R</code> functions</a><ul>
+<li class="chapter" data-level="4.3" data-path="methods.html"><a href="methods.html#datapatch.r-functions"><i class="fa fa-check"></i><b>4.3</b> <code>dataPatch.R</code> functions</a>
+<ul>
 <li class="chapter" data-level="4.3.1" data-path="methods.html"><a href="methods.html#fdalabel-function"><i class="fa fa-check"></i><b>4.3.1</b> <code>fdaLabel</code> function</a></li>
 <li class="chapter" data-level="4.3.2" data-path="methods.html"><a href="methods.html#pubmed-function"><i class="fa fa-check"></i><b>4.3.2</b> <code>pubMed</code> function</a></li>
 <li class="chapter" data-level="4.3.3" data-path="methods.html"><a href="methods.html#ema-function"><i class="fa fa-check"></i><b>4.3.3</b> <code>ema</code> function</a></li>
 <li class="chapter" data-level="4.3.4" data-path="methods.html"><a href="methods.html#xmluniprot-function"><i class="fa fa-check"></i><b>4.3.4</b> <code>xmlUniProt</code> function</a></li>
 </ul></li>
-<li class="chapter" data-level="4.4" data-path="methods.html"><a href="methods.html#renderwebpage.r-script"><i class="fa fa-check"></i><b>4.4</b> <code>renderWebPage.R</code> script</a><ul>
+<li class="chapter" data-level="4.4" data-path="methods.html"><a href="methods.html#renderwebpage.r-script"><i class="fa fa-check"></i><b>4.4</b> <code>renderWebPage.R</code> script</a>
+<ul>
 <li class="chapter" data-level="4.4.1" data-path="methods.html"><a href="methods.html#multivaluedcellstohtml-function"><i class="fa fa-check"></i><b>4.4.1</b> <code>multivaluedCellsToHTML</code> function</a></li>
 </ul></li>
-<li class="chapter" data-level="4.5" data-path="methods.html"><a href="methods.html#presentation-layer"><i class="fa fa-check"></i><b>4.5</b> Presentation layer</a><ul>
+<li class="chapter" data-level="4.5" data-path="methods.html"><a href="methods.html#presentation-layer"><i class="fa fa-check"></i><b>4.5</b> Presentation layer</a>
+<ul>
 <li class="chapter" data-level="4.5.1" data-path="methods.html"><a href="methods.html#templating"><i class="fa fa-check"></i><b>4.5.1</b> Templating</a></li>
 <li class="chapter" data-level="4.5.2" data-path="methods.html"><a href="methods.html#dynamic-request-for-string-network-image-and-a-simple-cache-for-htmlxml-contents"><i class="fa fa-check"></i><b>4.5.2</b> Dynamic request for STRING network image and a simple cache for HTML/XML contents</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="construction-and-content.html"><a href="construction-and-content.html"><i class="fa fa-check"></i><b>5</b> Construction and Content</a><ul>
+<li class="chapter" data-level="5" data-path="construction-and-content.html"><a href="construction-and-content.html"><i class="fa fa-check"></i><b>5</b> Construction and Content</a>
+<ul>
 <li class="chapter" data-level="5.1" data-path="construction-and-content.html"><a href="construction-and-content.html#input-spreadsheet"><i class="fa fa-check"></i><b>5.1</b> Input Spreadsheet</a></li>
 <li class="chapter" data-level="5.2" data-path="construction-and-content.html"><a href="construction-and-content.html#result-page"><i class="fa fa-check"></i><b>5.2</b> Result Page</a></li>
 </ul></li>
-<li class="chapter" data-level="6" data-path="figures-and-legends.html"><a href="figures-and-legends.html"><i class="fa fa-check"></i><b>6</b> Figures and Legends</a><ul>
-<li class="chapter" data-level="6.1" data-path="figures-and-legends.html"><a href="figures-and-legends.html#flowchart-of-functionality"><i class="fa fa-check"></i><b>6.1</b> Flowchart of functionality</a></li>
-<li class="chapter" data-level="6.2" data-path="figures-and-legends.html"><a href="figures-and-legends.html#input-table-for-molecular-targets"><i class="fa fa-check"></i><b>6.2</b> Input table for molecular targets</a></li>
-<li class="chapter" data-level="6.3" data-path="figures-and-legends.html"><a href="figures-and-legends.html#list-of-drug-targets"><i class="fa fa-check"></i><b>6.3</b> List of drug targets</a></li>
-<li class="chapter" data-level="6.4" data-path="figures-and-legends.html"><a href="figures-and-legends.html#molecular-background-of-druggable-targets"><i class="fa fa-check"></i><b>6.4</b> Molecular background of druggable targets</a></li>
+<li class="chapter" data-level="6" data-path="figures-and-legends.html"><a href="figures-and-legends.html"><i class="fa fa-check"></i><b>6</b> Figures and Legends</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="figures-and-legends.html"><a href="figures-and-legends.html#list-of-drug-targets"><i class="fa fa-check"></i><b>6.1</b> List of drug targets</a></li>
 </ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -195,11 +204,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="installation-guide" class="section level1 hasAnchor">
+<div id="installation-guide" class="section level1 hasAnchor" number="2">
 <h1><span class="header-section-number">Chapter 2</span> Installation Guide<a href="installation-guide.html#installation-guide" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<div id="requirements" class="section level2 hasAnchor">
+<div id="requirements" class="section level2 hasAnchor" number="2.1">
 <h2><span class="header-section-number">2.1</span> Requirements<a href="installation-guide.html#requirements" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div id="r-environment" class="section level3 hasAnchor">
+<div id="r-environment" class="section level3 hasAnchor" number="2.1.1">
 <h3><span class="header-section-number">2.1.1</span> R environment<a href="installation-guide.html#r-environment" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><code>EZCancerTarget</code> are collection of R scripts. Its requirement is an installed and working <code>R</code> environment. You can find more details on CRAN about <code>R</code> setup: <a href="https://cran.r-project.org/bin/windows/base/" class="uri">https://cran.r-project.org/bin/windows/base/</a></p>
 <p>Linux and macOS users can find download and installation instructions on these pages and can consult with their system-sepcific package management tools:</p>
@@ -209,14 +218,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="https://cran.r-project.org/bin/macosx/" class="uri">https://cran.r-project.org/bin/macosx/</a></li>
 </ul>
 </div>
-<div id="clue.io-api-key" class="section level3 hasAnchor">
+<div id="clue.io-api-key" class="section level3 hasAnchor" number="2.1.2">
 <h3><span class="header-section-number">2.1.2</span> CLUE.IO API Key<a href="installation-guide.html#clue.io-api-key" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><code>CLUE_USER_KEY</code> environment variable must be set on the host operating system.
 This key is user-specific and it can be obtained after registration
 on <em>CLUE.IO</em> (<a href="https://clue.io" class="uri">https://clue.io</a>).</p>
 </div>
 </div>
-<div id="installation-steps" class="section level2 hasAnchor">
+<div id="installation-steps" class="section level2 hasAnchor" number="2.2">
 <h2><span class="header-section-number">2.2</span> Installation Steps<a href="installation-guide.html#installation-steps" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <ul>
 <li>Download <code>EZCancerTarget</code> <a href="https://github.com/cycle20/EZCancerTarget/archive/refs/heads/main.zip">latest ZIP bundle</a></li>
@@ -225,71 +234,71 @@ on <em>CLUE.IO</em> (<a href="https://clue.io" class="uri">https://clue.io</a>).
 <li>Start R here by the <code>R</code> command</li>
 <li>Similar output should display:</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"></a>
-<a class="sourceLine" id="cb1-2" title="2">R version <span class="dv">4</span>.<span class="fl">1.1</span> (<span class="dv">2021-08-10</span>) <span class="op">--</span><span class="st"> &quot;Kick Things&quot;</span></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">Copyright</span> (C) <span class="dv">2021</span> The R Foundation <span class="cf">for</span> Statistical Computing</a>
-<a class="sourceLine" id="cb1-4" title="4">Platform<span class="op">:</span><span class="st"> </span>x86_<span class="dv">64</span><span class="op">-</span>pc<span class="op">-</span>linux<span class="op">-</span><span class="kw">gnu</span> (<span class="dv">64</span><span class="op">-</span>bit)</a>
-<a class="sourceLine" id="cb1-5" title="5"></a>
-<a class="sourceLine" id="cb1-6" title="6">R is free software and comes with ABSOLUTELY NO WARRANTY.</a>
-<a class="sourceLine" id="cb1-7" title="7">You are welcome to redistribute it under certain conditions.</a>
-<a class="sourceLine" id="cb1-8" title="8">Type <span class="st">&#39;license()&#39;</span> or <span class="st">&#39;licence()&#39;</span> <span class="cf">for</span> distribution details.</a>
-<a class="sourceLine" id="cb1-9" title="9"></a>
-<a class="sourceLine" id="cb1-10" title="10">  Natural language support but running <span class="cf">in</span> an English locale</a>
-<a class="sourceLine" id="cb1-11" title="11"></a>
-<a class="sourceLine" id="cb1-12" title="12">R is a collaborative project with many contributors.</a>
-<a class="sourceLine" id="cb1-13" title="13">Type <span class="st">&#39;contributors()&#39;</span> <span class="cf">for</span> more information and</a>
-<a class="sourceLine" id="cb1-14" title="14"><span class="st">&#39;citation()&#39;</span> on how to cite R or R packages <span class="cf">in</span> publications.</a>
-<a class="sourceLine" id="cb1-15" title="15"></a>
-<a class="sourceLine" id="cb1-16" title="16">Type <span class="st">&#39;demo()&#39;</span> <span class="cf">for</span> some demos, <span class="st">&#39;help()&#39;</span> <span class="cf">for</span> on<span class="op">-</span>line help, or</a>
-<a class="sourceLine" id="cb1-17" title="17"><span class="st">&#39;help.start()&#39;</span> <span class="cf">for</span> an HTML browser interface to help.</a>
-<a class="sourceLine" id="cb1-18" title="18">Type <span class="st">&#39;q()&#39;</span> to quit R.</a>
-<a class="sourceLine" id="cb1-19" title="19"></a>
-<a class="sourceLine" id="cb1-20" title="20"><span class="co"># Bootstrapping renv 0.15.2 --------------------------------------------------</span></a>
-<a class="sourceLine" id="cb1-21" title="21"><span class="op">*</span><span class="st"> </span>Downloading renv <span class="dv">0</span>.<span class="fl">15.2</span> ... OK</a>
-<a class="sourceLine" id="cb1-22" title="22"><span class="op">*</span><span class="st"> </span>Installing renv <span class="dv">0</span>.<span class="fl">15.2</span> ... Done<span class="op">!</span></a>
-<a class="sourceLine" id="cb1-23" title="23"><span class="er">*</span><span class="st"> </span>Successfully installed and loaded renv <span class="dv">0</span>.<span class="dv">15</span>.<span class="fl">2.</span></a>
-<a class="sourceLine" id="cb1-24" title="24"><span class="op">*</span><span class="st"> </span>Project <span class="st">&#39;~/EZCancerTarget-main&#39;</span> loaded. [renv <span class="dv">0</span>.<span class="fl">15.2</span>]</a>
-<a class="sourceLine" id="cb1-25" title="25"><span class="op">*</span><span class="st"> </span>The project library is out of sync with the lockfile.</a>
-<a class="sourceLine" id="cb1-26" title="26"><span class="op">*</span><span class="st"> </span>Use <span class="st">`</span><span class="dt">renv::restore()</span><span class="st">`</span> to install packages recorded <span class="cf">in</span> the lockfile.</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="installation-guide.html#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="installation-guide.html#cb1-2" aria-hidden="true" tabindex="-1"></a>R version <span class="dv">4</span>.<span class="fl">1.1</span> (<span class="dv">2021-08-10</span>) <span class="sc">--</span> <span class="st">&quot;Kick Things&quot;</span></span>
+<span id="cb1-3"><a href="installation-guide.html#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">Copyright</span> (C) <span class="dv">2021</span> The R Foundation <span class="cf">for</span> Statistical Computing</span>
+<span id="cb1-4"><a href="installation-guide.html#cb1-4" aria-hidden="true" tabindex="-1"></a>Platform<span class="sc">:</span> x86_64<span class="sc">-</span>pc<span class="sc">-</span>linux<span class="sc">-</span><span class="fu">gnu</span> (<span class="dv">64</span><span class="sc">-</span>bit)</span>
+<span id="cb1-5"><a href="installation-guide.html#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="installation-guide.html#cb1-6" aria-hidden="true" tabindex="-1"></a>R is free software and comes with ABSOLUTELY NO WARRANTY.</span>
+<span id="cb1-7"><a href="installation-guide.html#cb1-7" aria-hidden="true" tabindex="-1"></a>You are welcome to redistribute it under certain conditions.</span>
+<span id="cb1-8"><a href="installation-guide.html#cb1-8" aria-hidden="true" tabindex="-1"></a>Type <span class="st">&#39;license()&#39;</span> or <span class="st">&#39;licence()&#39;</span> <span class="cf">for</span> distribution details.</span>
+<span id="cb1-9"><a href="installation-guide.html#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="installation-guide.html#cb1-10" aria-hidden="true" tabindex="-1"></a>  Natural language support but running <span class="cf">in</span> an English locale</span>
+<span id="cb1-11"><a href="installation-guide.html#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="installation-guide.html#cb1-12" aria-hidden="true" tabindex="-1"></a>R is a collaborative project with many contributors.</span>
+<span id="cb1-13"><a href="installation-guide.html#cb1-13" aria-hidden="true" tabindex="-1"></a>Type <span class="st">&#39;contributors()&#39;</span> <span class="cf">for</span> more information and</span>
+<span id="cb1-14"><a href="installation-guide.html#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="st">&#39;citation()&#39;</span> on how to cite R or R packages <span class="cf">in</span> publications.</span>
+<span id="cb1-15"><a href="installation-guide.html#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="installation-guide.html#cb1-16" aria-hidden="true" tabindex="-1"></a>Type <span class="st">&#39;demo()&#39;</span> <span class="cf">for</span> some demos, <span class="st">&#39;help()&#39;</span> <span class="cf">for</span> on<span class="sc">-</span>line help, or</span>
+<span id="cb1-17"><a href="installation-guide.html#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="st">&#39;help.start()&#39;</span> <span class="cf">for</span> an HTML browser interface to help.</span>
+<span id="cb1-18"><a href="installation-guide.html#cb1-18" aria-hidden="true" tabindex="-1"></a>Type <span class="st">&#39;q()&#39;</span> to quit R.</span>
+<span id="cb1-19"><a href="installation-guide.html#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="installation-guide.html#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrapping renv 0.15.2 --------------------------------------------------</span></span>
+<span id="cb1-21"><a href="installation-guide.html#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Downloading renv <span class="dv">0</span>.<span class="fl">15.2</span> ... OK</span>
+<span id="cb1-22"><a href="installation-guide.html#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Installing renv <span class="dv">0</span>.<span class="fl">15.2</span> ... Done<span class="sc">!</span></span>
+<span id="cb1-23"><a href="installation-guide.html#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="er">*</span> Successfully installed and loaded renv <span class="dv">0</span>.<span class="dv">15</span>.<span class="fl">2.</span></span>
+<span id="cb1-24"><a href="installation-guide.html#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Project <span class="st">&#39;~/EZCancerTarget-main&#39;</span> loaded. [renv <span class="dv">0</span>.<span class="fl">15.2</span>]</span>
+<span id="cb1-25"><a href="installation-guide.html#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> The project library is out of sync with the lockfile.</span>
+<span id="cb1-26"><a href="installation-guide.html#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Use <span class="st">`</span><span class="at">renv::restore()</span><span class="st">`</span> to install packages recorded <span class="cf">in</span> the lockfile.</span></code></pre></div>
 <ul>
 <li>Type the suggested command to install <code>EZCancerTarget</code> dependencies and chooes yes at prompted question . It will take a while:</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&gt;</span><span class="st"> </span>renv<span class="op">::</span><span class="kw">restore</span>()</a>
-<a class="sourceLine" id="cb2-2" title="2">The following <span class="kw">package</span>(s) will be updated<span class="op">:</span></a>
-<a class="sourceLine" id="cb2-3" title="3"></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="co"># CRAN ===============================</span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="op">-</span><span class="st"> </span>R6              [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">2</span>.<span class="fl">5.1</span>]</a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="op">-</span><span class="st"> </span>askpass         [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="fl">1.1</span>]</a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="op">-</span><span class="st"> </span>assertthat      [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">0</span>.<span class="fl">2.1</span>]</a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="op">-</span><span class="st"> </span>bit             [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">4</span>.<span class="fl">0.4</span>]</a>
-<a class="sourceLine" id="cb2-9" title="9"><span class="op">-</span><span class="st"> </span>bit64           [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">4</span>.<span class="fl">0.5</span>]</a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="op">-</span><span class="st"> </span>cellranger      [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">1</span>.<span class="fl">1.0</span>]</a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="op">-</span><span class="st"> </span>cli             [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">3</span>.<span class="fl">1.1</span>]</a>
-<a class="sourceLine" id="cb2-12" title="12"><span class="op">-</span><span class="st"> </span>clipr           [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">0</span>.<span class="fl">7.1</span>]</a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="op">-</span><span class="st"> </span>cpp11           [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">0</span>.<span class="fl">4.2</span>]</a>
-<a class="sourceLine" id="cb2-14" title="14"><span class="op">-</span><span class="st"> </span>crayon          [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">1</span>.<span class="fl">4.2</span>]</a>
-<a class="sourceLine" id="cb2-15" title="15"><span class="op">-</span><span class="st"> </span>curl            [<span class="op">*</span><span class="st"> </span>-&gt;<span class="st"> </span><span class="dv">4</span>.<span class="fl">3.2</span>]</a>
-<a class="sourceLine" id="cb2-16" title="16">.</a>
-<a class="sourceLine" id="cb2-17" title="17">.</a>
-<a class="sourceLine" id="cb2-18" title="18">.</a>
-<a class="sourceLine" id="cb2-19" title="19"></a>
-<a class="sourceLine" id="cb2-20" title="20">Do you want to proceed? [y<span class="op">/</span>N]<span class="op">:</span><span class="st"> </span>y</a>
-<a class="sourceLine" id="cb2-21" title="21"></a>
-<a class="sourceLine" id="cb2-22" title="22"><span class="op">*</span><span class="st"> </span>Querying repositories <span class="cf">for</span> available source packages ... Done<span class="op">!</span></a>
-<a class="sourceLine" id="cb2-23" title="23">Retrieving <span class="st">&#39;https://cloud.r-project.org/src/contrib/R6_2.5.1.tar.gz&#39;</span> ...</a>
-<a class="sourceLine" id="cb2-24" title="24">    OK [downloaded <span class="fl">61.9</span> Kb <span class="cf">in</span> <span class="fl">0.3</span> secs]</a>
-<a class="sourceLine" id="cb2-25" title="25">Retrieving <span class="st">&#39;https://cloud.r-project.org/src/contrib/askpass_1.1.tar.gz&#39;</span> ...</a>
-<a class="sourceLine" id="cb2-26" title="26">    OK [downloaded <span class="fl">5.6</span> Kb <span class="cf">in</span> <span class="dv">0</span> secs]</a>
-<a class="sourceLine" id="cb2-27" title="27">Retrieving <span class="st">&#39;https://cloud.r-project.org/src/contrib/sys_3.4.tar.gz&#39;</span> ...</a>
-<a class="sourceLine" id="cb2-28" title="28">.</a>
-<a class="sourceLine" id="cb2-29" title="29">.</a>
-<a class="sourceLine" id="cb2-30" title="30">.</a>
-<a class="sourceLine" id="cb2-31" title="31"></a>
-<a class="sourceLine" id="cb2-32" title="32"></a>
-<a class="sourceLine" id="cb2-33" title="33">Installing whisker [<span class="fl">0.4</span>] ...</a>
-<a class="sourceLine" id="cb2-34" title="34">    OK [built from source]</a>
-<a class="sourceLine" id="cb2-35" title="35">Moving whisker [<span class="fl">0.4</span>] into the cache ...</a>
-<a class="sourceLine" id="cb2-36" title="36">    OK [moved to cache <span class="cf">in</span> <span class="fl">0.64</span> milliseconds]</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="installation-guide.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> renv<span class="sc">::</span><span class="fu">restore</span>()</span>
+<span id="cb2-2"><a href="installation-guide.html#cb2-2" aria-hidden="true" tabindex="-1"></a>The following <span class="fu">package</span>(s) will be updated<span class="sc">:</span></span>
+<span id="cb2-3"><a href="installation-guide.html#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="installation-guide.html#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># CRAN ===============================</span></span>
+<span id="cb2-5"><a href="installation-guide.html#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> R6              [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">2</span>.<span class="fl">5.1</span>]</span>
+<span id="cb2-6"><a href="installation-guide.html#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> askpass         [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="fl">1.1</span>]</span>
+<span id="cb2-7"><a href="installation-guide.html#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> assertthat      [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">0</span>.<span class="fl">2.1</span>]</span>
+<span id="cb2-8"><a href="installation-guide.html#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> bit             [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">4</span>.<span class="fl">0.4</span>]</span>
+<span id="cb2-9"><a href="installation-guide.html#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> bit64           [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">4</span>.<span class="fl">0.5</span>]</span>
+<span id="cb2-10"><a href="installation-guide.html#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> cellranger      [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">1</span>.<span class="fl">1.0</span>]</span>
+<span id="cb2-11"><a href="installation-guide.html#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> cli             [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">3</span>.<span class="fl">1.1</span>]</span>
+<span id="cb2-12"><a href="installation-guide.html#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> clipr           [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">0</span>.<span class="fl">7.1</span>]</span>
+<span id="cb2-13"><a href="installation-guide.html#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> cpp11           [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">0</span>.<span class="fl">4.2</span>]</span>
+<span id="cb2-14"><a href="installation-guide.html#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> crayon          [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">1</span>.<span class="fl">4.2</span>]</span>
+<span id="cb2-15"><a href="installation-guide.html#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> curl            [<span class="sc">*</span> <span class="ot">-&gt;</span> <span class="dv">4</span>.<span class="fl">3.2</span>]</span>
+<span id="cb2-16"><a href="installation-guide.html#cb2-16" aria-hidden="true" tabindex="-1"></a>.</span>
+<span id="cb2-17"><a href="installation-guide.html#cb2-17" aria-hidden="true" tabindex="-1"></a>.</span>
+<span id="cb2-18"><a href="installation-guide.html#cb2-18" aria-hidden="true" tabindex="-1"></a>.</span>
+<span id="cb2-19"><a href="installation-guide.html#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="installation-guide.html#cb2-20" aria-hidden="true" tabindex="-1"></a>Do you want to proceed? [y<span class="sc">/</span>N]<span class="sc">:</span> y</span>
+<span id="cb2-21"><a href="installation-guide.html#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="installation-guide.html#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span> Querying repositories <span class="cf">for</span> available source packages ... Done<span class="sc">!</span></span>
+<span id="cb2-23"><a href="installation-guide.html#cb2-23" aria-hidden="true" tabindex="-1"></a>Retrieving <span class="st">&#39;https://cloud.r-project.org/src/contrib/R6_2.5.1.tar.gz&#39;</span> ...</span>
+<span id="cb2-24"><a href="installation-guide.html#cb2-24" aria-hidden="true" tabindex="-1"></a>    OK [downloaded <span class="fl">61.9</span> Kb <span class="cf">in</span> <span class="fl">0.3</span> secs]</span>
+<span id="cb2-25"><a href="installation-guide.html#cb2-25" aria-hidden="true" tabindex="-1"></a>Retrieving <span class="st">&#39;https://cloud.r-project.org/src/contrib/askpass_1.1.tar.gz&#39;</span> ...</span>
+<span id="cb2-26"><a href="installation-guide.html#cb2-26" aria-hidden="true" tabindex="-1"></a>    OK [downloaded <span class="fl">5.6</span> Kb <span class="cf">in</span> <span class="dv">0</span> secs]</span>
+<span id="cb2-27"><a href="installation-guide.html#cb2-27" aria-hidden="true" tabindex="-1"></a>Retrieving <span class="st">&#39;https://cloud.r-project.org/src/contrib/sys_3.4.tar.gz&#39;</span> ...</span>
+<span id="cb2-28"><a href="installation-guide.html#cb2-28" aria-hidden="true" tabindex="-1"></a>.</span>
+<span id="cb2-29"><a href="installation-guide.html#cb2-29" aria-hidden="true" tabindex="-1"></a>.</span>
+<span id="cb2-30"><a href="installation-guide.html#cb2-30" aria-hidden="true" tabindex="-1"></a>.</span>
+<span id="cb2-31"><a href="installation-guide.html#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="installation-guide.html#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="installation-guide.html#cb2-33" aria-hidden="true" tabindex="-1"></a>Installing whisker [<span class="fl">0.4</span>] ...</span>
+<span id="cb2-34"><a href="installation-guide.html#cb2-34" aria-hidden="true" tabindex="-1"></a>    OK [built from source]</span>
+<span id="cb2-35"><a href="installation-guide.html#cb2-35" aria-hidden="true" tabindex="-1"></a>Moving whisker [<span class="fl">0.4</span>] into the cache ...</span>
+<span id="cb2-36"><a href="installation-guide.html#cb2-36" aria-hidden="true" tabindex="-1"></a>    OK [moved to cache <span class="cf">in</span> <span class="fl">0.64</span> milliseconds]</span></code></pre></div>
 
 </div>
 </div>
