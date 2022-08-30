@@ -3,6 +3,7 @@
 ## Input Spreadsheet
 
 _NOTE: This section describes input spreadsheet hosted on Google Drive._
+_Self-hosted runs use_ `target_list.tsv` _located in_ `data` _directory._
 
 Each entry obtained from the search results in the interactive online
 platform of `EZCancerTarget` is referenced and has at least one scientific
