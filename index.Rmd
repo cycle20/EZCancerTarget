@@ -5,6 +5,9 @@ date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
+bibliography: packages.bib
+nocite: |
+  @*
 biblio-style: apalike
 link-citations: yes
 github-repo: rstudio/bookdown-demo
