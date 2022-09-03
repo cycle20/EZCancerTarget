@@ -7,7 +7,7 @@ It can be a TSV file in case of running scripts on user-controlled computer.
 Another option is updating a shared Google Spreadsheet that is processed by
 workflow scripts on _GitHub_.
 
-`EZCancerTarget` load data from _clue.io_, then download data from other
+`EZCancerTarget` load data from _clue.io_ [@corsello_drug_2017], then download data from other
 sources: _FDA Label_ service, _PubMed_, _EMA_, _ChEMBL_, _PubChem_.
 
 After data collection it generates a user-friendly report file and some
