@@ -45,7 +45,7 @@ This function searches for the compound name received from clue.io and sends a s
 
 ### `xmlUniProt` function
 
-This function collects data from the _UniProt_ website. _UniProt_ provides APIs to access and query its data. Easy to access the human readable contents in machine readable formats (for example XML, RDF, etc.). The usage of the _UniProt_ website's REST API is straightforward, since the input target list also contains UniProt identifiers. `xmlUniProt` extracts GO (_Gene Ontology_) molecular function and cellular component terms, _STRING_ and _Reactome_ references from the received XML data. These specific entries are stored in simple R lists and added to the data frame of already collected data in a new column: `UniProtData`.
+This function collects data from the _UniProt_ website. _UniProt_ provides APIs to access and query its data. Easy to access the human readable contents in machine readable formats (for example XML, RDF, etc.). The usage of the _UniProt_ website's REST API is straightforward, since the input target list also contains UniProt identifiers. `xmlUniProt` extracts GO (_Gene Ontology_) molecular function and cellular component terms, _STRING_ and _Reactome_ [@reactome2021] references from the received XML data. These specific entries are stored in simple R lists and added to the data frame of already collected data in a new column: `UniProtData`.
 
 ## `renderWebPage.R` script
 
