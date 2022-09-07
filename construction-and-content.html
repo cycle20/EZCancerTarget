@@ -23,7 +23,7 @@
 <meta name="author" content="David Dora MD, PhD; Timea Dora MS; Gabor Szegvari MS; Csongor Gerdán BS; Zoltan Lohinai MD, PhD" />
 
 
-<meta name="date" content="2022-09-03" />
+<meta name="date" content="2022-09-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -55,27 +55,25 @@
 
 
 <style type="text/css">
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode { white-space: pre; position: relative; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -84,9 +82,9 @@ pre.numberSource code > span > a:first-child::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {   }
+  {  }
 @media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -119,28 +117,6 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
-<style type="text/css">
-/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
-</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -158,47 +134,38 @@ div.csl-indent {
 <li><a href="./">EZCancerTarget</a></li>
 
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
-<ul>
-<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#running-with-no-installation"><i class="fa fa-check"></i><b>1.1</b> Running with no installation</a>
-<ul>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#running-with-no-installation"><i class="fa fa-check"></i><b>1.1</b> Running with no installation</a><ul>
 <li class="chapter" data-level="1.1.1" data-path="index.html"><a href="index.html#input-google-spreadsheet"><i class="fa fa-check"></i><b>1.1.1</b> Input Google Spreadsheet</a></li>
 <li class="chapter" data-level="1.1.2" data-path="index.html"><a href="index.html#result-page-and-workflow-status-check"><i class="fa fa-check"></i><b>1.1.2</b> Result page and workflow status check</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="2" data-path="installation-guide.html"><a href="installation-guide.html"><i class="fa fa-check"></i><b>2</b> Installation Guide</a>
-<ul>
-<li class="chapter" data-level="2.1" data-path="installation-guide.html"><a href="installation-guide.html#requirements"><i class="fa fa-check"></i><b>2.1</b> Requirements</a>
-<ul>
+<li class="chapter" data-level="2" data-path="installation-guide.html"><a href="installation-guide.html"><i class="fa fa-check"></i><b>2</b> Installation Guide</a><ul>
+<li class="chapter" data-level="2.1" data-path="installation-guide.html"><a href="installation-guide.html#requirements"><i class="fa fa-check"></i><b>2.1</b> Requirements</a><ul>
 <li class="chapter" data-level="2.1.1" data-path="installation-guide.html"><a href="installation-guide.html#r-environment"><i class="fa fa-check"></i><b>2.1.1</b> R environment</a></li>
 <li class="chapter" data-level="2.1.2" data-path="installation-guide.html"><a href="installation-guide.html#clue.io-api-key"><i class="fa fa-check"></i><b>2.1.2</b> CLUE.IO API Key</a></li>
 </ul></li>
 <li class="chapter" data-level="2.2" data-path="installation-guide.html"><a href="installation-guide.html#installation-steps"><i class="fa fa-check"></i><b>2.2</b> Installation Steps</a></li>
 </ul></li>
 <li class="chapter" data-level="3" data-path="running-on-self-managed-computer.html"><a href="running-on-self-managed-computer.html"><i class="fa fa-check"></i><b>3</b> Running on self-managed computer</a></li>
-<li class="chapter" data-level="4" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>4</b> Methods</a>
-<ul>
+<li class="chapter" data-level="4" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>4</b> Methods</a><ul>
 <li class="chapter" data-level="4.1" data-path="methods.html"><a href="methods.html#overview"><i class="fa fa-check"></i><b>4.1</b> Overview</a></li>
 <li class="chapter" data-level="4.2" data-path="methods.html"><a href="methods.html#clue.r-and-datapatch.r-scripts"><i class="fa fa-check"></i><b>4.2</b> <code>clue.R</code> and <code>dataPatch.R</code> scripts</a></li>
-<li class="chapter" data-level="4.3" data-path="methods.html"><a href="methods.html#datapatch.r-functions"><i class="fa fa-check"></i><b>4.3</b> <code>dataPatch.R</code> functions</a>
-<ul>
+<li class="chapter" data-level="4.3" data-path="methods.html"><a href="methods.html#datapatch.r-functions"><i class="fa fa-check"></i><b>4.3</b> <code>dataPatch.R</code> functions</a><ul>
 <li class="chapter" data-level="4.3.1" data-path="methods.html"><a href="methods.html#fdalabel-function"><i class="fa fa-check"></i><b>4.3.1</b> <code>fdaLabel</code> function</a></li>
 <li class="chapter" data-level="4.3.2" data-path="methods.html"><a href="methods.html#pubmed-function"><i class="fa fa-check"></i><b>4.3.2</b> <code>pubMed</code> function</a></li>
 <li class="chapter" data-level="4.3.3" data-path="methods.html"><a href="methods.html#ema-function"><i class="fa fa-check"></i><b>4.3.3</b> <code>ema</code> function</a></li>
 <li class="chapter" data-level="4.3.4" data-path="methods.html"><a href="methods.html#xmluniprot-function"><i class="fa fa-check"></i><b>4.3.4</b> <code>xmlUniProt</code> function</a></li>
 </ul></li>
-<li class="chapter" data-level="4.4" data-path="methods.html"><a href="methods.html#renderwebpage.r-script"><i class="fa fa-check"></i><b>4.4</b> <code>renderWebPage.R</code> script</a>
-<ul>
+<li class="chapter" data-level="4.4" data-path="methods.html"><a href="methods.html#renderwebpage.r-script"><i class="fa fa-check"></i><b>4.4</b> <code>renderWebPage.R</code> script</a><ul>
 <li class="chapter" data-level="4.4.1" data-path="methods.html"><a href="methods.html#multivaluedcellstohtml-function"><i class="fa fa-check"></i><b>4.4.1</b> <code>multivaluedCellsToHTML</code> function</a></li>
 </ul></li>
-<li class="chapter" data-level="4.5" data-path="methods.html"><a href="methods.html#presentation-layer"><i class="fa fa-check"></i><b>4.5</b> Presentation layer</a>
-<ul>
+<li class="chapter" data-level="4.5" data-path="methods.html"><a href="methods.html#presentation-layer"><i class="fa fa-check"></i><b>4.5</b> Presentation layer</a><ul>
 <li class="chapter" data-level="4.5.1" data-path="methods.html"><a href="methods.html#templating"><i class="fa fa-check"></i><b>4.5.1</b> Templating</a></li>
 <li class="chapter" data-level="4.5.2" data-path="methods.html"><a href="methods.html#dynamic-request-for-string-network-image-and-a-simple-cache-for-htmlxml-contents"><i class="fa fa-check"></i><b>4.5.2</b> Dynamic request for STRING network image and a simple cache for HTML/XML contents</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="construction-and-content.html"><a href="construction-and-content.html"><i class="fa fa-check"></i><b>5</b> Construction and Content</a>
-<ul>
+<li class="chapter" data-level="5" data-path="construction-and-content.html"><a href="construction-and-content.html"><i class="fa fa-check"></i><b>5</b> Construction and Content</a><ul>
 <li class="chapter" data-level="5.1" data-path="construction-and-content.html"><a href="construction-and-content.html#input-spreadsheet"><i class="fa fa-check"></i><b>5.1</b> Input Spreadsheet</a></li>
 <li class="chapter" data-level="5.2" data-path="construction-and-content.html"><a href="construction-and-content.html#result-page"><i class="fa fa-check"></i><b>5.2</b> Result Page</a></li>
 </ul></li>
@@ -223,9 +190,9 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="construction-and-content" class="section level1 hasAnchor" number="5">
+<div id="construction-and-content" class="section level1 hasAnchor">
 <h1><span class="header-section-number">Chapter 5</span> Construction and Content<a href="construction-and-content.html#construction-and-content" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<div id="input-spreadsheet" class="section level2 hasAnchor" number="5.1">
+<div id="input-spreadsheet" class="section level2 hasAnchor">
 <h2><span class="header-section-number">5.1</span> Input Spreadsheet<a href="construction-and-content.html#input-spreadsheet" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><em>NOTE: This section describes input spreadsheet hosted on Google Drive.</em>
 <em>Self-hosted runs use</em> <code>target_list.tsv</code> <em>located in</em> <code>data</code> <em>directory.</em></p>
@@ -264,7 +231,7 @@ Hitting the <em>“Start Rendering”</em> button located on columns <code>E-F</
 The area within <code>E1-K8</code> are protected and automatically overwritten if edited
 (Fig. <a href="construction-and-content.html#fig:input-table">5.2</a>).</p>
 </div>
-<div id="result-page" class="section level2 hasAnchor" number="5.2">
+<div id="result-page" class="section level2 hasAnchor">
 <h2><span class="header-section-number">5.2</span> Result Page<a href="construction-and-content.html#result-page" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p><em>NOTE: This section describes result page made public on GitHub or</em>
 <em>located in</em> <code>OUTPUT</code> <em>directory of EZCancerTarget in case of self-hosted run</em>

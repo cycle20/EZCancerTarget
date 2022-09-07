@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>References | EZCancerTarget Documentation</title>
+  <title>Chapter 6 Figures and Legends | EZCancerTarget Documentation</title>
   <meta name="description" content="An Open-access Drug Repurposing and Data-mining Platform to Enhance Target Validation and Optimize International Research Efforts against Highly Progressive Cancers" />
   <meta name="generator" content="bookdown 0.28 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="References | EZCancerTarget Documentation" />
+  <meta property="og:title" content="Chapter 6 Figures and Legends | EZCancerTarget Documentation" />
   <meta property="og:type" content="book" />
   
   <meta property="og:description" content="An Open-access Drug Repurposing and Data-mining Platform to Enhance Target Validation and Optimize International Research Efforts against Highly Progressive Cancers" />
   <meta name="github-repo" content="rstudio/bookdown-demo" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="References | EZCancerTarget Documentation" />
+  <meta name="twitter:title" content="Chapter 6 Figures and Legends | EZCancerTarget Documentation" />
   
   <meta name="twitter:description" content="An Open-access Drug Repurposing and Data-mining Platform to Enhance Target Validation and Optimize International Research Efforts against Highly Progressive Cancers" />
   
@@ -23,7 +23,7 @@
 <meta name="author" content="David Dora MD, PhD; Timea Dora MS; Gabor Szegvari MS; Csongor Gerdán BS; Zoltan Lohinai MD, PhD" />
 
 
-<meta name="date" content="2022-09-07" />
+<meta name="date" content="2022-08-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -169,7 +169,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="5.1" data-path="construction-and-content.html"><a href="construction-and-content.html#input-spreadsheet"><i class="fa fa-check"></i><b>5.1</b> Input Spreadsheet</a></li>
 <li class="chapter" data-level="5.2" data-path="construction-and-content.html"><a href="construction-and-content.html#result-page"><i class="fa fa-check"></i><b>5.2</b> Result Page</a></li>
 </ul></li>
-<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="chapter" data-level="6" data-path="figures-and-legends.html"><a href="figures-and-legends.html"><i class="fa fa-check"></i><b>6</b> Figures and Legends</a><ul>
+<li class="chapter" data-level="6.1" data-path="figures-and-legends.html"><a href="figures-and-legends.html#flowchart-of-functionality"><i class="fa fa-check"></i><b>6.1</b> Flowchart of functionality</a></li>
+<li class="chapter" data-level="6.2" data-path="figures-and-legends.html"><a href="figures-and-legends.html#input-table-for-molecular-targets"><i class="fa fa-check"></i><b>6.2</b> Input table for molecular targets</a></li>
+<li class="chapter" data-level="6.3" data-path="figures-and-legends.html"><a href="figures-and-legends.html#list-of-drug-targets"><i class="fa fa-check"></i><b>6.3</b> List of drug targets</a></li>
+<li class="chapter" data-level="6.4" data-path="figures-and-legends.html"><a href="figures-and-legends.html#molecular-background-of-druggable-targets"><i class="fa fa-check"></i><b>6.4</b> Molecular background of druggable targets</a></li>
+</ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -190,70 +195,65 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="references" class="section level1 unnumbered hasAnchor">
-<h1>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="figures-and-legends" class="section level1 hasAnchor">
+<h1><span class="header-section-number">Chapter 6</span> Figures and Legends<a href="figures-and-legends.html#figures-and-legends" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="flowchart-of-functionality" class="section level2 hasAnchor">
+<h2><span class="header-section-number">6.1</span> Flowchart of functionality<a href="figures-and-legends.html#flowchart-of-functionality" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Flowchart describes the main steps of <code>EZCancerTarget</code>’s functionality,
+including data input, <em>clue.io</em> target search, cross-referencing in databases
+(Datapatch) and molecular background information on selected targets (Render).</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:flowchart"></span>
+<img src="images/Figure_1.jpg" alt="Flowchart of functionality" width="90%" />
+<p class="caption">
+Figure 6.1: Flowchart of functionality
+</p>
+</div>
+</div>
+<div id="input-table-for-molecular-targets" class="section level2 hasAnchor">
+<h2><span class="header-section-number">6.2</span> Input table for molecular targets<a href="figures-and-legends.html#input-table-for-molecular-targets" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Users can enter selected targets’ <em>HUGO</em> name (black rectangle),
+<em>label</em> (blue dashed rectangle) and <em>UniProt</em> ID (green dashed rectangle) in
+columns <code>A</code>, <code>B</code> and <code>C</code>. Hitting <em>“Start Rendering”</em> will initiate the <em>clue.io</em>
+search (red arrowhead). Progress can be traced by clicking on hyperlink in cells
+<code>H6-K6</code> (black arrow). Clicking on the hyperlink in cell <code>F2-I2</code> reveals
+the results page.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:input-table"></span>
+<img src="images/Figure_2_NEW.jpg" alt="Input table of targets" width="90%" />
+<p class="caption">
+Figure 6.2: Input table of targets
+</p>
+</div>
+</div>
+<div id="list-of-drug-targets" class="section level2 hasAnchor">
+<h2><span class="header-section-number">6.3</span> List of drug targets<a href="figures-and-legends.html#list-of-drug-targets" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Clicking on the labels of selected targets (column on left side) unveils
+available compound list (black box) describing also <em>mechanism of action</em>
+(MoA, dashed box), <em>clinical status</em> (red box), <em>resources</em> of information on
+<em>PubMed</em> (green box) and <em>DrugBank</em>/<em>PubChem</em>/<em>ChEMBL</em> entries (blue box).</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:drugs"></span>
+<img src="images/Figure_3.jpg" alt="Targets and drugs" width="90%" />
+<p class="caption">
+Figure 6.3: Targets and drugs
+</p>
+</div>
+</div>
+<div id="molecular-background-of-druggable-targets" class="section level2 hasAnchor">
+<h2><span class="header-section-number">6.4</span> Molecular background of druggable targets<a href="figures-and-legends.html#molecular-background-of-druggable-targets" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><em>Details on the molecular background of druggable targets:</em> <em>Panel A</em> shows the
+network map from <em>STRING</em> with static string map and hyperlink to STRING DB entry.
+<em>Panel B</em> displays hyperlinks to <em>“molecular function”</em>, <em>“biological processes”</em> and
+<em>“subcellular localisation”</em> to browse the <em>UniProt</em> database on molecular background.
+By clicking directly on the titles, we can access a specific function.
+<em>Panel C</em> shows hyperlinks to visualize <em>KEGG</em> and <em>Reactome</em> pathways of the
+selected target. For Reactome, clicking on individual pathway titles we can
+directly access the infographic of the given pathway.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:molecular-background"></span>
+<img src="images/Figure_4_NEW.jpg" alt="Molecular background" width="90%" />
+<p class="caption">
+Figure 6.4: Molecular background
+</p>
+</div>
 
-<div id="refs" class="references">
-<div>
-<p>Ashburner, Michael, Catherine A. Ball, Judith A. Blake, David Botstein, Heather Butler, J. Michael Cherry, Allan P. Davis, et al. 2000. “Gene Ontology: Tool for the Unification of Biology.” <em>Nature Genetics</em> 25 (1): 25–29. <a href="https://doi.org/10.1038/75556">https://doi.org/10.1038/75556</a>.</p>
-</div>
-<div>
-<p>Bryan, Jennifer. 2021. <em>Googlesheets4: Access Google Sheets Using the Sheets Api V4</em>. <a href="https://CRAN.R-project.org/package=googlesheets4">https://CRAN.R-project.org/package=googlesheets4</a>.</p>
-</div>
-<div>
-<p>Corsello, Steven M, Joshua A Bittker, Zihan Liu, Joshua Gould, Patrick McCarren, Jodi E Hirschman, Stephen E Johnston, et al. 2017. “The Drug Repurposing Hub: A Next-Generation Drug Library and Information Resource.” <em>Nature Medicine</em> 23 (4): 405–8. <a href="https://doi.org/10.1038/nm.4306">https://doi.org/10.1038/nm.4306</a>.</p>
-</div>
-<div>
-<p>de Jonge, Edwin. 2019. <em>Whisker: mustache for R, Logicless Templating</em>. <a href="https://CRAN.R-project.org/package=whisker">https://CRAN.R-project.org/package=whisker</a>.</p>
-</div>
-<div>
-<p>Dowle, Matt, and Arun Srinivasan. 2021. <em>Data.table: Extension of ‘Data.frame‘</em>. <a href="https://CRAN.R-project.org/package=data.table">https://CRAN.R-project.org/package=data.table</a>.</p>
-</div>
-<div>
-<p>Gaulton, Anna, Anne Hersey, Michał Nowotka, A. Patrícia Bento, Jon Chambers, David Mendez, Prudence Mutowo, et al. 2016. “The ChEMBL database in 2017.” <em>Nucleic Acids Research</em> 45 (D1): D945–D954. <a href="https://doi.org/10.1093/nar/gkw1074">https://doi.org/10.1093/nar/gkw1074</a>.</p>
-</div>
-<div>
-<p>Gillespie, Marc, Bijay Jassal, Ralf Stephan, Marija Milacic, Karen Rothfels, Andrea Senff-Ribeiro, Johannes Griss, et al. 2021. “The reactome pathway knowledgebase 2022.” <em>Nucleic Acids Research</em> 50 (D1): D687–D692. <a href="https://doi.org/10.1093/nar/gkab1028">https://doi.org/10.1093/nar/gkab1028</a>.</p>
-</div>
-<div>
-<p>Hester, Jim, and Jennifer Bryan. 2022. <em>Glue: Interpreted String Literals</em>. <a href="https://CRAN.R-project.org/package=glue">https://CRAN.R-project.org/package=glue</a>.</p>
-</div>
-<div>
-<p>Ooms, Jeroen. 2014. “The Jsonlite Package: A Practical and Consistent Mapping Between Json Data and R Objects.” <em>arXiv:1403.2805 [stat.CO]</em>. <a href="https://arxiv.org/abs/1403.2805">https://arxiv.org/abs/1403.2805</a>.</p>
-</div>
-<div>
-<p>Safran, Marilyn, Naomi Rosen, Michal Twik, Ruth BarShir, Tsippi Iny Stein, Dvir Dahary, Simon Fishilevich, and Doron Lancet. 2021. “The Genecards Suite.” In <em>Practical Guide to Life Science Databases</em>, edited by Imad Abugessaisa and Takeya Kasukawa, 27–56. Singapore: Springer Nature Singapore. <a href="https://doi.org/10.1007/978-981-16-5812-9_2">https://doi.org/10.1007/978-981-16-5812-9_2</a>.</p>
-</div>
-<div>
-<p>Szklarczyk, Damian, Annika L Gable, Katerina C Nastou, David Lyon, Rebecca Kirsch, Sampo Pyysalo, Nadezhda T Doncheva, et al. 2021. “The STRING Database in 2021: Customizable Protein–Protein Networks, and Functional Characterization of User-Uploaded Gene/Measurement Sets.” <em>Nucleic Acids Research</em> 49 (D1): D605–D612. <a href="https://doi.org/10.1093/nar/gkaa1074">https://doi.org/10.1093/nar/gkaa1074</a>.</p>
-</div>
-<div>
-<p>The Gene Ontology Consortium, Seth Carbon, Eric Douglass, Benjamin M Good, Deepak R Unni, Nomi L Harris, Christopher J Mungall, et al. 2021. “The Gene Ontology Resource: Enriching a GOld Mine.” <em>Nucleic Acids Research</em> 49 (D1): D325–D334. <a href="https://doi.org/10.1093/nar/gkaa1113">https://doi.org/10.1093/nar/gkaa1113</a>.</p>
-</div>
-<div>
-<p>“UniProt: the universal protein knowledgebase in 2021.” 2020. <em>Nucleic Acids Research</em> 49 (D1): D480–D489. <a href="https://doi.org/10.1093/nar/gkaa1100">https://doi.org/10.1093/nar/gkaa1100</a>.</p>
-</div>
-<div>
-<p>Wickham, Hadley. 2019a. <em>Assertthat: Easy Pre and Post Assertions</em>. <a href="https://CRAN.R-project.org/package=assertthat">https://CRAN.R-project.org/package=assertthat</a>.</p>
-</div>
-<div>
-<p>———. 2019b. <em>Stringr: Simple, Consistent Wrappers for Common String Operations</em>. <a href="https://CRAN.R-project.org/package=stringr">https://CRAN.R-project.org/package=stringr</a>.</p>
-</div>
-<div>
-<p>———. 2020. <em>Httr: Tools for Working with Urls and Http</em>. <a href="https://CRAN.R-project.org/package=httr">https://CRAN.R-project.org/package=httr</a>.</p>
-</div>
-<div>
-<p>———. 2021. <em>Rvest: Easily Harvest (Scrape) Web Pages</em>. <a href="https://CRAN.R-project.org/package=rvest">https://CRAN.R-project.org/package=rvest</a>.</p>
-</div>
-<div>
-<p>Wickham, Hadley, Romain François, Lionel Henry, and Kirill Müller. 2021. <em>Dplyr: A Grammar of Data Manipulation</em>. <a href="https://CRAN.R-project.org/package=dplyr">https://CRAN.R-project.org/package=dplyr</a>.</p>
-</div>
-<div>
-<p>Wickham, Hadley, Jim Hester, and Jennifer Bryan. 2022. <em>Readr: Read Rectangular Text Data</em>. <a href="https://CRAN.R-project.org/package=readr">https://CRAN.R-project.org/package=readr</a>.</p>
-</div>
-<div>
-<p>Wickham, Hadley, Jim Hester, and Jeroen Ooms. 2021. <em>Xml2: Parse Xml</em>. <a href="https://CRAN.R-project.org/package=xml2">https://CRAN.R-project.org/package=xml2</a>.</p>
-</div>
 </div>
 </div>
             </section>
@@ -293,7 +293,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/cycle20/EZCancerTarget/blob/gh-pages/99-packages.Rmd",
+"link": "https://github.com/cycle20/EZCancerTarget/blob/gh-pages/05-figures.Rmd",
 "text": "Edit"
 },
 "history": {
