@@ -8,7 +8,7 @@ Another option is updating a shared Google Spreadsheet that is processed by
 workflow scripts on _GitHub_.
 
 `EZCancerTarget` load data from _clue.io_ [@corsello_drug_2017], then download data from other
-sources: _FDA Label_ service, _PubMed_, _EMA_, _ChEMBL_, _PubChem_.
+sources: _FDA Label_ service, _PubMed_, _EMA_ - @ema2022 -, _ChEMBL_, _PubChem_.
 
 After data collection it generates a user-friendly report file and some
 summary output data file. The report HTML file can be opened by a browser.
