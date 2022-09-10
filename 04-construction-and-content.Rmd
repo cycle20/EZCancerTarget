@@ -58,7 +58,7 @@ _"Result of Update Request"_ link
 A scrollable panel displays all the targets on the left with at least one valid
 drug compound available. The software automatically excludes entries where no
 drug or small molecule inhibitor/agonist is available according to the _clue.io_
-repurposing hub. 
+repurposing hub.
 
 
 In the first entry of the results list (_"Summary"_) the evaluation report
@@ -67,8 +67,9 @@ number of found compounds for all listed targets and the average number of
 compounds per target. The amount of found compounds are classified according to
 their pre- and clinical phase as well. In the _"Molecular Background"_ section
 details from the retrieved molecular background data is evaluated according to
-the number of found _Reactome_ or _KEGG_ pathways, _STRING_ interactors and
-_GO_ molecular functions, subcellular localizations, biological processes.
+the number of found _Reactome_ or _KEGG_ pathways - @reactome2021, @kanehisa_kegg_2002] -,
+_STRING_ interactors and _GO_ molecular functions, subcellular localizations,
+biological processes.
 Finally ("Compound" section), every listed target is separately detailed of
 their compound entries in _PubMed_, _PubChem_, _ChEMBL_ and _DrugBank_.
 
