@@ -3,6 +3,7 @@ fig:input-table
 fig:drugs
 fig:molecular-background
 introduction
+how-to-cite-ezcancertarget
 running-with-no-installation
 input-google-spreadsheet
 result-page-and-workflow-status-check

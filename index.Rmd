@@ -24,6 +24,11 @@ This way, the user receives a concise summary on
 the biological relevance of every target, that is explicitly important for
 researchers who are not experts in molecular biology.
 
+## How to Cite EZCancerTarget
+
+David Dora, Timea Dora, Gabor Szegvari, Csongor Gerdán, Zoltan Lohinai 2022.
+EZCancerTarget: an open-access drug repurposing and data-collection tool to enhance target validation and optimize international research efforts against highly progressive cancers. _BioData Mining_ __15__, 25 (2022). https://doi.org/10.1186/s13040-022-00307-9
+
 ## Running with no installation
 
 ### Input Google Spreadsheet
