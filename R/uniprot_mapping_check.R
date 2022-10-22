@@ -3,6 +3,7 @@ library(xml2)
 library(glue)
 
 UNIPROT_API <- 'https://rest.uniprot.org/uniprotkb/{UniProtId}?format=xml'
+UNIPROT_DELAY <- 15
 
 checkUniProt <- function(UniProtId, geneName) {
   doc <- xml2::read_xml(glue::glue(UNIPROT_API))
@@ -10,10 +11,19 @@ checkUniProt <- function(UniProtId, geneName) {
   nodeset <- xml2::xml_find_all(doc, xpath = '/uniprot/entry/gene/name[@type="primary"]')
   firstValue <- xml2::xml_text(nodeset[1])
   if (length(nodeset) > 1 || geneName != firstValue) {
-    print(paste0(UniProtId, " length: ", length(nodeset)))
-#  } else {
-#    print(glue::glue('{UniProtId}: {geneName} ok'))
+    print(paste0(
+      UniProtId, " length: ", length(nodeset),
+      " HUGO: ", geneName, " first primary name: ", firstValue
+    ))
+  } else {
+    print(glue::glue('{UniProtId}: {geneName} ok'))
   }
 }
 
-checkUniProt('Q6P093', 'AADACL2')
+# Verify each entry:
+uniProtList <- readr::read_tsv('data/full_list.tsv')
+lapply(1:nrow(uniProtList), function(rowId) {
+  checkUniProt(uniProtList$UNIPROT_KB_ID[rowId], uniProtList$HUGO[rowId])
+  Sys.sleep(UNIPROT_DELAY);
+})
+
