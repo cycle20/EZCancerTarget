@@ -26,7 +26,7 @@ library(whisker)
 USER_KEY <- Sys.getenv("CLUE_USER_KEY")
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
-TARGET.INPUT <- "data/target_list.tsv"
+TARGET.INPUT <- "data/full_list.tsv"
 TARGET.LIST.ID <- Sys.getenv("TARGET_LIST_ID")
 SERVICE_TOKEN_JSON_VAR_NAME <- "SERVICE_TOKEN_JSON"
 API_BASE <- "https://api.clue.io/api/"
@@ -93,8 +93,8 @@ main <- function() {
 
   resultCollapsed <- collapseResult(result)
   ## export collapsed table as TSV
-  data.table::fwrite(resultCollapsed, CLUE.COLLAPSED.TSV, sep = "\t")
-  message(glue::glue("{CLUE.COLLAPSED.TSV} created"))
+#  data.table::fwrite(resultCollapsed, CLUE.COLLAPSED.TSV, sep = "\t")
+#  message(glue::glue("{CLUE.COLLAPSED.TSV} created"))
 
   saveRDS(targetList, TARGET_LIST.RDS)
 }
@@ -135,7 +135,7 @@ rep_drug_targets <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue::glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue::glue("{API_BASE}{apiFunction}")
   result <- getWithUserKey(requestUrl)
 
   return(getJSONContentAsDataFrame(result))
@@ -161,7 +161,7 @@ rep_samples <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue::glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue::glue("{API_BASE}{apiFunction}")
   result <- getWithUserKey(requestUrl)
 
   return(getJSONContentAsDataFrame(result))
@@ -186,7 +186,7 @@ rep_drug_moas <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue::glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue::glue("{API_BASE}{apiFunction}")
   result <- getWithUserKey(requestUrl)
 
   return(getJSONContentAsDataFrame(result))
@@ -212,7 +212,7 @@ rep_drug_indications <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue("{API_BASE}{apiFunction}")
   result <- getWithUserKey(requestUrl)
 
   return(getJSONContentAsDataFrame(result))
@@ -254,7 +254,7 @@ rep_drugs <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue("{API_BASE}{apiFunction}")
   result <- getWithUserKey(requestUrl)
 
   return(getJSONContentAsDataFrame(result))
@@ -300,7 +300,7 @@ perts <- function(...) {
   filterParams <- jsonlite::toJSON(filterParams)
 
   ## concatenate URL with parameters
-  requestUrl <- glue::glue("{API_BASE}{apiFunction}?filter={filterParams}")
+  requestUrl <- glue::glue("{API_BASE}{apiFunction}")
 
   response <- getWithUserKey(requestUrl)
   responseFrame <- getJSONContentAsDataFrame(response)
@@ -395,7 +395,7 @@ download <- function(...) {
 
   ## get data from "perts" endpoint
   perts <- perts(...)
-  pertsSaveAndExport(perts)
+#  pertsSaveAndExport(perts)
   # Renaming to avoid conflict with moa from repDrugMoAs
   perts <- perts %>%
     rename(
