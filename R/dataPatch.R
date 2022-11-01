@@ -728,6 +728,7 @@ fdaLabel <- function(clueTable) {
     ##       - then try level 2,...
     ##       - etc...
     products <- products %>%
+      filter(!is.na(marketDates)) %>%
       filter(marketDates == max(marketDates)) %>%
       ungroup() %>%
       arrange(matchLevel, ingrLength)
@@ -753,7 +754,7 @@ fdaLabel <- function(clueTable) {
   ## transform status_source based on FDA results
   clueTable <- clueTable %>%
     # filter(final_status == "Launched" && !is.na(orange_book)) %>%
-    mutate(fdaSearchResults = list(compoundList[[pert_iname]]))
+    mutate(fdaSearchResults = compoundList[pert_iname])
 
   return(clueTable)
 }
