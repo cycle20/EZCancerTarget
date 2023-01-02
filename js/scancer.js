@@ -3,7 +3,7 @@
 //
 
 
-const root_url = "https://version-11-0b.string-db.org/";
+const root_url = "https://string-db.org/";
 
 
 //
