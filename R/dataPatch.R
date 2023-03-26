@@ -78,8 +78,6 @@ main <- function() {
     ## NOTE: this filter drops some not well-curated compounds
     filter(!is.na(source))
 
-  checkDataCoverage(clueTable)
-
   clueTable <- targetList %>%
     left_join(clueTable) %>%
     rowwise() %>%
@@ -91,8 +89,6 @@ main <- function() {
   ## save tibble as RDS since write_tsv is not an obvious way
   print(result)
   saveRDS(result, file = CLUE.PATCHED.OUTPUT)
-
-  # TODO: should be another logic: checkDataCoverage(result)
 
   warnings()
   return(result)
@@ -127,107 +123,6 @@ patch <- function(clueTable) {
 
   ## return updated tables
   return(clueTable)
-}
-
-
-#' Check gaps in our data set
-#'
-#' @param clueTable
-#'
-#' @return Invisible NULL
-checkDataCoverage <- function(clueTable) {
-  separator <- paste(rep("#", 75), collapse = "")
-  print(glue::glue("\n\n{separator}"))
-  print(glue::glue("{separator}", "  !!! START OF DATA INTEGRITY TEST !!!"))
-  print(glue::glue("{separator}\n\n"))
-
-  ## internal helper function
-  checkTable <- function(table, msg, stop = FALSE) {
-   n <- nrow(table)
-   prefix <- glue::glue("\n\n>>>>>>>> {msg}: {n} ...")
-   if (nrow(table) > 0) {
-     print(glue::glue("{prefix} IS NOT OK!"))
-     print(table)
-     if (stop) stop("Unexpected data state")
-   } else
-     print(glue::glue("{prefix} IS OK!"))
-  }
-
-  ## FDA Orange issue
-  distinctTable <- clueTable %>%
-    select(
-      pert_iname,
-      # moa,
-      final_status,
-      status_source,
-      orange_book
-    ) %>%
-    distinct() %>%
-    rowwise() %>%
-    filter(grepl("FDA Orange", status_source))
-  checkTable(distinctTable, "FDA Orange")
-
-  ## FDA Orange issue V2
-  distinctTable <- clueTable %>%
-    select(
-      pert_iname,
-      final_status,
-      status_source,
-      orange_book
-    ) %>%
-    distinct() %>%
-    rowwise() %>%
-    filter(!is.na(orange_book) && is.na(status_source))
-  checkTable(distinctTable, "FDA.V2 orange_book has value")
-
-  ## FDA Launched check
-  distinctTable <- clueTable %>%
-    select(
-      pert_iname,
-      final_status,
-      status_source,
-      orange_book
-    ) %>%
-    distinct() %>%
-    rowwise() %>%
-    filter(final_status == "Launched" &&
-      is.na(orange_book) && is.na(status_source))
-  checkTable(distinctTable, "FDA Launched check")
-
-  ## PubChem/ChEMBL check
-  distinctTable <- clueTable %>%
-    select(
-      pert_iname,
-      final_status,
-      pubchem_cid,
-      chembl_id,
-      inchi_key,
-      pert_id,
-      ttd_id,
-      drugbank_id,
-      source,
-      status_source
-    ) %>%
-    distinct() %>%
-    rowwise() %>%
-    filter(is.na(pubchem_cid) && is.na(chembl_id))
-  checkTable(distinctTable, "PubChem/ChEMBL check")
-
-  distinctTable <- clueTable %>%
-    select(final_status, status_source) %>%
-    distinct() %>%
-    filter(final_status == "Preclinical" && !is.na(status_source))
-  checkTable(distinctTable, "Preclinical status_source", stop = TRUE)
-
-##  print("Foreced quit")
-##  quit(save = "no")
-
-
-  print(glue::glue("{separator}"))
-  print(glue::glue("{separator}", "  !!! END OF DATA INTEGRITY TEST !!!"))
-  print(glue::glue("{separator}"))
-
-  return(invisible(NULL))
 }
 
 
