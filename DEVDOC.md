@@ -10,3 +10,4 @@ Run tests from command line:
 
 Run specific test file for example:
 * ```Rscript -e 'tinytest::run_test_file("inst/tinytest/test_scancer.R", verbose = 0)'```
+

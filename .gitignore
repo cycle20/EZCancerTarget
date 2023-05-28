@@ -1,4 +1,5 @@
 *.swp
+*.log
 .Rhistory
 web/index.html
 OUTPUT/
@@ -7,3 +8,4 @@ INPUT.PPI.MODEL/
 INPUT.REP/
 TRASH/
 NOTEs/
+DATA/

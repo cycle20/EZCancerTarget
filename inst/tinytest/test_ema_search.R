@@ -74,6 +74,6 @@ expect_equal(
   current = clueTable$emaLinks[1][[1]]
 )
 expect_equal(
-  target = 'https://www.ema.europa.eu/en/medicines/human/EPAR/glyxambi',
+  target = 'https://www.ema.europa.eu/en/medicines/human/EPAR/jardiance',
   current = clueTable$emaLinks[2][[1]]
 )
