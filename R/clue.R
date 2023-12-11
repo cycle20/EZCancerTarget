@@ -27,15 +27,15 @@ USER_KEY <- Sys.getenv("CLUE_USER_KEY")
 ## quick verification
 assertthat::assert_that(!is.null(USER_KEY) && nchar(USER_KEY) > 0)
 TARGET.INPUT <- "data/full_list.tsv"
+PERTS.INPUT <- "data/repurposing_drugs_20200324.rds"
 TARGET.LIST.ID <- Sys.getenv("TARGET_LIST_ID")
 SERVICE_TOKEN_JSON_VAR_NAME <- "SERVICE_TOKEN_JSON"
-API_BASE <- "https://api.clue.io/api/"
+API_BASE <- "https://repo-hub.broadinstitute.org:3000/api/"
 VERBOSE <- NULL
 ## for verbosed httr requests use the following:
 ## VERBOSE <- verbose()
 OUTPUT <- "OUTPUT"
 CLUE.RDS <- glue::glue("{OUTPUT}/clue.rds")
-CLUE.COLLAPSED.TSV <- glue::glue("{OUTPUT}/clueCollapsed.tsv")
 PERTS.TSV <- glue::glue("{OUTPUT}/perts.tsv")
 ## pert API call result with each columns
 PERTS_WIDE.TSV <- glue::glue("{OUTPUT}/perts_wide.tsv")
@@ -90,11 +90,6 @@ main <- function() {
   # export result as RDS
   saveRDS(result, CLUE.RDS)
   message(glue::glue("{CLUE.RDS} created"))
-
-  resultCollapsed <- collapseResult(result)
-  ## export collapsed table as TSV
-#  data.table::fwrite(resultCollapsed, CLUE.COLLAPSED.TSV, sep = "\t")
-#  message(glue::glue("{CLUE.COLLAPSED.TSV} created"))
 
   saveRDS(targetList, TARGET_LIST.RDS)
 }
@@ -333,7 +328,10 @@ perts <- function(...) {
 #' @return list object that represents HTTP response data
 getWithUserKey <- function(requestUrl) {
   result <- httr::GET(url = requestUrl,
-    config = add_headers(user_key = USER_KEY), VERBOSE)
+    config = c(
+      config(ssl_verifypeer = FALSE),
+      add_headers(user_key = USER_KEY), VERBOSE)
+  )
   return(result)
 }
 
@@ -393,17 +391,7 @@ download <- function(...) {
   }
   null.to.na <- Vectorize(null.to.na)
 
-  ## get data from "perts" endpoint
-  perts <- perts(...)
-#  pertsSaveAndExport(perts)
-  # Renaming to avoid conflict with moa from repDrugMoAs
-  perts <- perts %>%
-    rename(
-      moa_from_perts = moa,
-      pubchem_cid_from_perts = pubchem_cid
-    )
-    # TODO: alt_name excluded since its complicated list values with NULLs
-    # select(-c(alt_name))
+  perts <- readRDS(PERTS.INPUT)
 
   repDrugTargets <- rep_drug_targets(...) %>%
     rename(HUGO = name) %>%
@@ -437,12 +425,6 @@ download <- function(...) {
     mutate(
       source = null.to.na(source),
       orange_book = null.to.na(orange_book),
-
-      # variables from perts
-      alt_name = null.to.na(alt_name),
-      moa_from_perts = null.to.na(moa_from_perts),
-      pcl_membership = null.to.na(pcl_membership),
-      pert_url = null.to.na(pert_url)
     ) %>%
     ## re-position and exclusion of columns
     select(
@@ -451,58 +433,22 @@ download <- function(...) {
       pubchem_cid,
       synonyms,
       moa,
-      moa_from_perts,
       final_status,
       chembl_id,
       source,
       ttd_id,
-      drugbank_id,
+      # drugbank_id, NOTE: must be supplied from elsewhere. e.g. PubChem
       status_source, ## source of final_status
       clinical_notes,
       orange_book,
       disease_area,
       indication,
       indication_source,
-      alt_name,
-      pert_id, # BRD-...
       rep_samples.pert_id,
-      inchi_key,
       rep_samples.InChIKey,
-      pert_url,
-      pcl_membership,
 
       ## exclude some optional columns
       -c(in_cmap, iuphar_id, animal_only)
     )
-
   return(result)
 }
-
-
-#' Collapse table from clue
-#'
-#' Remove redundancies resulted by left joins on clue.io sub-tables.
-#'
-#' @param result tibble composition of clue.io sub-tables
-#'
-#' @return collapsed table
-collapseResult <- function(result) {
-  resultCollapsed <- result %>%
-    select(
-      HUGO,
-      pert_iname,
-      moa,
-      final_status,
-      status_source,
-      drugbank_id,
-      chembl_id,
-      pubchem_cid
-    ) %>%
-    group_by(HUGO, pert_iname) %>%
-    mutate(
-      drugbank_id = paste(unique(drugbank_id), collapse = "|"),
-      pubchem_cid = paste(unique(pubchem_cid), collapse = "|"),
-      chembl_id = paste(unique(chembl_id, collapse = "|"))) %>%
-    distinct()
-}
-
