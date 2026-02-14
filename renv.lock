@@ -9,6 +9,14 @@
     ]
   },
   "Packages": {
+    "DBI": {
+      "Package": "DBI",
+      "Version": "1.2.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "065ae649b05f1ff66bb0c793107508f5",
+      "Requirements": []
+    },
     "R6": {
       "Package": "R6",
       "Version": "2.5.1",
@@ -16,6 +24,22 @@
       "Repository": "CRAN",
       "Hash": "470851b6d5d0ac559e9d01bb352b4021",
       "Requirements": []
+    },
+    "RSQLite": {
+      "Package": "RSQLite",
+      "Version": "2.4.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "09ba8d6f810e3818edf73c8063b4e2ff",
+      "Requirements": [
+        "DBI",
+        "bit64",
+        "blob",
+        "cpp11",
+        "memoise",
+        "pkgconfig",
+        "rlang"
+      ]
     },
     "askpass": {
       "Package": "askpass",
@@ -51,6 +75,28 @@
       "Hash": "9fe98599ca456d6552421db0d6772d8f",
       "Requirements": [
         "bit"
+      ]
+    },
+    "blob": {
+      "Package": "blob",
+      "Version": "1.3.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "1e0ae40898be928695fd90a80e816253",
+      "Requirements": [
+        "rlang",
+        "vctrs"
+      ]
+    },
+    "cachem": {
+      "Package": "cachem",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "cd9a672193789068eb5a2aad65a0dedf",
+      "Requirements": [
+        "fastmap",
+        "rlang"
       ]
     },
     "cellranger": {
@@ -150,6 +196,14 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "f28149c2d7a1342a834b314e95e67260",
+      "Requirements": []
+    },
+    "fastmap": {
+      "Package": "fastmap",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "aa5e1cd11c2d15497494c5292d7ffcc8",
       "Requirements": []
     },
     "fs": {
@@ -306,6 +360,17 @@
       "Hash": "cdc87ecd81934679d1557633d8e1fe51",
       "Requirements": []
     },
+    "memoise": {
+      "Package": "memoise",
+      "Version": "2.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e2817ccf4a065c5d9d7f2cfbe7c1d78c",
+      "Requirements": [
+        "cachem",
+        "rlang"
+      ]
+    },
     "mime": {
       "Package": "mime",
       "Version": "0.12",
@@ -445,7 +510,7 @@
       "Package": "renv",
       "Version": "0.15.2",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Hash": "206c4ef8b7ad6fb1060d69aa7b9dfe69",
       "Requirements": []
     },
