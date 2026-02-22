@@ -50,8 +50,8 @@ PUBMED.RESULT.XPATH <- paste0(
 # maximum number of displayed PubMed links per compound
 PUBMED.DISPLAY.MAX_LINKS <- 3
 
-UNIPROT.HTML.TEMPL = "https://www.uniprot.org/uniprot/{id}"
-UNIPROT.XML.TEMPL = "https://www.uniprot.org/uniprot/{id}.xml"
+UNIPROT.HTML.TEMPL = "https://www.uniprot.org/uniprotkb/{id}"
+UNIPROT.XML.TEMPL = "https://www.uniprot.org/uniprotkb/{id}.xml"
 
 EMA.XLSX.FILE <- "Medicines_output_european_public_assessment_reports.xlsx"
 EMA.PRODUCT.INFORMATION.URL <- paste0(
