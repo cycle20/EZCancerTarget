@@ -6,22 +6,27 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /app
+
+COPY --chown=rstudio:rstudio renv.lock renv.lock
+COPY --chown=rstudio:rstudio renv/ renv/
+COPY --chown=rstudio:rstudio .Rprofile .Rprofile
+RUN chown rstudio:rstudio /app \
+    && R -e "install.packages('renv', repos='https://cloud.r-project.org')"
+
+USER rstudio
+
+# RUN mkdir -p /home/rstudio/.cache/R/renv/cache \
+#     && chown -R rstudio:rstudio /home/rstudio/.cache
+
+ENV HOME=/home/rstudio
+ENV RENV_PATHS_LIBRARY=/home/rstudio/renv-library
 ENV RENV_PATHS_CACHE=/home/rstudio/.cache/R/renv/cache
 ENV RENV_CONFIG_CACHE_ENABLED=TRUE
+ENV RENV_CONFIG_PAK_ENABLED=FALSE
+
+RUN R -e "renv::consent(provided = TRUE)" \
+    -e "renv::restore()"
 ENV RENV_CONFIG_PAK_ENABLED=TRUE
 
-RUN mkdir -p /home/rstudio/.cache/R/renv \
-    && chown -R rstudio:rstudio /home/rstudio/.cache
-
-WORKDIR /app
-COPY renv.lock renv.lock
-COPY renv/ renv/
-
-RUN R -e "install.packages('renv', repos='https://cloud.r-project.org')" \
-    -e "renv::consent(provided = TRUE)" \
-    -e "renv::restore()"
-
-COPY . .
-
-RUN chown -R rstudio:rstudio /home/rstudio/.cache \
-    && chown -R rstudio:rstudio .
+COPY --chown=rstudio:rstudio . .
