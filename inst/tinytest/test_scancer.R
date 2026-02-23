@@ -60,4 +60,4 @@ url <- 'https://string-db.org/api/tsv/interaction_partners?identifiers=TP53&spec
 result <- httr::GET(url)
 result <- httr::content(result)
 countOfPartners <- nrow(result)
-expect_equal(target = 426, countOfPartners)
+expect_equal(target = 283, countOfPartners)

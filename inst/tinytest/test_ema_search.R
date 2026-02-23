@@ -6,7 +6,7 @@ setwd('../..')
 source("R/dataPatch.R")
 
 ## get tibble of data ----
-report <- readReport("Medicines_output_european_public_assessment_reports.xlsx")
+report <- readReport("medicines-output-medicines-report_en.xlsx")
 columnNames <- names(report)
 print(columnNames)
 
@@ -43,7 +43,7 @@ expect_equal(target = 1, nrow(filtered))
 expect_equal(target = "Tookad", filtered$`Medicine name`[1])
 expect_equal(target = "Authorised", filtered$`Authorisation status`[1])
 
-report <- readReport("Medicines_output_withdrawn_applications.xlsx")
+report <- readReport("list-withdrawn-medicinal-products_en.xlsx")
 filtered <- report %>% dplyr::filter(
   grepl(`Active substance`, pattern = "padeliporfin", ignore.case = TRUE)
 )

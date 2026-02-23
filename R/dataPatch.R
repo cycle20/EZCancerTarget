@@ -53,7 +53,7 @@ PUBMED.DISPLAY.MAX_LINKS <- 3
 UNIPROT.HTML.TEMPL = "https://www.uniprot.org/uniprotkb/{id}"
 UNIPROT.XML.TEMPL = "https://www.uniprot.org/uniprotkb/{id}.xml"
 
-EMA.XLSX.FILE <- "Medicines_output_european_public_assessment_reports.xlsx"
+EMA.XLSX.FILE <- "medicines-output-medicines-report_en.xlsx"
 EMA.PRODUCT.INFORMATION.URL <- paste0(
   'https://www.ema.europa.eu/en/documents/product-information',
   '/{urlName}-epar-product-information_en.pdf'
@@ -427,7 +427,7 @@ readReport <- function(fileName) {
 }
 
 downloadEMAFile <- function(file, destinationFile = file, quiet = FALSE) {
-  EMA_FILES_BASE_URL <- "https://www.ema.europa.eu/sites/default/files"
+  EMA_FILES_BASE_URL <- "https://www.ema.europa.eu/en/documents/report"
   url <- glue::glue("{EMA_FILES_BASE_URL}/{file}")
   if (!quiet) {
     print(glue::glue("Downloading {url}"))
