@@ -418,11 +418,26 @@ ema <- function(clueTable) {
 }
 
 
-readReport <- function(fileName) {
+readReport <- function(fileName, skip = 7) {
   reportFile <- glue::glue("{OUTPUT}/{fileName}")
   downloadEMAFile(fileName, destinationFile = reportFile)
 
-  report <- readxl::read_excel(reportFile, skip = 7)
+  report <- readxl::read_excel(reportFile, skip = skip)
+  ## EMA occasionally changes visible header labels; normalize the key columns
+  ## used by this package/tests to keep downstream code stable.
+  name_map <- c(
+    "Name of medicine" = "Medicine name",
+    "Medicine URL" = "URL",
+    "First published date" = "First published",
+    "Last updated date" = "Revision date",
+    "Medicine status" = "Authorisation status"
+  )
+  current_names <- names(report)
+  replace_idx <- which(current_names %in% names(name_map))
+  if (length(replace_idx) > 0) {
+    current_names[replace_idx] <- unname(name_map[current_names[replace_idx]])
+    names(report) <- current_names
+  }
   return(report)
 }
 
