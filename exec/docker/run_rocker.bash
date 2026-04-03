@@ -6,9 +6,9 @@
 #
 
 PASSWORD="${PASSWORD:?$PASSWORD}" # trigger error, if PASSWORD is unset
-HOST_SRC_DIR=~/dev/scancer
-IMAGE="rocker/tidyverse:R4.1.1"
-IMAGE="rocker/tidyverse:4.1.2"
+HOST_SRC_DIR=~/dev/EZCancerTarget
+IMAGE="rocker/tidyverse:4.3.2"
+IMAGE="cycle20/ezct:2.0.3"
 
 [ -d "$HOST_SRC_DIR" ] \
   && {
@@ -20,15 +20,17 @@ IMAGE="rocker/tidyverse:4.1.2"
   }
 
 # it starts the container as a daemon
-sudo docker run -d \
+docker run -d \
+  --entrypoint=/init \
+  -u 0:0 \
   -p 8787:8787 \
   -e PASSWORD="$PASSWORD" \
   -e CLUE_USER_KEY="$CLUE_USER_KEY" \
   -ti \
   --cpus 1 \
   -m 1000m \
-  --volume "$HOST_SRC_DIR":/scancer \
+  --volume "$HOST_SRC_DIR":/ezct \
   --network host \
   --volume /tmp/.X11-unix:/tmp/.X11-unix \
-  -w /scancer \
+  -w /ezct \
   "$IMAGE"
