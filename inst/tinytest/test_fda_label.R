@@ -37,7 +37,7 @@ expect_equal(
   target = "71873567-9594-452a-bb92-34a129adecac",
   current = clueTable$fdaSearchResults[[2]][["productsTable"]]$setId[10]
 )
-browser()
+
 # baclofen
 expect_equal(
   target = "Baclofen",
