@@ -8,7 +8,7 @@
 
 URL_TMPL="https://pubmed.ncbi.nlm.nih.gov/?term=%s&filter=pubt.clinicaltrial&size=50"
 
-find OUTPUT/DATAPATH_CACHE -name "*pubmed.html" | \
+find OUTPUT/DATAPATCH_CACHE -name "*pubmed.html" | \
   for fname in $(cat /dev/stdin); do
     bname=$(basename $fname)
     compound=$(echo $bname | sed -e 's/_from_pubmed.html//')

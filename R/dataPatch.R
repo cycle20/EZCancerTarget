@@ -26,7 +26,7 @@ options(width = 160)
 SLEEP_TIME <- 30 # waiting time between two HTTP requests in seconds
 INGREDIENT_FILTER <- FALSE # Is FDA Label API request strict or not?
 OUTPUT <- "OUTPUT"
-CACHE <- glue::glue("{OUTPUT}/DATAPATH_CACHE")
+CACHE <- glue::glue("{OUTPUT}/DATAPATCH_CACHE")
 CLUE.INPUT <- glue::glue("{OUTPUT}/clue.rds")
 # CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.tsv")
 CLUE.PATCHED.OUTPUT <- glue::glue("{OUTPUT}/clue_patched.rds")
@@ -575,9 +575,9 @@ fdaLabel <- function(clueTable) {
     pertNamePattern <- gsub("-", ".{,4}", pert_iname)
     products <- parsedResult$resultsArray %>%
       filter(
-        !any(grepl("first aid", productNames, ignore.case = TRUE))
-          && (!any(grepl(" kit", productNames, ignore.case = TRUE))
-              && !any(grepl("KIT", dosageForms)))
+        !(grepl("first aid", productNames, ignore.case = TRUE))
+          & (!(grepl(" kit", productNames, ignore.case = TRUE))
+              & !(grepl("KIT", dosageForms)))
       )
 
     if ((products %>% nrow()) == 0) {

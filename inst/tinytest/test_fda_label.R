@@ -35,12 +35,12 @@ expect_equal(
 )
 expect_equal(
   target = "71873567-9594-452a-bb92-34a129adecac",
-  current = clueTable$fdaSearchResults[[2]][["productsTable"]]$setId[3]
+  current = clueTable$fdaSearchResults[[2]][["productsTable"]]$setId[10]
 )
-
+browser()
 # baclofen
 expect_equal(
-  target = "Lioresal (baclofen)",
+  target = "Baclofen",
   current = clueTable$fdaSearchResults[[5]][["productsTable"]]$productNames[1]
 )
 

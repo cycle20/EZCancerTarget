@@ -10,3 +10,5 @@ TRASH/
 NOTEs/
 DATA/
 .Rproj.user
+/renv-cache
+/renv-library
