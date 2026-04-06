@@ -59,6 +59,8 @@ EMA.PRODUCT.INFORMATION.URL <- paste0(
   '/{urlName}-epar-product-information_en.pdf'
 )
 
+STRINGDB_VERSION <- 'version-11-5'
+
 ##
 ## Functions --------------------------------------------------------------
 ##
@@ -895,7 +897,7 @@ stringInteractorsCounter <- function(clueTable) {
     retVal <- list(document = NA)
     if (hasName(uniProtData, 'STRING')) {
       STRING_ID <- uniProtData$STRING
-      url <- glue::glue('https://string-db.org/api/tsv/interaction_partners?identifiers={STRING_ID}&species=9606&limit=0&required_score=900')
+      url <- glue::glue('https://{STRINGDB_VERSION}.string-db.org/api/tsv/interaction_partners?identifiers={STRING_ID}&species=9606&limit=0&required_score=900')
       retVal <- getPageCached(url, downloadFunc = tsvGET)
     }
     return(retVal)
