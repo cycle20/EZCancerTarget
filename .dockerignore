@@ -1,0 +1,27 @@
+# Version control history — never ship into the image
+.git
+.github
+.gitignore
+
+# Generated output and local caches (also gitignored)
+OUTPUT/
+INPUT/
+INPUT.PPI.MODEL/
+INPUT.REP/
+TRASH/
+NOTEs/
+DATA/
+/renv-cache
+/renv-library
+renv/library/
+renv/local/
+renv/staging/
+
+# Editor / R session cruft
+*.swp
+*.log
+.Rhistory
+.Rproj.user
+
+# Ad-hoc downloads not tracked in the repo
+list-withdrawn-medicinal-products_en.xlsx

@@ -7,8 +7,8 @@
 
 PASSWORD="${PASSWORD:?$PASSWORD}" # trigger error, if PASSWORD is unset
 HOST_SRC_DIR=~/dev/EZCancerTarget
-IMAGE="rocker/tidyverse:4.3.2"
-IMAGE="cycle20/ezct:2.0.3"
+IMAGE="rocker/tidyverse:4.6.1"
+IMAGE="cycle20/ezct:3.0.0"
 
 [ -d "$HOST_SRC_DIR" ] \
   && {
