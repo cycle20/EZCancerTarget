@@ -7,8 +7,10 @@
 
 PASSWORD="${PASSWORD:?$PASSWORD}" # trigger error, if PASSWORD is unset
 HOST_SRC_DIR=~/dev/EZCancerTarget
-IMAGE="rocker/tidyverse:4.6.1"
-IMAGE="cycle20/ezct:3.0.0"
+# Development image: R + project library + RStudio Server web IDE (port 8787).
+# For the pipeline / tests use the slim runtime image via run_pipeline.bash /
+# run_tests.bash (cycle20/ezct:3.1.0).
+IMAGE="cycle20/ezct:3.1.0-dev"
 
 [ -d "$HOST_SRC_DIR" ] \
   && {
