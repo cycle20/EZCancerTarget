@@ -140,6 +140,10 @@ UniProtProvider <- R6::R6Class(
     #' @param xmlDoc XML document from UniProt.
     #' @return List with extracted annotations.
     parseXML = function(xmlDoc) {
+      # UniProt XML declares a default namespace (http://uniprot.org/uniprot),
+      # which makes unprefixed XPath like //dbReference match nothing. Strip it
+      # so the queries below resolve.
+      xml2::xml_ns_strip(xmlDoc)
       root <- xml2::xml_root(xmlDoc)
 
       # XPath for database references
