@@ -24,10 +24,10 @@ EMAProvider <- R6::R6Class(
   inherit = CompoundProvider,
   public = list(
     #' @field emaBaseUrl Base URL for EMA files.
-    emaBaseUrl = "https://www.ema.europa.eu/sites/default/files",
+    emaBaseUrl = "https://www.ema.europa.eu/en/documents/report",
 
     #' @field emaFileName EMA Excel report filename.
-    emaFileName = "Medicines_output_european_public_assessment_reports.xlsx",
+    emaFileName = "medicines-output-medicines-report_en.xlsx",
 
     #' @field outputDir Directory for downloaded files.
     outputDir = "OUTPUT",
@@ -69,7 +69,25 @@ EMAProvider <- R6::R6Class(
       }
 
       # Read Excel file (skip header rows)
-      self$reportTable <- readxl::read_excel(reportFile, skip = 7)
+      report <- readxl::read_excel(reportFile, skip = 7)
+
+      # EMA occasionally changes visible header labels; normalize the key
+      # columns this provider relies on so downstream matching stays stable.
+      nameMap <- c(
+        "Name of medicine" = "Medicine name",
+        "Medicine URL" = "URL",
+        "First published date" = "First published",
+        "Last updated date" = "Revision date",
+        "Medicine status" = "Authorisation status"
+      )
+      currentNames <- names(report)
+      replaceIdx <- which(currentNames %in% names(nameMap))
+      if (length(replaceIdx) > 0) {
+        currentNames[replaceIdx] <- unname(nameMap[currentNames[replaceIdx]])
+        names(report) <- currentNames
+      }
+
+      self$reportTable <- report
       return(self$reportTable)
     },
 
