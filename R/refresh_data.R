@@ -16,22 +16,29 @@
 ##
 ## Load dependencies
 ##
-library(dplyr)
-library(glue)
-library(readr)
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(glue)
+  library(readr)
+})
 
 ##
 ## Load modules
 ##
-source("R/cache.R")
-source("R/providers/base.R")
-source("R/providers/backup_clue.R")
-source("R/providers/uniprot.R")
-source("R/providers/fda.R")
-source("R/providers/ema.R")
-source("R/providers/pubmed.R")
-source("R/providers/string.R")
-source("R/providers/kegg.R")
+## Wrapped so that library() startup banners emitted while sourcing the
+## provider modules (dplyr/curl/rvest masking notices, libcurl version, etc.)
+## do not pollute the command-line output.
+suppressPackageStartupMessages({
+  source("R/cache.R")
+  source("R/providers/base.R")
+  source("R/providers/backup_clue.R")
+  source("R/providers/uniprot.R")
+  source("R/providers/fda.R")
+  source("R/providers/ema.R")
+  source("R/providers/pubmed.R")
+  source("R/providers/string.R")
+  source("R/providers/kegg.R")
+})
 
 ##
 ## Configuration
@@ -372,15 +379,17 @@ showStatus <- function(outputDir = OUTPUT_DIR) {
   dataStore <- createDataStore(glue::glue("{outputDir}/datastore.sqlite"))
 
   stats <- dataStore$stats()
+  # Note: glue::glue() trims a trailing "\n" (.trim = TRUE), so the newline is
+  # appended via cat()'s sep instead to keep each field on its own line.
   cat("\n=== DataStore Status ===\n")
-  cat(glue::glue("Database: {stats$db_path}\n"))
-  cat(glue::glue("Total entries: {stats$total_entries}\n"))
-  cat(glue::glue("Size: {stats$size_mb} MB\n"))
-  cat(glue::glue("Providers: {paste(stats$providers, collapse = ', ')}\n"))
+  cat(glue::glue("Database: {stats$db_path}"), "\n", sep = "")
+  cat(glue::glue("Total entries: {stats$total_entries}"), "\n", sep = "")
+  cat(glue::glue("Size: {stats$size_mb} MB"), "\n", sep = "")
+  cat(glue::glue("Providers: {paste(stats$providers, collapse = ', ')}"), "\n", sep = "")
 
   if (!is.na(stats$oldest_update)) {
-    cat(glue::glue("Oldest update: {stats$oldest_update}\n"))
-    cat(glue::glue("Newest update: {stats$newest_update}\n"))
+    cat(glue::glue("Oldest update: {stats$oldest_update}"), "\n", sep = "")
+    cat(glue::glue("Newest update: {stats$newest_update}"), "\n", sep = "")
   }
 
   # Recent refresh history
@@ -389,7 +398,10 @@ showStatus <- function(outputDir = OUTPUT_DIR) {
     cat("\n=== Recent Refresh History ===\n")
     for (i in 1:min(10, nrow(history))) {
       row <- history[i, ]
-      cat(glue::glue("{row$timestamp} | {row$provider} | {row$status} | {row$records_affected} records\n"))
+      cat(
+        glue::glue("{row$timestamp} | {row$provider} | {row$status} | {row$records_affected} records"),
+        "\n", sep = ""
+      )
     }
   }
 
@@ -401,7 +413,7 @@ showStatus <- function(outputDir = OUTPUT_DIR) {
 listProviders <- function() {
   cat("\n=== Available Providers ===\n")
   for (p in AVAILABLE_PROVIDERS) {
-    cat(glue::glue("  - {p}\n"))
+    cat(glue::glue("  - {p}"), "\n", sep = "")
   }
   cat("\nUsage:\n")
   cat("  Rscript R/refresh_data.R                    # Refresh all\n")

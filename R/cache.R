@@ -10,10 +10,12 @@
 ## Data refresh is handled separately by R/refresh_data.R
 ##
 
-library(R6)
-library(DBI)
-library(RSQLite)
-library(glue)
+suppressPackageStartupMessages({
+  library(R6)
+  library(DBI)
+  library(RSQLite)
+  library(glue)
+})
 
 #' DataStore Class
 #'
@@ -59,11 +61,6 @@ DataStore <- R6::R6Class(
         DBI::dbDisconnect(self$conn)
         self$conn <- NULL
       }
-    },
-
-    # Clean up connection on garbage collection
-    finalize = function() {
-      self$close()
     },
 
     #' @description
@@ -334,6 +331,11 @@ DataStore <- R6::R6Class(
   ),
 
   private = list(
+    # Clean up connection on garbage collection
+    finalize = function() {
+      self$close()
+    },
+
     #' Initialize database tables
     initializeTables = function() {
       conn <- self$conn
