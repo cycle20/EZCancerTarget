@@ -56,9 +56,11 @@ AVAILABLE_PROVIDERS <- c("fda", "pubmed", "ema", "uniprot", "kegg", "string")
 #'
 #' @param providers Character vector of provider names to refresh.
 #' @param outputDir Output directory path.
+#' @param limit Optional integer; if set, cap the number of compounds and
+#'   proteins fed to each provider (useful for quick, low-volume test runs).
 #' @return Invisible NULL.
 #' @export
-main <- function(providers = NULL, outputDir = OUTPUT_DIR) {
+main <- function(providers = NULL, outputDir = OUTPUT_DIR, limit = NULL) {
   message("=== EZCancerTarget Data Refresh ===")
   message(glue::glue("Timestamp: {Sys.time()}"))
 
@@ -79,10 +81,13 @@ main <- function(providers = NULL, outputDir = OUTPUT_DIR) {
   }
 
   # Load input data (compounds and proteins to refresh)
-  inputData <- loadInputData(outputDir)
+  inputData <- loadInputData(outputDir, limit = limit)
   compounds <- inputData$compounds
   uniprotIds <- inputData$uniprotIds
 
+  if (!is.null(limit)) {
+    message(glue::glue("Limiting input to {limit} sample(s) per provider"))
+  }
   message(glue::glue("Input: {length(compounds)} compounds, {length(uniprotIds)} proteins"))
 
   # Refresh each provider
@@ -113,8 +118,10 @@ main <- function(providers = NULL, outputDir = OUTPUT_DIR) {
 #' Extracts compound names and UniProt IDs from available data sources.
 #'
 #' @param outputDir Output directory.
+#' @param limit Optional integer; if set, keep at most this many compounds and
+#'   proteins (applied after de-duplication) for low-volume test runs.
 #' @return List with compounds and uniprotIds vectors.
-loadInputData <- function(outputDir) {
+loadInputData <- function(outputDir, limit = NULL) {
   compounds <- character(0)
   uniprotIds <- character(0)
 
@@ -149,6 +156,29 @@ loadInputData <- function(outputDir) {
       compounds <- readRDS(pertListPath)
       message(glue::glue("Loaded {length(compounds)} compounds from backup"))
     }
+  }
+
+  if (length(uniprotIds) == 0) {
+    fullListPath <- "data/full_list.tsv"
+    if (file.exists(fullListPath)) {
+      fullList <- readr::read_tsv(
+        fullListPath,
+        col_types = readr::cols(.default = "c"),
+        show_col_types = FALSE
+      )
+      if ("UNIPROT_KB_ID" %in% names(fullList)) {
+        uniprotIds <- fullList %>%
+          dplyr::filter(!is.na(UNIPROT_KB_ID)) %>%
+          dplyr::pull(UNIPROT_KB_ID) %>%
+          unique()
+        message(glue::glue("Loaded {length(uniprotIds)} proteins from backup"))
+      }
+    }
+  }
+
+  if (!is.null(limit)) {
+    compounds <- head(compounds, limit)
+    uniprotIds <- head(uniprotIds, limit)
   }
 
   return(list(
@@ -416,9 +446,10 @@ listProviders <- function() {
     cat(glue::glue("  - {p}"), "\n", sep = "")
   }
   cat("\nUsage:\n")
-  cat("  Rscript R/refresh_data.R                    # Refresh all\n")
-  cat("  Rscript R/refresh_data.R --provider fda     # Refresh specific\n")
-  cat("  Rscript R/refresh_data.R --status           # Show status\n")
+  cat("  Rscript R/refresh_data.R                       # Refresh all\n")
+  cat("  Rscript R/refresh_data.R --provider fda        # Refresh specific\n")
+  cat("  Rscript R/refresh_data.R --provider fda --limit 5  # Low-volume test run\n")
+  cat("  Rscript R/refresh_data.R --status              # Show status\n")
 }
 
 
@@ -428,6 +459,19 @@ listProviders <- function() {
 if (!interactive()) {
   args <- commandArgs(trailingOnly = TRUE)
 
+  # Optional --limit N: cap samples per provider for low-volume test runs.
+  limit <- NULL
+  if ("--limit" %in% args) {
+    idx <- which(args == "--limit")
+    if (idx == length(args)) {
+      stop("--limit requires a value")
+    }
+    limit <- suppressWarnings(as.integer(args[idx + 1]))
+    if (is.na(limit) || limit < 1) {
+      stop("--limit requires a positive integer")
+    }
+  }
+
   if ("--list" %in% args) {
     listProviders()
   } else if ("--status" %in% args) {
@@ -436,11 +480,11 @@ if (!interactive()) {
     idx <- which(args == "--provider")
     if (idx < length(args)) {
       providers <- strsplit(args[idx + 1], ",")[[1]]
-      main(providers = providers)
+      main(providers = providers, limit = limit)
     } else {
       stop("--provider requires a value")
     }
   } else {
-    main()
+    main(limit = limit)
   }
 }

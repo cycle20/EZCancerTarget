@@ -106,7 +106,7 @@ available if strict image-subset parity ever becomes a hard requirement.)
 
 - `run_rocker.bash` → repoint `IMAGE` to `cycle20/ezct:3.1.0-dev` (the IDE image).
 - Add `run_pipeline.bash` (new) → runs the **slim** image non-interactively, e.g.
-  `docker run --rm -e CLUE_USER_KEY --network host cycle20/ezct:3.1.0 \
+  `docker run --rm --network host cycle20/ezct:3.1.0 \
    R -e 'source("R/clue.R"); main()'` (and equivalents for `dataPatch.R`,
   `renderWebPage.R`).
 - Add `run_tests.bash` (new) → `docker run --rm cycle20/ezct:3.1.0 \
