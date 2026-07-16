@@ -50,9 +50,9 @@ main <- function() {
   # prepare output directory
   dir.create(OUTPUT, recursive = TRUE, showWarnings = FALSE)
 
-  message("downloading data from clue.io...")
+  message("building drug-target table from local snapshot...")
   result <- download(targetListVector)
-  message("download finished")
+  message(glue::glue("built table: {nrow(result)} target-compound rows"))
 
 
   # create output files ---------------------------------------------------
@@ -64,53 +64,65 @@ main <- function() {
   saveRDS(targetList, TARGET_LIST.RDS)
 }
 
-#' Download data from endpoints.
+#' Build a target-centric drug table from the local snapshot.
 #'
-#' Download and join data from different
-#' clue.io REST API endpoints.
+#' The clue.io REST API is retired, so data now comes from the locally stored
+#' Broad Repurposing Hub snapshot (\code{PERTS.INPUT}). That snapshot is
+#' drug-centric: each row is a compound with a pipe-separated \code{target}
+#' field of HUGO gene symbols. This explodes it into a target-centric table
+#' (one row per HUGO/compound pair) and maps the available columns onto the
+#' schema the rest of the pipeline joins on. Columns that were only available
+#' from the retired API are kept as NA so downstream code stays intact.
 #'
-#' @param ... list of HUGO names of genes.
+#' @param targets Character vector of HUGO gene symbols to keep. When NULL,
+#'   all targets present in the snapshot are returned.
 #'
-#' @return Final data.frame composed from multiple datasets.
+#' @return Final data.frame keyed by HUGO.
 #' @import dplyr
-download <- function(...) {
+download <- function(targets = NULL) {
 
   perts <- readRDS(PERTS.INPUT)
 
-  repDrugTargets <- perts %>%
-    rename(HUGO = name) %>%
-    select(-c(id))
+  ## Explode the pipe-separated `target` field into one row per HUGO symbol.
+  ## (tidyr is not available in the runtime image, so use base-R row
+  ## expansion.) Drugs with no annotated target yield an NA HUGO and are
+  ## dropped below.
+  targetLists <- strsplit(as.character(perts$target), "\\|")
+  rowIndex <- rep(seq_len(nrow(perts)), lengths(targetLists))
+  result <- perts[rowIndex, , drop = FALSE]
+  result$HUGO <- trimws(unlist(targetLists))
 
-  ## joining tables
-  result <- repDrugTargets %>%
+  result <- result %>%
+    filter(!is.na(HUGO) & HUGO != "") %>%
+    ## `clinical_phase` is the snapshot's equivalent of the API `final_status`
+    rename(final_status = clinical_phase)
+
+  ## restrict to the requested target genes, if any
+  if (!is.null(targets) && length(targets) > 0) {
+    result <- result %>% filter(HUGO %in% targets)
+  }
+
+  ## Columns only available from the retired clue.io API; kept as NA so the
+  ## downstream schema (dataPatch.R / renderWebPage.R) stays intact.
+  apiOnlyColumns <- c(
+    "pubchem_cid", "synonyms", "chembl_id", "source", "ttd_id",
+    "status_source", "clinical_notes", "orange_book", "indication_source",
+    "rep_samples.pert_id", "rep_samples.InChIKey"
+  )
+  for (col in apiOnlyColumns) {
+    result[[col]] <- NA
+  }
+
+  ## re-position columns to the schema downstream code expects
+  columnOrder <- c(
+    "HUGO", "pert_iname", "pubchem_cid", "synonyms", "moa", "final_status",
+    "chembl_id", "source", "ttd_id", "status_source", "clinical_notes",
+    "orange_book", "disease_area", "indication", "indication_source",
+    "rep_samples.pert_id", "rep_samples.InChIKey"
+  )
+  result <- result %>%
     arrange(HUGO) %>%
-    mutate(
-      source = null.to.na(source),
-      orange_book = null.to.na(orange_book),
-    ) %>%
-    ## re-position and exclusion of columns
-    select(
-      HUGO,
-      pert_iname,
-      pubchem_cid,
-      synonyms,
-      moa,
-      final_status,
-      chembl_id,
-      source,
-      ttd_id,
-      # drugbank_id, NOTE: must be supplied from elsewhere. e.g. PubChem
-      status_source, ## source of final_status
-      clinical_notes,
-      orange_book,
-      disease_area,
-      indication,
-      indication_source,
-      rep_samples.pert_id,
-      rep_samples.InChIKey,
+    select(all_of(columnOrder))
 
-      ## exclude some optional columns
-      -c(in_cmap, iuphar_id, animal_only)
-    )
   return(result)
 }
